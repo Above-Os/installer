@@ -248,6 +248,40 @@ func (b *KubeBinary) Path() string {
 	return filepath.Join(b.BaseDir, b.FileName)
 }
 
+func (b *KubeBinary) UnTarHelm() error {
+	if helmCmd := b.GetHelmCmd(); helmCmd != "" {
+		cmd := exec.Command("/bin/sh", "-c", b.GetHelmCmd())
+		stdout, err := cmd.StdoutPipe()
+		if err != nil {
+			return err
+		}
+		cmd.Stderr = cmd.Stdout
+
+		if err = cmd.Start(); err != nil {
+			return err
+		}
+
+		for {
+			tmp := make([]byte, 1024)
+			_, err := stdout.Read(tmp)
+			if errors.Is(err, io.EOF) {
+				break
+			} else if err != nil {
+				logger.Error(err)
+				break
+			}
+		}
+
+		if err = cmd.Wait(); err != nil {
+			if os.Getenv("KKZONE") != "cn" {
+				logger.Warn("Having a problem with accessing https://storage.googleapis.com? You can try again after setting environment 'export KKZONE=cn'")
+			}
+			return err
+		}
+	}
+	return nil
+}
+
 func (b *KubeBinary) GetHelmCmd() string {
 	var cmd string
 	if b.ID == helm && b.Zone != "cn" {
@@ -337,35 +371,11 @@ func (b *KubeBinary) Download() error {
 				continue
 			}
 
-			// helm
-			cmd := exec.Command("/bin/sh", "-c", b.GetHelmCmd())
-			stdout, err := cmd.StdoutPipe()
-			if err != nil {
-				return err
-			}
-			cmd.Stderr = cmd.Stdout
-
-			if err = cmd.Start(); err != nil {
-				return err
-			}
-
-			for {
-				tmp := make([]byte, 1024)
-				_, err := stdout.Read(tmp)
-				fmt.Print(string(tmp)) // Get the output from the pipeline in real time and print it to the terminal
-				if errors.Is(err, io.EOF) {
-					break
-				} else if err != nil {
-					logger.Error(err)
-					break
-				}
-			}
-
-			if err = cmd.Wait(); err != nil {
-				if os.Getenv("KKZONE") != "cn" {
-					logger.Warn("Having a problem with accessing https://storage.googleapis.com? You can try again after setting environment 'export KKZONE=cn'")
-				}
-				return err
+			// + helm
+			if err = b.UnTarHelm(); err != nil {
+				logger.Errorf("untar helm failed: %v", err)
+				time.Sleep(1 * time.Second)
+				continue
 			}
 
 			if err := b.SHA256Check(); err != nil {

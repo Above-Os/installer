@@ -31,86 +31,12 @@ import (
 	"strings"
 	"time"
 
-	"bytetrade.io/web3os/installer/pkg/common"
 	"bytetrade.io/web3os/installer/pkg/core/logger"
-	"bytetrade.io/web3os/installer/pkg/core/util"
 	"bytetrade.io/web3os/installer/pkg/log"
 	"bytetrade.io/web3os/installer/pkg/utils"
 	"github.com/cavaliergopher/grab/v3"
 	"github.com/pkg/errors"
 )
-
-type InstallerPackage struct {
-	Type     string
-	ID       string // todo 这个字段貌似没啥用？
-	FileName string
-	Os       string
-	Arch     string
-	Version  string
-	Url      string
-	BaseDir  string
-	getCmd   func(path, url string) string
-}
-
-// + 需要整合第三方的下载库，这样才能监控下载进度
-// todo
-// todo 估计需要约定一个下载目录，比如 terminus-installer
-// todo 也可能需要结合 terminus.sh 的目录，在那里面来操作
-// todo 需要判断内网还是外网？
-func NewInstallerPackage(name, os, arch, version, prePath string) *InstallerPackage {
-	component := new(InstallerPackage)
-	component.ID = name
-	component.Os = os
-	component.Arch = arch
-	component.Version = version
-	// component.getCmd = getCmd
-
-	// install-wizard-linux-amd64-v1.0.0-full.tar.gz
-	// install-wizard-linux-arm64-v1.0.0-full.tar.gz
-	// install-wizard-linux-amd64-v1.0.0-mini.tar.gz
-	// install-wizard-linux-arm64-v1.0.0-mini.tar.gz
-	// install-wizard-{os}-{arch}-v{version}-{full|mini}.tar.gz
-	fileName := fmt.Sprintf("%s-%s-%s-v%s", common.DefaultPackageName, os, arch, version)
-
-	// todo 暂定两种包；后面肯定还要区分平台，版本
-	switch name {
-	case common.MiniPackage:
-		component.Type = common.MiniPackage
-		component.FileName = fmt.Sprintf("%s-%s.tar.gz", fileName, common.DefaultMiniPackageName)
-		component.Url = fmt.Sprintf("") // todo 需要考虑内、外网的场景
-	case common.FullPackage:
-		component.Type = common.MiniPackage
-		component.FileName = fmt.Sprintf("%s-%s.tar.gz", fileName, common.DefaultFullPackageName)
-		component.Url = fmt.Sprintf("") // todo 需要考虑内、外网的场景
-	default:
-		log.Fatalf("unsupported installer packages %s", name)
-	}
-
-	if component.BaseDir == "" {
-		component.BaseDir = filepath.Join(prePath, component.Type, component.Version, component.Arch)
-	}
-
-	component.Url = "http://192.168.50.32/install-wizard-full.tar.gz"
-
-	return component
-}
-
-func (p *InstallerPackage) CreateBaseDir() error {
-	if err := util.CreateDir(p.BaseDir); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (p *InstallerPackage) Path() string {
-	return filepath.Join(p.BaseDir, p.FileName)
-}
-
-func (p *InstallerPackage) Download() error {
-	return nil
-}
-
-// - split -
 
 const (
 	kubeadm    = "kubeadm"
@@ -356,7 +282,7 @@ func (b *KubeBinary) GetFileSize() (int64, error) {
 	return size, nil
 }
 
-func (b *KubeBinary) DownloadEx() error {
+func (b *KubeBinary) DownloadEx() error { // + new func
 	for i := 5; i > 0; i-- {
 		totalSize, err := b.GetFileSize()
 		if err != nil {
@@ -418,49 +344,11 @@ func (b *KubeBinary) DownloadEx() error {
 	}
 
 	return nil
-
-	// 	totalSize, err := b.GetFileSize()
-	// 	if err != nil {
-	// 		return err
-	// 	}
-
-	// 	client := grab.NewClient()
-	// 	req, _ := grab.NewRequest(fmt.Sprintf("%s/%s", b.BaseDir, b.FileName), b.Url)
-
-	// 	req.RateLimiter = NewLimiter(1024 * 2048) // ! debug
-
-	// 	resp := client.Do(req)
-
-	// 	t := time.NewTicker(500 * time.Millisecond)
-	// 	defer t.Stop()
-
-	// Loop:
-	// 	for {
-	// 		select {
-	// 		case <-t.C:
-	// 			downloaded := resp.BytesComplete()
-	// 			result := float64(downloaded) / float64(totalSize)
-	// 			fmt.Printf("  transferred %d / %d bytes (%.2f%%)\n",
-	// 				resp.BytesComplete(),
-	// 				totalSize,
-	// 				math.Round(result*10000)/100)
-	// 		case <-resp.Done:
-	// 			break Loop
-	// 		}
-	// 	}
-
-	// 	if err := resp.Err(); err != nil {
-	// 		// fmt.Fprintf(os.Stderr, "Download failed: %v\n", err)
-	// 		logger.Errorf("Download failed: %v", err)
-	// 		return err
-	// 	}
-
-	// return nil
 }
 
 func (b *KubeBinary) Download() error {
 	for i := 5; i > 0; i-- {
-		cmd := exec.Command("/bin/sh", "-c", b.GetCmd())
+		cmd := exec.Command("/bin/sh", "-c", b.GetCmd()) // ! Internally, special handling will be applied to helm.tar.gz
 		stdout, err := cmd.StdoutPipe()
 		if err != nil {
 			return err

@@ -248,6 +248,15 @@ func (b *KubeBinary) Path() string {
 	return filepath.Join(b.BaseDir, b.FileName)
 }
 
+func (b *KubeBinary) GetHelmCmd() string {
+	var cmd string
+	if b.ID == helm && b.Zone != "cn" {
+		cmd = fmt.Sprintf("cd %s && tar -zxf helm-%s-linux-%s.tar.gz && mv linux-%s/helm . && rm -rf *linux-%s*",
+			b.BaseDir, b.Version, b.Arch, b.Arch, b.Arch)
+	}
+	return cmd
+}
+
 func (b *KubeBinary) GetCmd() string {
 	cmd := b.getCmd(b.Path(), b.Url)
 
@@ -282,71 +291,101 @@ func (b *KubeBinary) GetFileSize() (int64, error) {
 	return size, nil
 }
 
-func (b *KubeBinary) DownloadEx() error { // + new func
-	for i := 5; i > 0; i-- {
-		totalSize, err := b.GetFileSize()
-		if err != nil {
-			return err
-		}
+func (b *KubeBinary) Download() error {
+	var newfunc bool = true
 
-		client := grab.NewClient()
-		req, _ := grab.NewRequest(fmt.Sprintf("%s/%s", b.BaseDir, b.FileName), b.Url)
-		req.RateLimiter = NewLimiter(1024 * 4096) // ! debug
-		req.HTTPRequest = req.HTTPRequest.WithContext(context.Background())
-		ctx, cancel := context.WithTimeout(req.HTTPRequest.Context(), 5*time.Minute)
-		defer cancel()
-
-		req.HTTPRequest = req.HTTPRequest.WithContext(ctx)
-		resp := client.Do(req)
-
-		t := time.NewTicker(500 * time.Millisecond)
-		defer t.Stop()
-
-	Loop:
-		for {
-			select {
-			case <-t.C:
-				downloaded := resp.BytesComplete()
-				result := float64(downloaded) / float64(totalSize)
-				fmt.Printf("  transferred %d / %d bytes (%.2f%%)\n",
-					resp.BytesComplete(),
-					totalSize,
-					math.Round(result*10000)/100)
-			case <-resp.Done:
-				break Loop
-			}
-		}
-
-		if err := resp.Err(); err != nil {
-			// fmt.Fprintf(os.Stderr, "Download failed: %v\n", err)
-			logger.Errorf("Download failed: %v", err)
-			if i == 1 {
-				log.Error("All download attempts failed")
+	if newfunc {
+		for i := 5; i > 0; i-- {
+			totalSize, err := b.GetFileSize()
+			if err != nil {
 				return err
 			}
-			time.Sleep(2 * time.Second)
-			continue
-		}
 
-		if err := b.SHA256Check(); err != nil {
-			log.Errorf("SHA256 check failed: %v", err)
-			if i == 1 {
+			client := grab.NewClient()
+			req, _ := grab.NewRequest(fmt.Sprintf("%s/%s", b.BaseDir, b.FileName), b.Url)
+			req.RateLimiter = NewLimiter(1024 * 4096) // ! debug
+			req.HTTPRequest = req.HTTPRequest.WithContext(context.Background())
+			ctx, cancel := context.WithTimeout(req.HTTPRequest.Context(), 5*time.Minute)
+			defer cancel()
+
+			req.HTTPRequest = req.HTTPRequest.WithContext(ctx)
+			resp := client.Do(req)
+
+			t := time.NewTicker(500 * time.Millisecond)
+			defer t.Stop()
+
+		Loop:
+			for {
+				select {
+				case <-t.C:
+					downloaded := resp.BytesComplete()
+					result := float64(downloaded) / float64(totalSize)
+					logger.Infof("  transferred %s %d / %d bytes (%.2f%%)", b.FileName, resp.BytesComplete(), totalSize, math.Round(result*10000)/100)
+				case <-resp.Done:
+					break Loop
+				}
+			}
+
+			if err := resp.Err(); err != nil {
+				// fmt.Fprintf(os.Stderr, "Download failed: %v\n", err)
+				logger.Errorf("Download failed: %v", err)
+				if i == 1 {
+					log.Error("All download attempts failed")
+					return err
+				}
+				time.Sleep(2 * time.Second)
+				continue
+			}
+
+			// helm
+			cmd := exec.Command("/bin/sh", "-c", b.GetHelmCmd())
+			stdout, err := cmd.StdoutPipe()
+			if err != nil {
 				return err
 			}
-			path := b.Path()
-			_ = exec.Command("/bin/sh", "-c", fmt.Sprintf("rm -f %s", path)).Run()
-			time.Sleep(2 * time.Second)
-			continue
+			cmd.Stderr = cmd.Stdout
+
+			if err = cmd.Start(); err != nil {
+				return err
+			}
+
+			for {
+				tmp := make([]byte, 1024)
+				_, err := stdout.Read(tmp)
+				fmt.Print(string(tmp)) // Get the output from the pipeline in real time and print it to the terminal
+				if errors.Is(err, io.EOF) {
+					break
+				} else if err != nil {
+					logger.Error(err)
+					break
+				}
+			}
+
+			if err = cmd.Wait(); err != nil {
+				if os.Getenv("KKZONE") != "cn" {
+					logger.Warn("Having a problem with accessing https://storage.googleapis.com? You can try again after setting environment 'export KKZONE=cn'")
+				}
+				return err
+			}
+
+			if err := b.SHA256Check(); err != nil {
+				log.Errorf("SHA256 check failed: %v", err)
+				if i == 1 {
+					return err
+				}
+				path := b.Path()
+				_ = exec.Command("/bin/sh", "-c", fmt.Sprintf("rm -f %s", path)).Run()
+				time.Sleep(2 * time.Second)
+				continue
+			}
+
+			log.Info("Download succeeded")
+			break
 		}
 
-		log.Info("Download succeeded")
-		break
+		return nil
 	}
 
-	return nil
-}
-
-func (b *KubeBinary) Download() error {
 	for i := 5; i > 0; i-- {
 		cmd := exec.Command("/bin/sh", "-c", b.GetCmd()) // ! Internally, special handling will be applied to helm.tar.gz
 		stdout, err := cmd.StdoutPipe()

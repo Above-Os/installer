@@ -41,7 +41,7 @@ func DownloadPackage(kubeConf *common.KubeConf, path, version, arch string, pipe
 		}
 
 		// todo
-		if err := downloadFile.DownloadEx(); err != nil {
+		if err := downloadFile.Download(); err != nil {
 			return fmt.Errorf("Failed to download %s binary: %s error: %w ", downloadFile.ID, downloadFile.GetCmd(), err)
 		}
 	}

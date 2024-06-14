@@ -1,0 +1,18 @@
+
+@URL = 127.0.0.1:30180
+
+
+### ~ test
+POST http://{{URL}}/api/backend/v1/test HTTP/1.1 
+Content-Type: application/json
+
+{}
+
+
+### ~ download
+POST http://{{URL}}/api/backend/v1/download HTTP/1.1 
+Content-Type: application/json
+
+{}
+
+

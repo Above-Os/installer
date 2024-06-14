@@ -1,2 +1,1 @@
 # installer
-Terminus Installer

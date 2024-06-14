@@ -1,0 +1,42 @@
+project_name: terminus-installer
+
+before:
+  hooks:
+  - go mod tidy
+
+builds:
+- env:
+  - CGO_ENABLED=0
+  main: ./cmd/main.go
+  goos:
+  - linux
+  - darwin
+  goarch:
+  - amd64
+  - arm64
+  tags: containers_image_openpgp
+  ldflags:
+  - -w
+  - -s
+
+dist: ./output
+archives:
+- id: terminus-installer
+  name_template: "{{ .ProjectName }}-v{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+  # replacements:
+  #   linux: linux
+  #   amd64: amd64
+  #   arm64: arm64
+  files:
+  - none*
+checksum:
+  name_template: 'checksums.txt'
+snapshot:
+  name_template: "{{ .Version }}-next-{{.ShortCommit}}"
+changelog:
+  skip: true
+  sort: asc
+  filters:
+    exclude:
+    - "^docs:"
+    - "^test:"

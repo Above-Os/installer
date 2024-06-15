@@ -29,6 +29,14 @@ jobs:
       id: get-latest-tag
       with:
         fallback: latest
+      
+    - name: Setup Node
+      uses: actions/setup-node@v1
+      with:
+        node-version: "18"
+
+    - name: Build
+      run: cd fontend;npm install;npm run build
 
     - name: Run GoReleaser
       uses: goreleaser/goreleaser-action@v3.1.0

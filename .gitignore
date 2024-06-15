@@ -22,5 +22,6 @@ go.work
 go.work.sum
 
 frontend/dist/
+frontend/node_modules/
 
 output/

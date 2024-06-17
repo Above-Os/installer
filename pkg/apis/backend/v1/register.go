@@ -38,6 +38,12 @@ func AddContainer(c *restful.Container) error {
 		Metadata(restfulspec.KeyOpenAPITags, tags).
 		Returns(http.StatusOK, "", response.Response{}))
 
+	ws.Route(ws.POST("/install_terminus").
+		To(handler.handlerInstallTerminus).
+		Doc("").
+		Metadata(restfulspec.KeyOpenAPITags, tags).
+		Returns(http.StatusOK, "", response.Response{}))
+
 	c.Add(ws)
 
 	return nil

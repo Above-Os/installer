@@ -64,6 +64,7 @@ const (
 	file2 = "file2"
 	file3 = "file3"
 
+	pkg     = "package"
 	fullpkg = "full-package" // 这个大概率只会用于测试
 	minipkg = "mini-package" // 这个大概率只会用于测试
 )
@@ -92,6 +93,7 @@ type KubeBinary struct {
 	Url      string
 	BaseDir  string
 	Zone     string
+	CheckSum bool
 	getCmd   func(path, url string) string
 }
 
@@ -100,7 +102,9 @@ func NewKubeBinary(name, arch, version, prePath string, getCmd func(path, url st
 	component.ID = name
 	component.Arch = arch
 	component.Version = version
+	component.CheckSum = true
 	component.Zone = os.Getenv("KKZONE")
+
 	component.getCmd = getCmd
 
 	switch name {
@@ -230,14 +234,16 @@ func NewKubeBinary(name, arch, version, prePath string, getCmd func(path, url st
 		component.Type = INSTALLER
 		component.FileName = fmt.Sprintf("file3_%s_v%s.tar.gz", arch, version)
 		component.Url = "http://192.168.50.32/kubernetes-release/release/v1.22.10/bin/linux/amd64/kubelet"
-	case kubekey: // ~ 模拟 kk 的下载和安装
+	case kubekey: // ! 模拟 kk 的下载和安装
 		component.Type = INSTALLER
 		component.FileName = fmt.Sprintf("kubekey-ext-v%s-linux-%s.tar.gz", version, arch)
 		component.Url = fmt.Sprintf("https://github.com/beclab/kubekey-ext/releases/download/%s/kubekey-ext-v%s-linux-%s.tar.gz", version, version, arch)
-	case fullpkg: // ~ 模拟 full 包下载和安装
+	case fullpkg: // ! 模拟 full 包下载和安装
 		component.Type = INSTALLER
 		component.FileName = fmt.Sprintf("install-wizard_%s_full.tar.gz", arch)
 		component.Url = "http://192.168.50.32/install-wizard-full.tar.gz"
+		component.CheckSum = false
+		component.BaseDir = filepath.Join(prePath, component.Type, pkg, component.Arch)
 	default:
 		log.Fatalf("unsupported kube binaries %s", name)
 	}
@@ -360,7 +366,7 @@ func (b *KubeBinary) Download() error {
 
 			client := grab.NewClient()
 			req, _ := grab.NewRequest(fmt.Sprintf("%s/%s", b.BaseDir, b.FileName), b.Url)
-			req.RateLimiter = NewLimiter(1024 * 4096) // ! debug
+			// req.RateLimiter = NewLimiter(1024 * 4096) // ! debug
 			req.HTTPRequest = req.HTTPRequest.WithContext(context.Background())
 			ctx, cancel := context.WithTimeout(req.HTTPRequest.Context(), 5*time.Minute)
 			defer cancel()
@@ -394,14 +400,13 @@ func (b *KubeBinary) Download() error {
 				continue
 			}
 
-			// + untar
 			if err = b.UntarCmd(); err != nil {
 				logger.Errorf("untar failed: %v", err)
 				time.Sleep(1 * time.Second)
 				continue
 			}
 
-			if err := b.SHA256Check(); err != nil {
+			if err := b.SHA256Check(); err != nil { // ~ checksum
 				log.Errorf("SHA256 check failed: %v", err)
 				if i == 1 {
 					return err
@@ -424,6 +429,9 @@ func (b *KubeBinary) Download() error {
 
 // SHA256Check is used to hash checks on downloaded binary. (sha256)
 func (b *KubeBinary) SHA256Check() error {
+	if !b.CheckSum {
+		return nil
+	}
 	output, err := util.Sha256sum(b.Path())
 	if err != nil {
 		return errors.Wrap(err, fmt.Sprintf("Failed to check SHA256 of %s", b.Path()))

@@ -14,10 +14,16 @@ func (m *PackagesModule) Init() {
 	m.Desc = "Download installer packages"
 
 	download := &task.LocalTask{
-		Name:   "DownloadPackages",
+		Name:   "DownloadPackage",
 		Desc:   "Download installer packages",
 		Action: new(PackageDownload),
 	}
 
-	m.Tasks = []task.Interface{download}
+	untar := &task.LocalTask{
+		Name:   "UntarPackage",
+		Desc:   "Untar installer package",
+		Action: new(PackageUntar),
+	}
+
+	m.Tasks = []task.Interface{download, untar}
 }

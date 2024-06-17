@@ -12,6 +12,7 @@ import (
 	"github.com/pkg/errors"
 )
 
+// + 测试 full 包下载
 func DownloadInstallPackage(kubeConf *common.KubeConf, path, version, arch string, pipelineCache *cache.Cache) error {
 	installPackage := files.NewKubeBinary("full-package", arch, version, path, kubeConf.Arg.DownloadCommand)
 
@@ -28,11 +29,12 @@ func DownloadInstallPackage(kubeConf *common.KubeConf, path, version, arch strin
 				p := downloadFile.Path()
 				_ = exec.Command("/bin/sh", "-c", fmt.Sprintf("rm -f %s", p)).Run()
 			} else {
-				logger.Infof(common.LocalHost, "%s is existed", downloadFile.ID)
+				logger.Infof("%s %s is existed", common.LocalHost, downloadFile.FileName)
 				continue
 			}
 		}
 
+		// todo doanload
 		if err := downloadFile.Download(); err != nil {
 			return fmt.Errorf("Failed to download %s binary: %s error: %w ", downloadFile.ID, downloadFile.GetCmd(), err)
 		}

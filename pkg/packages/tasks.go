@@ -21,6 +21,8 @@ import (
 
 	"bytetrade.io/web3os/installer/pkg/common"
 	"bytetrade.io/web3os/installer/pkg/core/connector"
+	"bytetrade.io/web3os/installer/pkg/core/logger"
+	"bytetrade.io/web3os/installer/pkg/core/util"
 )
 
 type PackageDownload struct {
@@ -32,6 +34,32 @@ func (d *PackageDownload) Execute(runtime connector.Runtime) error {
 	fmt.Println("---PackageDownload / Execute---")
 
 	var arch = "amd64"
-	DownloadPackage(d.KubeConf, runtime.GetWorkDir(), "0.0.1", arch, d.PipelineCache)
+	// DownloadPackage(d.KubeConf, runtime.GetWorkDir(), "0.0.1", arch, d.PipelineCache)
+	if err := DownloadInstallPackage(d.KubeConf, runtime.GetWorkDir(), "0.0.1", arch, d.PipelineCache); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// todo 这里是一个测试解压 full 包的 action
+type PackageUntar struct {
+	common.KubeAction
+}
+
+func (a *PackageUntar) Execute(runtime connector.Runtime) error {
+	var pkgFile = fmt.Sprintf("%s/installer/package/amd64/install-wizard_amd64_full.tar.gz", runtime.GetWorkDir())
+	if ok := util.IsExist(pkgFile); !ok {
+		return fmt.Errorf("package %s not exist", pkgFile)
+	}
+
+	if err := util.RemoveDir("/home/zhaoyu/install-wizard"); err != nil {
+		return fmt.Errorf("remove %s failed %v", "/home/zhaoyu/install-wizard", err)
+	}
+
+	if err := util.Untar(pkgFile, "/home/zhaoyu/install-wizard"); err != nil {
+		return fmt.Errorf("untar %s failed %v", pkgFile, err)
+	}
+	logger.Infof("untar %s success", pkgFile)
 	return nil
 }

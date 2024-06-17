@@ -12,8 +12,10 @@ type Terminus struct {
 
 func (a *Terminus) Execute(runtime connector.Runtime) error {
 	installCmd := "bash /home/zhaoyu/install-wizard/install_cmd.sh"
+	runtime.GetRunner().SudoCmd(installCmd, false)
 	if _, err := runtime.GetRunner().SudoCmd(installCmd, false); err != nil {
 		return errors.Wrapf(errors.WithStack(err), "install terminus failed")
 	}
+
 	return nil
 }

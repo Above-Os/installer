@@ -14,7 +14,7 @@ import (
 func staticFromPathParam(req *restful.Request, resp *restful.Response) {
 	log.Infof("handler static req: %s", req.Request.Method)
 	subpath := req.PathParameter("subpath")
-	actual := path.Join("dist", subpath)
+	actual := path.Join("dist/spa", subpath)
 
 	file, err := frontend.Assets().Open(actual)
 	if err != nil {
@@ -64,7 +64,7 @@ func staticFromPathParam(req *restful.Request, resp *restful.Response) {
 // ! ⚠️ 暂时废弃
 func staticFromQueryParam(req *restful.Request, resp *restful.Response) {
 	resource := req.QueryParameter("resource") // todo why here is resource?
-	actual := path.Join("dist", resource)
+	actual := path.Join("dist/spa", resource)
 
 	file, err := frontend.Assets().Open(actual)
 	if err != nil {

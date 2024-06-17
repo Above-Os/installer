@@ -78,8 +78,8 @@ func (s *APIServer) installAPIDocs() {
 func (s *APIServer) installStaticResources() {
 	ws := &restful.WebService{}
 
-	ws.Route(ws.GET("/static/{subpath:*}").To(staticFromPathParam))
-	// ws.Route(ws.GET("/static").To(staticFromQueryParam))
+	ws.Route(ws.GET("/web/{subpath:*}").To(staticFromPathParam))
+	// ws.Route(ws.GET("/web").To(staticFromQueryParam))
 
 	s.container.Add(ws)
 }

@@ -5,6 +5,7 @@ import (
 	"bytetrade.io/web3os/installer/pkg/core/module"
 	"bytetrade.io/web3os/installer/pkg/core/pipeline"
 	"bytetrade.io/web3os/installer/pkg/install"
+	"bytetrade.io/web3os/installer/pkg/packages"
 )
 
 func InstallTerminusPipeline(args common.Argument) error {
@@ -21,6 +22,7 @@ func InstallTerminusPipeline(args common.Argument) error {
 	}
 
 	m := []module.Module{
+		&packages.PackagesModule{},
 		&install.InstallTerminusModule{},
 	}
 

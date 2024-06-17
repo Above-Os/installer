@@ -18,10 +18,8 @@ package files
 
 import (
 	"context"
-	"crypto/sha256"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"math"
 	"net/http"
 	"os"
@@ -32,6 +30,7 @@ import (
 	"time"
 
 	"bytetrade.io/web3os/installer/pkg/core/logger"
+	"bytetrade.io/web3os/installer/pkg/core/util"
 	"bytetrade.io/web3os/installer/pkg/log"
 	"bytetrade.io/web3os/installer/pkg/utils"
 	"github.com/cavaliergopher/grab/v3"
@@ -65,8 +64,8 @@ const (
 	file2 = "file2"
 	file3 = "file3"
 
-	fullpkg = "full-package"
-	minipkg = "mini-package"
+	fullpkg = "full-package" // 这个大概率只会用于测试
+	minipkg = "mini-package" // 这个大概率只会用于测试
 )
 
 // KubeBinary Type field const
@@ -231,11 +230,11 @@ func NewKubeBinary(name, arch, version, prePath string, getCmd func(path, url st
 		component.Type = INSTALLER
 		component.FileName = fmt.Sprintf("file3_%s_v%s.tar.gz", arch, version)
 		component.Url = "http://192.168.50.32/kubernetes-release/release/v1.22.10/bin/linux/amd64/kubelet"
-	case kubekey: // + 可以先模拟一个 kk 的下载和安装
+	case kubekey: // ~ 模拟 kk 的下载和安装
 		component.Type = INSTALLER
 		component.FileName = fmt.Sprintf("kubekey-ext-v%s-linux-%s.tar.gz", version, arch)
 		component.Url = fmt.Sprintf("https://github.com/beclab/kubekey-ext/releases/download/%s/kubekey-ext-v%s-linux-%s.tar.gz", version, version, arch)
-	case fullpkg:
+	case fullpkg: // ~ 模拟 full 包下载和安装
 		component.Type = INSTALLER
 		component.FileName = fmt.Sprintf("install-wizard_%s_full.tar.gz", arch)
 		component.Url = "http://192.168.50.32/install-wizard-full.tar.gz"
@@ -425,7 +424,7 @@ func (b *KubeBinary) Download() error {
 
 // SHA256Check is used to hash checks on downloaded binary. (sha256)
 func (b *KubeBinary) SHA256Check() error {
-	output, err := sha256sum(b.Path())
+	output, err := util.Sha256sum(b.Path())
 	if err != nil {
 		return errors.Wrap(err, fmt.Sprintf("Failed to check SHA256 of %s", b.Path()))
 	}
@@ -437,20 +436,6 @@ func (b *KubeBinary) SHA256Check() error {
 		return errors.New(fmt.Sprintf("SHA256 no match. %s not equal %s", b.GetSha256(), output))
 	}
 	return nil
-}
-
-func sha256sum(path string) (string, error) {
-	file, err := os.Open(path)
-	if err != nil {
-		return "", err
-	}
-	defer file.Close()
-
-	data, err := ioutil.ReadAll(file)
-	if err != nil {
-		return "", err
-	}
-	return fmt.Sprintf("%x", sha256.Sum256(data)), nil
 }
 
 var (

@@ -41,6 +41,7 @@ func NewCmdApi() *cobra.Command {
 func Run(option *options.ApiOptions) error {
 	log.InitLog(option.LogLevel)
 	constants.ApiServerListenAddress = option.Port
+	constants.Proxy = option.Proxy
 
 	log.Infow("[Installer] API Server startup flags",
 		"enabled", option.Enabled,

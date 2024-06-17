@@ -20,6 +20,7 @@ import (
 	"archive/tar"
 	"compress/gzip"
 	"crypto/md5"
+	"crypto/sha256"
 	"fmt"
 	"io"
 	"io/fs"
@@ -106,6 +107,20 @@ func FileMD5(path string) (string, error) {
 
 	fileMd5 := fmt.Sprintf("%x", m.Sum(nil))
 	return fileMd5, nil
+}
+
+func Sha256sum(path string) (string, error) {
+	file, err := os.Open(path)
+	if err != nil {
+		return "", err
+	}
+	defer file.Close()
+
+	data, err := ioutil.ReadAll(file)
+	if err != nil {
+		return "", err
+	}
+	return fmt.Sprintf("%x", sha256.Sum256(data)), nil
 }
 
 func LocalMd5Sum(src string) string {

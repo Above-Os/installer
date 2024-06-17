@@ -54,6 +54,7 @@ func (h *Handler) handlerInstallKk(req *restful.Request, resp *restful.Response)
 	response.SuccessNoData(resp)
 }
 
+// todo 一个完整的测试流程，下载 full 包并安装
 func (h *Handler) handlerInstallTerminus(req *restful.Request, resp *restful.Response) {
 	log.Infof("handler installer req: %s", req.Request.Method)
 

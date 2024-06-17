@@ -21,9 +21,7 @@ func NewPackageDownloadPipeline(runtime *common.KubeRuntime) error {
 		Runtime: runtime,
 	}
 
-	if err := p.Start(); err != nil {
-		return err
-	}
+	go p.Start()
 
 	return nil
 }

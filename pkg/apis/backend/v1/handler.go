@@ -7,6 +7,7 @@ import (
 	"bytetrade.io/web3os/installer/pkg/common"
 	"bytetrade.io/web3os/installer/pkg/log"
 	"bytetrade.io/web3os/installer/pkg/phase/download"
+	"bytetrade.io/web3os/installer/pkg/pipelines"
 	"github.com/emicklei/go-restful/v3"
 )
 
@@ -34,13 +35,32 @@ func (h *Handler) handlerDownload(req *restful.Request, resp *restful.Response) 
 	arg := common.Argument{}
 
 	if err := download.CreateDownload(arg, "curl -L -o %s %s"); err != nil {
-		fmt.Println("---api download / err---", err)
+		log.Errorf("download failed %v", err)
 	}
 
 	response.SuccessNoData(resp)
 }
 
-func (h *Handler) handlerInstaller(req *restful.Request, resp *restful.Response) {
+// ~ 测试安装 kk
+func (h *Handler) handlerInstallKk(req *restful.Request, resp *restful.Response) {
 	log.Infof("handler installer req: %s", req.Request.Method)
+
+	arg := common.Argument{}
+
+	if err := pipelines.InstallKubekeyPipeline(arg); err != nil {
+		fmt.Println("---api installer kk / err---", err)
+	}
+
+	response.SuccessNoData(resp)
+}
+
+func (h *Handler) handlerInstallTerminus(req *restful.Request, resp *restful.Response) {
+	log.Infof("handler installer req: %s", req.Request.Method)
+
+	arg := common.Argument{}
+	if err := pipelines.InstallTerminusPipeline(arg); err != nil {
+		fmt.Println("---api installer terminus / err---", err)
+	}
+
 	response.SuccessNoData(resp)
 }

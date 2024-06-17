@@ -59,9 +59,14 @@ const (
 
 	// todo 安装包会进行拆分，可能不会再有 full 包了
 	// todo 所以我可以假设 f1.tar.gz f2.tar.gz f3.tar.gz ...
+	kubekey = "kubekey"
+
 	file1 = "file1"
 	file2 = "file2"
 	file3 = "file3"
+
+	fullpkg = "full-package"
+	minipkg = "mini-package"
 )
 
 // KubeBinary Type field const
@@ -226,6 +231,14 @@ func NewKubeBinary(name, arch, version, prePath string, getCmd func(path, url st
 		component.Type = INSTALLER
 		component.FileName = fmt.Sprintf("file3_%s_v%s.tar.gz", arch, version)
 		component.Url = "http://192.168.50.32/kubernetes-release/release/v1.22.10/bin/linux/amd64/kubelet"
+	case kubekey: // + 可以先模拟一个 kk 的下载和安装
+		component.Type = INSTALLER
+		component.FileName = fmt.Sprintf("kubekey-ext-v%s-linux-%s.tar.gz", version, arch)
+		component.Url = fmt.Sprintf("https://github.com/beclab/kubekey-ext/releases/download/%s/kubekey-ext-v%s-linux-%s.tar.gz", version, version, arch)
+	case fullpkg:
+		component.Type = INSTALLER
+		component.FileName = fmt.Sprintf("install-wizard_%s_full.tar.gz", arch)
+		component.Url = "http://192.168.50.32/install-wizard-full.tar.gz"
 	default:
 		log.Fatalf("unsupported kube binaries %s", name)
 	}
@@ -248,9 +261,10 @@ func (b *KubeBinary) Path() string {
 	return filepath.Join(b.BaseDir, b.FileName)
 }
 
-func (b *KubeBinary) UnTarHelm() error {
-	if helmCmd := b.GetHelmCmd(); helmCmd != "" {
-		cmd := exec.Command("/bin/sh", "-c", b.GetHelmCmd())
+func (b *KubeBinary) UntarCmd() error {
+	untarCmd := b.GetTarCmd()
+	if untarCmd != "" {
+		cmd := exec.Command("/bin/sh", "-c", untarCmd)
 		stdout, err := cmd.StdoutPipe()
 		if err != nil {
 			return err
@@ -282,11 +296,15 @@ func (b *KubeBinary) UnTarHelm() error {
 	return nil
 }
 
-func (b *KubeBinary) GetHelmCmd() string {
+func (b *KubeBinary) GetTarCmd() string {
 	var cmd string
 	if b.ID == helm && b.Zone != "cn" {
 		cmd = fmt.Sprintf("cd %s && tar -zxf helm-%s-linux-%s.tar.gz && mv linux-%s/helm . && rm -rf *linux-%s*",
 			b.BaseDir, b.Version, b.Arch, b.Arch, b.Arch)
+	}
+	if b.ID == kubekey {
+		cmd = fmt.Sprintf("cd %s && tar -zxf kubekey-ext-v%s-linux-%s.tar.gz",
+			b.BaseDir, b.Version, b.Arch)
 	}
 	return cmd
 }
@@ -335,6 +353,12 @@ func (b *KubeBinary) Download() error {
 				return err
 			}
 
+			// parsedUrl, err := url.Parse(b.Url)
+			// if err != nil {
+			// 	return fmt.Errorf("failed to parse URL: %v", err)
+			// }
+			// fileName := path.Base(parsedUrl.Path)
+
 			client := grab.NewClient()
 			req, _ := grab.NewRequest(fmt.Sprintf("%s/%s", b.BaseDir, b.FileName), b.Url)
 			req.RateLimiter = NewLimiter(1024 * 4096) // ! debug
@@ -371,9 +395,9 @@ func (b *KubeBinary) Download() error {
 				continue
 			}
 
-			// + helm
-			if err = b.UnTarHelm(); err != nil {
-				logger.Errorf("untar helm failed: %v", err)
+			// + untar
+			if err = b.UntarCmd(); err != nil {
+				logger.Errorf("untar failed: %v", err)
 				time.Sleep(1 * time.Second)
 				continue
 			}
@@ -396,45 +420,6 @@ func (b *KubeBinary) Download() error {
 		return nil
 	}
 
-	for i := 5; i > 0; i-- {
-		cmd := exec.Command("/bin/sh", "-c", b.GetCmd()) // ! Internally, special handling will be applied to helm.tar.gz
-		stdout, err := cmd.StdoutPipe()
-		if err != nil {
-			return err
-		}
-		cmd.Stderr = cmd.Stdout
-
-		if err = cmd.Start(); err != nil {
-			return err
-		}
-		for {
-			tmp := make([]byte, 1024)
-			_, err := stdout.Read(tmp)
-			fmt.Print(string(tmp)) // Get the output from the pipeline in real time and print it to the terminal
-			if errors.Is(err, io.EOF) {
-				break
-			} else if err != nil {
-				logger.Error(err)
-				break
-			}
-		}
-		if err = cmd.Wait(); err != nil {
-			if os.Getenv("KKZONE") != "cn" {
-				logger.Warn("Having a problem with accessing https://storage.googleapis.com? You can try again after setting environment 'export KKZONE=cn'")
-			}
-			return err
-		}
-
-		if err := b.SHA256Check(); err != nil {
-			if i == 1 {
-				return err
-			}
-			path := b.Path()
-			_ = exec.Command("/bin/sh", "-c", fmt.Sprintf("rm -f %s", path)).Run()
-			continue
-		}
-		break
-	}
 	return nil
 }
 
@@ -565,6 +550,11 @@ var (
 			arm64: {
 				"v1.22.0": "a713c37fade0d96a989bc15ebe906e08ef5c8fe5e107c2161b0665e9963b770e",
 				"v1.23.0": "91094253e77094435027998a99b9b6a67b0baad3327975365f7715a1a3bd9595",
+			},
+		},
+		kubekey: {
+			amd64: {
+				"0.1.20": "609c20044dce0df0ac54e6e6d46ec2fa98ff196119d8f334c76a2d3f7e4a8c59",
 			},
 		},
 	}

@@ -360,6 +360,7 @@ func (c *connection) Exec(cmd string, host Host) (stdout string, code int, err e
 		output = append(output, b)
 
 		if b == byte('\n') {
+			fmt.Println(line) // + 临时增加这段用于测试，后面应该是会删除的
 			line = ""
 			continue
 		}

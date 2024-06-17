@@ -14,11 +14,12 @@ import (
 
 func DownloadPackage(kubeConf *common.KubeConf, path, version, arch string, pipelineCache *cache.Cache) error {
 	// todo 这里会涉及多个文件的下载，且还会涉及 md5 的校验；同时还包括本地文件检查
-	file1 := files.NewKubeBinary("file1", arch, version, path, kubeConf.Arg.DownloadCommand)
-	file2 := files.NewKubeBinary("file2", arch, version, path, kubeConf.Arg.DownloadCommand)
-	file3 := files.NewKubeBinary("file3", arch, version, path, kubeConf.Arg.DownloadCommand)
+	// file1 := files.NewKubeBinary("file1", arch, version, path, kubeConf.Arg.DownloadCommand)
+	// file2 := files.NewKubeBinary("file2", arch, version, path, kubeConf.Arg.DownloadCommand)
+	// file3 := files.NewKubeBinary("file3", arch, version, path, kubeConf.Arg.DownloadCommand)
+	file4 := files.NewKubeBinary("kubekey", arch, "0.1.20", path, kubeConf.Arg.DownloadCommand) // todo test kubekey
 
-	downloadFiles := []*files.KubeBinary{file1, file2, file3}
+	downloadFiles := []*files.KubeBinary{file4}
 
 	filesMap := make(map[string]*files.KubeBinary)
 	for _, downloadFile := range downloadFiles {

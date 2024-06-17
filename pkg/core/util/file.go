@@ -55,6 +55,16 @@ func CreateDir(path string) error {
 	return nil
 }
 
+func RemoveDir(path string) error {
+	if IsExist(path) == true {
+		err := os.RemoveAll(path)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 func IsDir(path string) bool {
 	s, err := os.Stat(path)
 	if err != nil {
@@ -120,6 +130,26 @@ func MkFileFullPathDir(fileName string) error {
 
 func Mkdir(dirName string) error {
 	return os.MkdirAll(dirName, os.ModePerm)
+}
+
+func CopyFile(src, dst string) error {
+	srcFile, err := os.Open(src)
+	if err != nil {
+		return err
+	}
+	defer srcFile.Close()
+
+	dstFile, err := os.Create(dst)
+	if err != nil {
+		return err
+	}
+	defer dstFile.Close()
+
+	_, err = io.Copy(dstFile, srcFile)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func WriteFile(fileName string, content []byte) error {

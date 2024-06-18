@@ -16,6 +16,7 @@ import (
 	"bytetrade.io/web3os/installer/pkg/etcd"
 	"bytetrade.io/web3os/installer/pkg/filesystem"
 	"bytetrade.io/web3os/installer/pkg/images"
+	"bytetrade.io/web3os/installer/pkg/k3s"
 	"bytetrade.io/web3os/installer/pkg/kubernetes"
 	"bytetrade.io/web3os/installer/pkg/kubesphere"
 	"bytetrade.io/web3os/installer/pkg/loadbalancer"
@@ -24,6 +25,49 @@ import (
 	"bytetrade.io/web3os/installer/pkg/plugins/network"
 	"bytetrade.io/web3os/installer/pkg/plugins/storage"
 )
+
+func NewK3sCreateClusterPhase(runtime *common.KubeRuntime) []module.Module {
+	noArtifact := runtime.Arg.Artifact == ""
+	skipPushImages := runtime.Arg.SKipPushImages || noArtifact || (!noArtifact && runtime.Cluster.Registry.PrivateRegistry == "")
+	skipLocalStorage := true
+	if runtime.Arg.DeployLocalStorage != nil {
+		skipLocalStorage = !*runtime.Arg.DeployLocalStorage
+	} else if runtime.Cluster.KubeSphere.Enabled {
+		skipLocalStorage = false
+	}
+
+	m := []module.Module{
+		&precheck.GreetingsModule{},
+		&artifact.UnArchiveModule{Skip: noArtifact},
+		&os.RepositoryModule{Skip: noArtifact || !runtime.Arg.InstallPackages},
+		&binaries.K3sNodeBinariesModule{},
+		&os.ConfigureOSModule{},
+		&k3s.StatusModule{},
+		&etcd.PreCheckModule{Skip: runtime.Cluster.Etcd.Type != kubekeyapiv1alpha2.KubeKey},
+		&etcd.CertsModule{},
+		&etcd.InstallETCDBinaryModule{Skip: runtime.Cluster.Etcd.Type != kubekeyapiv1alpha2.KubeKey},
+		&etcd.ConfigureModule{Skip: runtime.Cluster.Etcd.Type != kubekeyapiv1alpha2.KubeKey},
+		&etcd.BackupModule{Skip: runtime.Cluster.Etcd.Type != kubekeyapiv1alpha2.KubeKey},
+		&loadbalancer.K3sKubevipModule{Skip: !runtime.Cluster.ControlPlaneEndpoint.IsInternalLBEnabledVip()},
+		&k3s.InstallKubeBinariesModule{},
+		&k3s.InitClusterModule{},
+		&k3s.StatusModule{},
+		&k3s.JoinNodesModule{},
+		&images.CopyImagesToRegistryModule{Skip: skipPushImages},
+		&loadbalancer.K3sHaproxyModule{Skip: !runtime.Cluster.ControlPlaneEndpoint.IsInternalLBEnabled()},
+		&network.DeployNetworkPluginModule{},
+		&kubernetes.ConfigureKubernetesModule{},
+		&filesystem.ChownModule{},
+		&certs.AutoRenewCertsModule{Skip: !runtime.Cluster.Kubernetes.EnableAutoRenewCerts()},
+		&k3s.SaveKubeConfigModule{},
+		&addons.AddonsModule{},
+		&storage.DeployLocalVolumeModule{Skip: skipLocalStorage},
+		&kubesphere.DeployModule{Skip: !runtime.Cluster.KubeSphere.Enabled},
+		&kubesphere.CheckResultModule{Skip: !runtime.Cluster.KubeSphere.Enabled},
+	}
+
+	return m
+}
 
 func NewCreateClusterPhase(runtime *common.KubeRuntime) []module.Module {
 	noArtifact := runtime.Arg.Artifact == ""

@@ -9,7 +9,9 @@ require (
 	github.com/emicklei/go-restful-openapi/v2 v2.10.2
 	github.com/emicklei/go-restful/v3 v3.12.1
 	github.com/go-openapi/spec v0.21.0
+	github.com/jmoiron/sqlx v1.4.0
 	github.com/lithammer/dedent v1.1.0
+	github.com/mattn/go-sqlite3 v1.14.22
 	github.com/pkg/errors v0.9.1
 	github.com/pkg/sftp v1.13.6
 	github.com/spf13/cobra v1.8.0

@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"time"
 
-	"bytetrade.io/web3os/installer/pkg/log"
+	"bytetrade.io/web3os/installer/pkg/core/logger"
 )
 
 const (
@@ -126,11 +126,11 @@ LOOP:
 					return v
 				}
 			case error:
-				log.Warnf("got an error, %v", v)
+				logger.Warnf("got an error, %v", v)
 			}
 		case <-tr.C:
 			tr.Stop()
-			log.Warnf("timed out")
+			logger.Warnf("timed out")
 			break LOOP
 		}
 	}

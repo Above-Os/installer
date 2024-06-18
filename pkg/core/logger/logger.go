@@ -1,6 +1,7 @@
 package logger
 
 import (
+	"fmt"
 	"os"
 	"path"
 
@@ -38,6 +39,20 @@ func InitLog(logDir string, level any) {
 		EncodeName:     zapcore.FullNameEncoder,
 	}
 
+	found, err := isDirExist(logDir)
+	if err != nil {
+		fmt.Println("installer log dir found error", err)
+		os.Exit(1)
+	}
+
+	if !found {
+		err := os.MkdirAll(logDir, os.ModePerm)
+		if err != nil {
+			fmt.Println("create log dir error", err)
+			os.Exit(1)
+		}
+	}
+
 	p := path.Join(logDir, "logfile.log")
 	file, err := os.Create(p)
 	if err != nil {
@@ -73,6 +88,17 @@ func InitLog(logDir string, level any) {
 		zap.AddCaller(), zap.Development(),
 		zap.AddCallerSkip(1), zap.AddStacktrace(zapcore.FatalLevel)).Sugar()
 	defer logger.Sync()
+}
+
+func isDirExist(path string) (bool, error) {
+	info, err := os.Stat(path)
+	if os.IsNotExist(err) {
+		return false, nil
+	}
+	if err != nil {
+		return false, err
+	}
+	return info.IsDir(), nil
 }
 
 func getLevel(level string) (l zapcore.Level) {

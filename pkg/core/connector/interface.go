@@ -52,7 +52,7 @@ type ModuleRuntime interface {
 	GetHostsByRole(role string) []Host
 	DeleteHost(host Host)
 	HostIsDeprecated(host Host) bool
-	InitLogger() error
+	// InitLogger() error
 }
 
 type PackageRuntime interface {

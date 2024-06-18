@@ -5,7 +5,8 @@ import (
 
 	"bytetrade.io/web3os/installer/pkg/api/response"
 	"bytetrade.io/web3os/installer/pkg/common"
-	"bytetrade.io/web3os/installer/pkg/log"
+	"bytetrade.io/web3os/installer/pkg/core/logger"
+	"bytetrade.io/web3os/installer/pkg/core/storage"
 	"bytetrade.io/web3os/installer/pkg/phase/download"
 	"bytetrade.io/web3os/installer/pkg/pipelines"
 	"github.com/emicklei/go-restful/v3"
@@ -14,6 +15,7 @@ import (
 type Handler struct {
 	// apis.Base
 	// appService *app_service.Client
+	StorageProvider storage.Provider
 }
 
 func New() *Handler {
@@ -25,17 +27,17 @@ func New() *Handler {
 }
 
 func (h *Handler) handlerTest(req *restful.Request, resp *restful.Response) {
-	log.Infof("handler test req: %s", req.Request.Method)
+	logger.Infof("handler test req: %s", req.Request.Method)
 	response.SuccessNoData(resp)
 }
 
 func (h *Handler) handlerDownload(req *restful.Request, resp *restful.Response) {
-	log.Infof("handler download req: %s", req.Request.Method)
+	logger.Infof("handler download req: %s", req.Request.Method)
 
 	arg := common.Argument{}
 
 	if err := download.CreateDownload(arg, "curl -L -o %s %s"); err != nil {
-		log.Errorf("download failed %v", err)
+		logger.Errorf("download failed %v", err)
 	}
 
 	response.SuccessNoData(resp)
@@ -43,7 +45,7 @@ func (h *Handler) handlerDownload(req *restful.Request, resp *restful.Response) 
 
 // ~ 测试安装 kk
 func (h *Handler) handlerInstallKk(req *restful.Request, resp *restful.Response) {
-	log.Infof("handler installer req: %s", req.Request.Method)
+	logger.Infof("handler installer req: %s", req.Request.Method)
 
 	arg := common.Argument{}
 
@@ -56,7 +58,7 @@ func (h *Handler) handlerInstallKk(req *restful.Request, resp *restful.Response)
 
 // todo 一个完整的测试流程，下载 full 包并安装
 func (h *Handler) handlerInstallTerminus(req *restful.Request, resp *restful.Response) {
-	log.Infof("handler installer req: %s", req.Request.Method)
+	logger.Infof("handler installer req: %s", req.Request.Method)
 
 	arg := common.Argument{}
 	if err := pipelines.InstallTerminusPipeline(arg); err != nil {

@@ -28,7 +28,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"bytetrade.io/web3os/installer/pkg/log"
+	"bytetrade.io/web3os/installer/pkg/core/logger"
 )
 
 func IsExist(path string) bool {
@@ -76,7 +76,7 @@ func CountDirFiles(dirName string) int {
 		return nil
 	})
 	if err != nil {
-		log.Fatalf("count dir files failed %v", err)
+		logger.Fatalf("count dir files failed %v", err)
 		return 0
 	}
 	return count
@@ -100,7 +100,7 @@ func FileMD5(path string) (string, error) {
 func LocalMd5Sum(src string) string {
 	md5Str, err := FileMD5(src)
 	if err != nil {
-		log.Fatalf("get file md5 failed %v", err)
+		logger.Fatalf("get file md5 failed %v", err)
 		return ""
 	}
 	return md5Str

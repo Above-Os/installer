@@ -44,6 +44,10 @@ func Render(tmpl *template.Template, variables map[string]interface{}) (string, 
 	return buf.String(), nil
 }
 
+func WorkDir() (string, error) {
+	return os.Getwd()
+}
+
 // Home returns the home directory for the executing user.
 func Home() (string, error) {
 	u, err := user.Current()

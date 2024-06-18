@@ -7,7 +7,7 @@ import (
 	"runtime"
 	"time"
 
-	"bytetrade.io/web3os/installer/pkg/log"
+	"bytetrade.io/web3os/installer/pkg/core/logger"
 	"bytetrade.io/web3os/installer/pkg/utils"
 
 	"github.com/emicklei/go-restful/v3"
@@ -23,7 +23,7 @@ func logStackOnRecover(panicReason interface{}, w http.ResponseWriter) {
 		}
 		buffer.WriteString(fmt.Sprintf("    %s:%d\r\n", file, line))
 	}
-	log.Error(buffer.String())
+	logger.Error(buffer.String())
 }
 
 func logRequestAndResponse(req *restful.Request, resp *restful.Response, chain *restful.FilterChain) {
@@ -31,7 +31,7 @@ func logRequestAndResponse(req *restful.Request, resp *restful.Response, chain *
 	chain.ProcessFilter(req, resp)
 
 	// Always log error response
-	log.Infof("%s - \"%s %s %s\" %d %d %dms",
+	logger.Infof("%s - \"%s %s %s\" %d %d %dms",
 		utils.RemoteIp(req.Request),
 		req.Request.Method,
 		req.Request.URL,

@@ -31,7 +31,6 @@ import (
 
 	"bytetrade.io/web3os/installer/pkg/core/logger"
 	"bytetrade.io/web3os/installer/pkg/core/util"
-	"bytetrade.io/web3os/installer/pkg/log"
 	"bytetrade.io/web3os/installer/pkg/utils"
 	"github.com/cavaliergopher/grab/v3"
 	"github.com/pkg/errors"
@@ -245,7 +244,7 @@ func NewKubeBinary(name, arch, version, prePath string, getCmd func(path, url st
 		component.CheckSum = false
 		component.BaseDir = filepath.Join(prePath, component.Type, pkg, component.Arch)
 	default:
-		log.Fatalf("unsupported kube binaries %s", name)
+		logger.Fatalf("unsupported kube binaries %s", name)
 	}
 
 	if component.BaseDir == "" {
@@ -393,7 +392,7 @@ func (b *KubeBinary) Download() error {
 				// fmt.Fprintf(os.Stderr, "Download failed: %v\n", err)
 				logger.Errorf("Download failed: %v", err)
 				if i == 1 {
-					log.Error("All download attempts failed")
+					logger.Error("All download attempts failed")
 					return err
 				}
 				time.Sleep(2 * time.Second)
@@ -407,7 +406,7 @@ func (b *KubeBinary) Download() error {
 			}
 
 			if err := b.SHA256Check(); err != nil { // ~ checksum
-				log.Errorf("SHA256 check failed: %v", err)
+				logger.Errorf("SHA256 check failed: %v", err)
 				if i == 1 {
 					return err
 				}
@@ -417,7 +416,7 @@ func (b *KubeBinary) Download() error {
 				continue
 			}
 
-			log.Info("Download succeeded")
+			logger.Info("Download succeeded")
 			break
 		}
 

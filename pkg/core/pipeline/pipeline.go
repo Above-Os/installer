@@ -58,9 +58,9 @@ func (p *Pipeline) Init() error {
 	if err := p.Runtime.GenerateWorkDir(); err != nil {
 		return err
 	}
-	if err := p.Runtime.InitLogger(); err != nil {
-		return err
-	}
+	// if err := p.Runtime.InitLogger(); err != nil {
+	// 	return err
+	// }
 	return nil
 }
 

@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"strings"
 
-	"bytetrade.io/web3os/installer/pkg/log"
+	"bytetrade.io/web3os/installer/pkg/core/logger"
 	"github.com/emicklei/go-restful/v3"
 )
 
@@ -54,7 +54,7 @@ func errHandle(code int, w *restful.Response, err error) {
 		text = err.Error()
 	}
 
-	log.Errorf("%+v", err)
+	logger.Errorf("%+v", err)
 
 	// code is all to 200
 	w.WriteHeaderAndEntity(http.StatusOK, Header{

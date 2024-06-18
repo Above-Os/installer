@@ -7,12 +7,12 @@ import (
 	"path"
 
 	"bytetrade.io/web3os/installer/frontend"
-	"bytetrade.io/web3os/installer/pkg/log"
+	"bytetrade.io/web3os/installer/pkg/core/logger"
 	restful "github.com/emicklei/go-restful/v3"
 )
 
 func staticFromPathParam(req *restful.Request, resp *restful.Response) {
-	log.Infof("handler static req: %s", req.Request.Method)
+	logger.Infof("handler static req: %s", req.Request.Method)
 	subpath := req.PathParameter("subpath")
 	actual := path.Join("dist/spa", subpath)
 

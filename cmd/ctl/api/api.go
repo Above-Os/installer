@@ -1,12 +1,15 @@
 package api
 
 import (
+	"fmt"
 	"os"
+	"path"
 
 	"bytetrade.io/web3os/installer/cmd/ctl/options"
 	"bytetrade.io/web3os/installer/pkg/apiserver"
 	"bytetrade.io/web3os/installer/pkg/constants"
-	"bytetrade.io/web3os/installer/pkg/log"
+	"bytetrade.io/web3os/installer/pkg/core/logger"
+	"bytetrade.io/web3os/installer/pkg/utils"
 	"github.com/spf13/cobra"
 )
 
@@ -27,7 +30,7 @@ func NewCmdApi() *cobra.Command {
 		Short: "Create installer api server",
 		Run: func(cmd *cobra.Command, args []string) {
 			if err := Run(o.ApiOptions); err != nil {
-				log.Errorf("failed to run installer api server: %+v", err)
+				logger.Errorf("failed to run installer api server: %+v", err)
 				os.Exit(1)
 			}
 		},
@@ -39,11 +42,20 @@ func NewCmdApi() *cobra.Command {
 }
 
 func Run(option *options.ApiOptions) error {
-	log.InitLog(option.LogLevel)
+	workDir, err := utils.WorkDir()
+	if err != nil {
+		fmt.Println("fetch working path error", err)
+		os.Exit(1)
+	}
+
+	constants.WorkDir = workDir
 	constants.ApiServerListenAddress = option.Port
 	constants.Proxy = option.Proxy
 
-	log.Infow("[Installer] API Server startup flags",
+	logDir := path.Join(workDir, "logs")
+	logger.InitLog(logDir, option.LogLevel)
+
+	logger.Infow("[Installer] API Server startup flags",
 		"enabled", option.Enabled,
 		"port", option.Port,
 		"log-level", option.LogLevel,

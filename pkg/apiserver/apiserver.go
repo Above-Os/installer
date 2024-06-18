@@ -2,11 +2,14 @@ package apiserver
 
 import (
 	"net/http"
+	"path"
 
 	"bytetrade.io/web3os/installer/pkg/api/response"
 	apisV1alpha1 "bytetrade.io/web3os/installer/pkg/apis/backend/v1"
 	"bytetrade.io/web3os/installer/pkg/constants"
-	"bytetrade.io/web3os/installer/pkg/log"
+	"bytetrade.io/web3os/installer/pkg/core/logger"
+	"bytetrade.io/web3os/installer/pkg/core/storage"
+	"bytetrade.io/web3os/installer/pkg/core/util"
 	restfulspec "github.com/emicklei/go-restful-openapi/v2"
 	"github.com/emicklei/go-restful/v3"
 	"github.com/go-openapi/spec"
@@ -15,8 +18,9 @@ import (
 )
 
 type APIServer struct {
-	Server    *http.Server
-	container *restful.Container
+	Server          *http.Server
+	StorageProvider storage.Provider
+	container       *restful.Container
 }
 
 func New() (*APIServer, error) {
@@ -46,6 +50,7 @@ func (s *APIServer) PrepareRun() error {
 	s.container.Router(restful.CurlyRouter{})
 
 	s.installStaticResources()
+	s.installStorage()
 	s.installModuleAPI()
 	s.installAPIDocs()
 
@@ -53,7 +58,7 @@ func (s *APIServer) PrepareRun() error {
 	for _, ws := range s.container.RegisteredWebServices() {
 		modulePaths = append(modulePaths, ws.RootPath())
 	}
-	log.Infow("registered module", "paths", modulePaths)
+	logger.Infow("registered module", "paths", modulePaths)
 
 	s.Server.Handler = s.container
 	return nil
@@ -82,6 +87,15 @@ func (s *APIServer) installStaticResources() {
 	// ws.Route(ws.GET("/web").To(staticFromQueryParam))
 
 	s.container.Add(ws)
+}
+
+func (s *APIServer) installStorage() {
+	storageDir := path.Join(constants.WorkDir, "db")
+	if ok := util.IsExist(storageDir); !ok {
+		util.CreateDir(storageDir)
+	}
+	s.StorageProvider = storage.NewSQLiteProvider(storageDir)
+	s.StorageProvider.StartupCheck()
 }
 
 func (s *APIServer) installModuleAPI() {

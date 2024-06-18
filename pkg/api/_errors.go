@@ -6,11 +6,11 @@ import (
 	"runtime"
 	"strings"
 
+	"bytetrade.io/web3os/installer/pkg/core/logger"
 	"bytetrade.io/web3os/installer/pkg/utils"
 
 	"github.com/emicklei/go-restful/v3"
 	"k8s.io/apimachinery/pkg/api/errors"
-	"k8s.io/klog"
 )
 
 type ErrorType = string
@@ -70,7 +70,7 @@ func HandleError(response *restful.Response, req *restful.Request, err error) {
 
 func handle(statusCode int, resp *restful.Response, req *restful.Request, err error) {
 	_, fn, line, _ := runtime.Caller(2)
-	klog.Errorf("%s:%d %v", fn, line, err)
+	logger.Errorf("%s:%d %v", fn, line, err)
 
 	var errType ErrorType
 	var errDesc string

@@ -1,9 +1,11 @@
 package install
 
 import (
+	"fmt"
+
 	"bytetrade.io/web3os/installer/pkg/common"
 	"bytetrade.io/web3os/installer/pkg/core/connector"
-	"github.com/pkg/errors"
+	"bytetrade.io/web3os/installer/pkg/core/util"
 )
 
 type Terminus struct {
@@ -11,11 +13,15 @@ type Terminus struct {
 }
 
 func (a *Terminus) Execute(runtime connector.Runtime) error {
-	installCmd := "bash /home/zhaoyu/install-wizard/install_cmd.sh"
-	runtime.GetRunner().SudoCmd(installCmd, false)
-	if _, err := runtime.GetRunner().SudoCmd(installCmd, false); err != nil {
-		return errors.Wrapf(errors.WithStack(err), "install terminus failed")
+	fmt.Println("[action] Terminus")
+	installCmd := "export TERMINUS_OS_DOMAINNAME=myterminus.com;export TERMINUS_OS_USERNAME=zhaoyu;export TERMINUS_OS_EMAIL=zhaoyu@bytetrade.io;bash /home/zhaoyu/install-wizard/install_cmd.sh"
+	if err := util.Exec(installCmd, false); err != nil {
+		return err
 	}
+	// runtime.GetRunner().SudoCmd(installCmd, false)
+	// if _, err := runtime.GetRunner().SudoCmd(installCmd, false); err != nil {
+	// 	return errors.Wrapf(errors.WithStack(err), "install terminus failed")
+	// }
 
 	return nil
 }

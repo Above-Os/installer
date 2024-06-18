@@ -15,7 +15,7 @@ func NewApiOptions() *ApiOptions {
 
 func (o *ApiOptions) AddFlags(cmd *cobra.Command) {
 	cmd.Flags().BoolVar(&o.Enabled, "enabled", false, "running api server")
-	cmd.Flags().StringVar(&o.Port, "port", ":30180", "listen port")
+	cmd.Flags().StringVar(&o.Port, "port", ":30080", "listen port")
 	cmd.Flags().StringVar(&o.LogLevel, "log-level", "debug", "log level")
 	cmd.Flags().StringVar(&o.Proxy, "proxy", "", "proxy")
 }

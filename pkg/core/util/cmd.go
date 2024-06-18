@@ -1,35 +1,54 @@
 package util
 
-// func Exec(name string, args []string) {
-// 	cmd := exec.Command(name, args...)
+import (
+	"bufio"
+	"fmt"
+	"os/exec"
+)
 
-// 	// 获取标准输出管道
-// 	stdout, err := cmd.StdoutPipe()
-// 	if err != nil {
-// 		logger.Errorf("Error getting StdoutPipe:", err)
-// 		return
-// 	}
+func Exec(name string, printOutput bool) error {
+	cmd := exec.Command("/bin/sh", "-c", name)
+	stdout, err := cmd.StdoutPipe()
+	if err != nil {
+		return err
+	}
 
-// 	// 启动命令
-// 	if err := cmd.Start(); err != nil {
-// 		logger.Errorf("Error starting command:", err)
-// 		return
-// 	}
+	cmd.Stderr = cmd.Stdout
 
-// 	// 创建一个扫描器读取标准输出
-// 	scanner := bufio.NewScanner(stdout)
-// 	for scanner.Scan() {
-// 		// 每次读取一行并打印
-// 		logger.Info(scanner.Text())
-// 	}
+	if err := cmd.Start(); err != nil {
+		return err
+	}
 
-// 	// 检查扫描错误
-// 	if err := scanner.Err(); err != nil {
-// 		logger.Errorf("Error reading standard output:", err)
-// 	}
+	var (
+		output []byte
+		line   = ""
+		r      = bufio.NewReader(stdout)
+	)
 
-// 	// 等待命令完成
-// 	if err := cmd.Wait(); err != nil {
-// 		logger.Errorf("Error waiting for command to finish:", err)
-// 	}
-// }
+	for {
+		b, err := r.ReadByte()
+		if err != nil {
+			break
+		}
+		output = append(output, b)
+		if b == byte('\n') {
+			fmt.Println(line)
+			line = ""
+			continue
+		}
+		line += string(b)
+		// tmp := make([]byte, 1024)
+		// _, err := stdout.Read(tmp)
+		// if errors.Is(err, io.EOF) {
+		// 	break
+		// } else if err != nil {
+		// 	fmt.Println("read error", err)
+		// 	break
+		// }
+	}
+
+	if err = cmd.Wait(); err != nil {
+		return err
+	}
+	return nil
+}

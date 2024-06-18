@@ -23,15 +23,44 @@ import (
 	"os"
 	"os/exec"
 	"os/user"
+	"regexp"
 	"runtime"
 	"sort"
 	"strings"
 	"text/template"
 
+	"bytetrade.io/web3os/installer/pkg/common"
+	"bytetrade.io/web3os/installer/pkg/core/connector"
 	"github.com/pkg/errors"
+	"gopkg.in/yaml.v2"
 )
 
 type Data map[string]interface{}
+
+func ResetTmpDir(runtime connector.Runtime) error {
+	_, err := runtime.GetRunner().SudoCmd(fmt.Sprintf(
+		"if [ -d %s ]; then rm -rf %s ;fi && mkdir -m 777 -p %s",
+		common.TmpDir, common.TmpDir, common.TmpDir), false)
+	if err != nil {
+		return errors.Wrap(errors.WithStack(err), "reset tmp dir failed")
+	}
+	return nil
+}
+
+func ToYAML(v interface{}) string {
+	data, err := yaml.Marshal(v)
+	if err != nil {
+		// Swallow errors inside of a template.
+		return ""
+	}
+	return strings.TrimSuffix(string(data), "\n")
+}
+
+func Indent(n int, text string) string {
+	startOfLine := regexp.MustCompile(`(?m)^`)
+	indentation := strings.Repeat(" ", n)
+	return startOfLine.ReplaceAllLiteralString(text, indentation)
+}
 
 // Render text template with given `variables` Render-context
 func Render(tmpl *template.Template, variables map[string]interface{}) (string, error) {

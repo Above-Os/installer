@@ -41,7 +41,7 @@ func (h *GreetingsTask) Execute(runtime connector.Runtime) error {
 	if err != nil {
 		return err
 	}
-	logger.Infof(runtime.RemoteHost().GetName(), hello)
+	logger.Infof("%s %s", runtime.RemoteHost().GetName(), hello)
 	return nil
 }
 

@@ -17,7 +17,6 @@
 package pipeline
 
 import (
-	"fmt"
 	"os"
 	"sync"
 
@@ -65,10 +64,9 @@ func (p *Pipeline) Init() error {
 }
 
 func (p *Pipeline) Start() error {
-	fmt.Println("[pipeline start] Start ...")
+	logger.Info("[pipeline] Start ...")
 	if err := p.Init(); err != nil {
-		// ~ logger
-		logger.Errorf("Pipeline[%s] execute failed %v", p.Name, err)
+		logger.Errorf("[pipeline] %s execute failed %v", p.Name, err)
 		return nil
 		// return errors.Wrapf(err, "Pipeline[%s] execute failed", p.Name)
 	}
@@ -77,7 +75,7 @@ func (p *Pipeline) Start() error {
 		if m.IsSkip() {
 			continue
 		}
-		fmt.Println("[pipeline run module] name:", m.GetName())
+		logger.Infof("[pipeline] run module %s", m.GetName())
 		moduleCache := p.newModuleCache()
 		m.Default(p.Runtime, p.PipelineCache, moduleCache)
 		m.AutoAssert()
@@ -91,12 +89,12 @@ func (p *Pipeline) Start() error {
 		if res.IsFailed() {
 			// ~ logger
 			// return errors.Wrapf(res.CombineResult, "Pipeline[%s] execute failed", p.Name)
-			logger.Errorf("Pipeline[%s] execute failed %v", p.Name, err)
+			logger.Errorf("[pipeline] %s execute failed %v", p.Name, err)
 			return nil
 		}
 		if err != nil {
 			// return errors.Wrapf(err, "Pipeline[%s] execute failed", p.Name)
-			logger.Errorf("Pipeline[%s] execute failed %v", p.Name, err)
+			logger.Errorf("[pipeline] %s execute failed %v", p.Name, err)
 			return nil
 
 		}
@@ -111,10 +109,10 @@ func (p *Pipeline) Start() error {
 
 	if p.SpecHosts != len(p.Runtime.GetAllHosts()) {
 		// return errors.Errorf("Pipeline[%s] execute failed: there are some error in your spec hosts", p.Name)
-		logger.Errorf("Pipeline[%s] execute failed: there are some error in your spec hosts", p.Name)
+		logger.Errorf("[pipeline] %s execute failed: there are some error in your spec hosts", p.Name)
 		return nil
 	}
-	logger.Infof("Pipeline[%s] execute successfully", p.Name)
+	logger.Infof("[pipeline] %s execute successfully", p.Name)
 
 	return nil
 }

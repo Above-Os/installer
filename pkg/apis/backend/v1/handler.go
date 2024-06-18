@@ -8,6 +8,7 @@ import (
 	"bytetrade.io/web3os/installer/pkg/core/logger"
 	"bytetrade.io/web3os/installer/pkg/core/storage"
 	"bytetrade.io/web3os/installer/pkg/phase/download"
+	"bytetrade.io/web3os/installer/pkg/phase/mock"
 	"bytetrade.io/web3os/installer/pkg/pipelines"
 	"github.com/emicklei/go-restful/v3"
 )
@@ -28,6 +29,18 @@ func New() *Handler {
 
 func (h *Handler) handlerTest(req *restful.Request, resp *restful.Response) {
 	logger.Infof("handler test req: %s", req.Request.Method)
+	response.SuccessNoData(resp)
+}
+
+func (h *Handler) handlerGreetings(req *restful.Request, resp *restful.Response) {
+	logger.Infof("handler greetings req: %s", req.Request.Method)
+
+	arg := common.Argument{}
+
+	if err := mock.Greetings(arg); err != nil {
+		logger.Errorf("greetings failed %v", err)
+	}
+
 	response.SuccessNoData(resp)
 }
 

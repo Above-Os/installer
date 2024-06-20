@@ -1,2 +1,0 @@
-2024-06-20T21:59:32.531+0800	info	api/api.go:79	[Installer] API Server startup flags	{"enabled": false, "port": ":30080", "log-level": "debug"}
-2024-06-20T21:59:32.532+0800	info	apiserver/apiserver.go:61	registered module	{"paths": ["/", "/api/backend/v1", "./apidocs.json"]}

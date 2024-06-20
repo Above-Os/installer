@@ -1,7 +1,6 @@
 package os
 
 import (
-	_ "bytetrade.io/web3os/installer/pkg/bootstrap/runuser"
 	"bytetrade.io/web3os/installer/pkg/common"
 )
 
@@ -12,15 +11,4 @@ func CheckCurrentUserPipeline() error {
 	}
 
 	return nil
-
-	// m := []module.Module{
-	// 	&runuser.RunUserModule{},
-	// }
-
-	// p := pipeline.Pipeline{
-	// 	Name:    "CheckCurrentUserPipeline",
-	// 	Modules: m,
-	// }
-
-	// return p.Start()
 }

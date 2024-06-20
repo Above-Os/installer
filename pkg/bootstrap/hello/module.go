@@ -5,7 +5,7 @@ import (
 )
 
 type HelloModule struct {
-	module.BaseModule // module.BaseTaskModule
+	module.BaseTaskModule
 }
 
 func (h *HelloModule) Init() {

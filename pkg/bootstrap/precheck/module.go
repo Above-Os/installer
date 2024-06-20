@@ -38,17 +38,16 @@ func (h *GreetingsModule) Init() {
 	h.Desc = "Greetings"
 
 	var timeout int64
+
 	for _, v := range h.Runtime.GetAllHosts() {
 		timeout += v.GetTimeout()
 	}
 
-	hello := &task.RemoteTask{
-		Name:     "Greetings",
-		Desc:     "Greetings",
-		Hosts:    h.Runtime.GetAllHosts(),
-		Action:   new(GreetingsTask),
-		Parallel: true,
-		Timeout:  time.Duration(timeout) * time.Second,
+	hello := &task.LocalTask{
+		Name:    "Greetings",
+		Desc:    "Greetings",
+		Action:  new(GreetingsTask),
+		Timeout: time.Duration(timeout) * time.Second,
 	}
 
 	h.Tasks = []task.Interface{

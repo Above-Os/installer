@@ -29,6 +29,8 @@ func NewCmdApi() *cobra.Command {
 		Use:   "api",
 		Short: "Create installer api server",
 		Run: func(cmd *cobra.Command, args []string) {
+			//	check root
+
 			if err := Run(o.ApiOptions); err != nil {
 				logger.Errorf("failed to run installer api server: %+v", err)
 				os.Exit(1)
@@ -39,6 +41,10 @@ func NewCmdApi() *cobra.Command {
 	o.ApiOptions.AddFlags(cmd)
 
 	return cmd
+}
+
+func GetShellExec() error {
+	return nil
 }
 
 func Run(option *options.ApiOptions) error {

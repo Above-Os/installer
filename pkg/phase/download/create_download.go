@@ -10,7 +10,6 @@ import (
 )
 
 func NewPackageDownloadPipeline(runtime *common.KubeRuntime) error {
-	fmt.Println("---1---")
 	m := []module.Module{
 		&packages.PackagesModule{},
 	}

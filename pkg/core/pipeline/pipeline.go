@@ -83,7 +83,6 @@ func (p *Pipeline) Start() error {
 		for j := range p.ModulePostHooks {
 			m.AppendPostHook(p.ModulePostHooks[j])
 		}
-
 		res := p.RunModule(m)
 		err := m.CallPostHook(res)
 		if res.IsFailed() {

@@ -32,12 +32,11 @@ func (h *Handler) handlerTest(req *restful.Request, resp *restful.Response) {
 	response.SuccessNoData(resp)
 }
 
+// + test func
 func (h *Handler) handlerGreetings(req *restful.Request, resp *restful.Response) {
 	logger.Infof("handler greetings req: %s", req.Request.Method)
 
-	arg := common.Argument{}
-
-	if err := mock.Greetings(arg); err != nil {
+	if err := mock.Greetings(); err != nil {
 		logger.Errorf("greetings failed %v", err)
 	}
 

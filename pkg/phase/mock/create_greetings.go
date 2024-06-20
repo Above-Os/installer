@@ -1,15 +1,15 @@
 package mock
 
 import (
-	"bytetrade.io/web3os/installer/pkg/bootstrap/precheck"
+	"bytetrade.io/web3os/installer/pkg/bootstrap/hello"
 	"bytetrade.io/web3os/installer/pkg/common"
 	"bytetrade.io/web3os/installer/pkg/core/module"
 	"bytetrade.io/web3os/installer/pkg/core/pipeline"
 )
 
-func NewGreetingsPipeline(runtime *common.KubeRuntime) error {
+func NewGreetingsPipeline(runtime *common.LocalRuntime) error {
 	m := []module.Module{
-		&precheck.GreetingsModule{},
+		&hello.HelloModule{},
 	}
 
 	p := pipeline.Pipeline{
@@ -23,13 +23,13 @@ func NewGreetingsPipeline(runtime *common.KubeRuntime) error {
 	return nil
 }
 
-func Greetings(args common.Argument) error {
-	runtime, err := common.NewKubeRuntime(common.AllInOne, args)
+func Greetings() error {
+	runtime, err := common.NewLocalRuntime(false, false)
 	if err != nil {
 		return err
 	}
 
-	if err := NewGreetingsPipeline(runtime); err != nil {
+	if err := NewGreetingsPipeline(&runtime); err != nil {
 		return err
 	}
 	return nil

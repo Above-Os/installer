@@ -9,6 +9,7 @@ import (
 	"bytetrade.io/web3os/installer/pkg/apiserver"
 	"bytetrade.io/web3os/installer/pkg/constants"
 	"bytetrade.io/web3os/installer/pkg/core/logger"
+	phaseos "bytetrade.io/web3os/installer/pkg/phase/os"
 	"bytetrade.io/web3os/installer/pkg/utils"
 	"github.com/spf13/cobra"
 )
@@ -29,7 +30,17 @@ func NewCmdApi() *cobra.Command {
 		Use:   "api",
 		Short: "Create installer api server",
 		Run: func(cmd *cobra.Command, args []string) {
-			//	check root
+			fmt.Println(constants.Logo)
+
+			if err := InitLog(o.ApiOptions); err != nil {
+				fmt.Println("init logger failed", err)
+				os.Exit(1)
+			}
+
+			if err := CheckCurrentUser(); err != nil {
+				logger.Errorf(err.Error())
+				os.Exit(1)
+			}
 
 			if err := Run(o.ApiOptions); err != nil {
 				logger.Errorf("failed to run installer api server: %+v", err)
@@ -43,11 +54,7 @@ func NewCmdApi() *cobra.Command {
 	return cmd
 }
 
-func GetShellExec() error {
-	return nil
-}
-
-func Run(option *options.ApiOptions) error {
+func InitLog(option *options.ApiOptions) error {
 	workDir, err := utils.WorkDir()
 	if err != nil {
 		fmt.Println("fetch working path error", err)
@@ -60,6 +67,14 @@ func Run(option *options.ApiOptions) error {
 
 	logDir := path.Join(workDir, "logs")
 	logger.InitLog(logDir, option.LogLevel)
+	return nil
+}
+
+func CheckCurrentUser() error {
+	return phaseos.CheckCurrentUserPipeline()
+}
+
+func Run(option *options.ApiOptions) error {
 
 	logger.Infow("[Installer] API Server startup flags",
 		"enabled", option.Enabled,

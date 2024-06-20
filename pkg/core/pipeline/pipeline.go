@@ -27,19 +27,6 @@ import (
 	"bytetrade.io/web3os/installer/pkg/core/module"
 )
 
-var logo = `
-
- _   __      _          _   __           
-| | / /     | |        | | / /           
-| |/ / _   _| |__   ___| |/ /  ___ _   _ 
-|    \| | | | '_ \ / _ \    \ / _ \ | | |
-| |\  \ |_| | |_) |  __/ |\  \  __/ |_| |
-\_| \_/\__,_|_.__/ \___\_| \_/\___|\__, |
-                                    __/ |
-                                   |___/
-
-`
-
 type Pipeline struct {
 	Name            string
 	Modules         []module.Module
@@ -51,7 +38,6 @@ type Pipeline struct {
 }
 
 func (p *Pipeline) Init() error {
-	// fmt.Print(logo) // ! remove
 	p.PipelineCache = cache.NewCache()
 	p.SpecHosts = len(p.Runtime.GetAllHosts())
 	if err := p.Runtime.GenerateWorkDir(); err != nil {

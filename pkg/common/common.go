@@ -108,3 +108,17 @@ const (
 	DefaultFullPackageName = "full"
 	DefaultMiniPackageName = "mini"
 )
+
+const (
+	Linux   = "linux"
+	Darwin  = "darwin"
+	Windows = "windows"
+
+	Intel64 = "x86_64"
+	Amd64   = "amd64"
+	Arm64   = "arm64"
+
+	Ubuntu = "ubuntu"
+	Debian = "debian"
+	CentOs = "centos"
+)

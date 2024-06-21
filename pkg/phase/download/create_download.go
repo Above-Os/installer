@@ -9,19 +9,7 @@ import (
 	"bytetrade.io/web3os/installer/pkg/packages"
 )
 
-func NewPackageDownloadPipeline(runtime *common.KubeRuntime) error {
-	m := []module.Module{
-		&packages.PackagesModule{},
-	}
-
-	p := pipeline.Pipeline{
-		Name:    "CreatePackageDownloadPipeline",
-		Modules: m,
-		Runtime: runtime,
-	}
-
-	go p.Start()
-
+func DownloadMiniInstallPackage(args common.Argument) error {
 	return nil
 }
 
@@ -39,9 +27,17 @@ func CreateDownload(args common.Argument, downloadCmd string) error {
 		return err
 	}
 
-	if err := NewPackageDownloadPipeline(runtime); err != nil {
-		return err
+	m := []module.Module{
+		&packages.PackagesModule{},
 	}
+
+	p := pipeline.Pipeline{
+		Name:    "CreatePackageDownloadPipeline",
+		Modules: m,
+		Runtime: runtime,
+	}
+
+	go p.Start()
 
 	return nil
 }

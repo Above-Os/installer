@@ -25,6 +25,7 @@ import (
 	"bytetrade.io/web3os/installer/pkg/core/ending"
 	"bytetrade.io/web3os/installer/pkg/core/logger"
 	"bytetrade.io/web3os/installer/pkg/core/module"
+	"github.com/pkg/errors"
 )
 
 type Pipeline struct {
@@ -51,8 +52,7 @@ func (p *Pipeline) Start() error {
 	logger.Info("[pipeline] Start ...")
 	if err := p.Init(); err != nil {
 		logger.Errorf("[pipeline] %s execute failed %v", p.Name, err)
-		return nil
-		// return errors.Wrapf(err, "Pipeline[%s] execute failed", p.Name)
+		return errors.Wrapf(err, "Pipeline[%s] execute failed", p.Name)
 	}
 	for i := range p.Modules {
 		m := p.Modules[i]
@@ -70,16 +70,12 @@ func (p *Pipeline) Start() error {
 		res := p.RunModule(m)
 		err := m.CallPostHook(res)
 		if res.IsFailed() {
-			// ~ logger
-			// return errors.Wrapf(res.CombineResult, "Pipeline[%s] execute failed", p.Name)
 			logger.Errorf("[pipeline] %s execute failed %v", p.Name, err)
-			return nil
+			return errors.Wrapf(res.CombineResult, "Pipeline[%s] execute failed", p.Name)
 		}
 		if err != nil {
-			// return errors.Wrapf(err, "Pipeline[%s] execute failed", p.Name)
 			logger.Errorf("[pipeline] %s execute failed %v", p.Name, err)
-			return nil
-
+			return errors.Wrapf(err, "Pipeline[%s] execute failed", p.Name)
 		}
 		p.releaseModuleCache(moduleCache)
 	}
@@ -91,9 +87,8 @@ func (p *Pipeline) Start() error {
 	}
 
 	if p.SpecHosts != len(p.Runtime.GetAllHosts()) {
-		// return errors.Errorf("Pipeline[%s] execute failed: there are some error in your spec hosts", p.Name)
 		logger.Errorf("[pipeline] %s execute failed: there are some error in your spec hosts", p.Name)
-		return nil
+		return errors.Errorf("Pipeline[%s] execute failed: there are some error in your spec hosts", p.Name)
 	}
 	logger.Infof("[pipeline] %s execute successfully", p.Name)
 

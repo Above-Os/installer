@@ -17,11 +17,44 @@
 package precheck
 
 import (
+	"fmt"
+	"strings"
+
 	"bytetrade.io/web3os/installer/pkg/common"
+	"bytetrade.io/web3os/installer/pkg/constants"
 	"bytetrade.io/web3os/installer/pkg/core/connector"
+	"bytetrade.io/web3os/installer/pkg/core/prepare"
 	"github.com/pkg/errors"
 )
 
+// ~ OsSupportCheck
+type OsSupportCheck struct {
+	prepare.BasePrepare
+}
+
+func (p *OsSupportCheck) PreCheck(runtime connector.Runtime) (bool, error) {
+	switch constants.OsType {
+	case common.Linux:
+		switch constants.OsPlatform {
+		case common.Ubuntu:
+			if strings.HasPrefix(constants.OsVersion, "20.") || strings.HasPrefix(constants.OsVersion, "22.") || strings.HasPrefix(constants.OsVersion, "24.") {
+				return true, nil
+			}
+			return false, fmt.Errorf("os %s version %s not support", constants.OsPlatform, constants.OsVersion)
+		case common.Debian:
+			if strings.HasPrefix(constants.OsVersion, "11") || strings.HasPrefix(constants.OsVersion, "12") {
+				return true, nil
+			}
+			return false, fmt.Errorf("os %s version %s not support", constants.OsPlatform, constants.OsVersion)
+		default:
+			return false, fmt.Errorf("platform %s not support", constants.OsPlatform)
+		}
+	default:
+		return false, fmt.Errorf("os %s not support", constants.OsType)
+	}
+}
+
+// ~ KubeSphereExist
 type KubeSphereExist struct {
 	common.KubePrepare
 }

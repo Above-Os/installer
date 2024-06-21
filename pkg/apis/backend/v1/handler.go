@@ -27,12 +27,34 @@ func New() *Handler {
 	return &Handler{}
 }
 
+// ~ get public ip
+func (h *Handler) handlerPublicIp(req *restful.Request, resp *restful.Response) {
+	var data = make(map[string]interface{})
+	data["public_ip"] = "13.92.32.12"
+
+	if 1 == 1 {
+		response.HandleError(resp, fmt.Errorf("app %s entrances not found", "TEST"))
+		return
+	}
+
+	response.Success(resp, data)
+}
+
+// ~ download
+func (h *Handler) handlerDownload(req *restful.Request, resp *restful.Response) {
+}
+
+// ~ install
+func (h *Handler) handlerInstall(req *restful.Request, resp *restful.Response) {
+
+}
+
+// - test func
 func (h *Handler) handlerTest(req *restful.Request, resp *restful.Response) {
 	logger.Infof("handler test req: %s", req.Request.Method)
 	response.SuccessNoData(resp)
 }
 
-// + test func
 func (h *Handler) handlerGreetings(req *restful.Request, resp *restful.Response) {
 	logger.Infof("handler greetings req: %s", req.Request.Method)
 
@@ -43,7 +65,7 @@ func (h *Handler) handlerGreetings(req *restful.Request, resp *restful.Response)
 	response.SuccessNoData(resp)
 }
 
-func (h *Handler) handlerDownload(req *restful.Request, resp *restful.Response) {
+func (h *Handler) handlerDownloadEx(req *restful.Request, resp *restful.Response) {
 	logger.Infof("handler download req: %s", req.Request.Method)
 
 	arg := common.Argument{}

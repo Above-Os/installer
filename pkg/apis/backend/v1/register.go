@@ -9,9 +9,9 @@ import (
 	"github.com/emicklei/go-restful/v3"
 )
 
-var ModuleVersion = runtime.ModuleVersion{Name: "backend", Version: "v1"}
+var ModuleVersion = runtime.ModuleVersion{Name: "webserver", Version: "v1"}
 
-var tags = []string{"backend"}
+var tags = []string{"apiserver"}
 
 func AddContainer(c *restful.Container) error {
 	ws := runtime.NewWebService(ModuleVersion)
@@ -20,6 +20,26 @@ func AddContainer(c *restful.Container) error {
 
 	handler := New()
 
+	// + 正式接口
+	ws.Route(ws.GET("/public-ip").
+		To(handler.handlerPublicIp).
+		Doc("").
+		Metadata(restfulspec.KeyOpenAPITags, tags).
+		Returns(http.StatusOK, "", response.Response{}))
+
+	ws.Route(ws.POST("/download").
+		To(handler.handlerDownload).
+		Doc("").
+		Metadata(restfulspec.KeyOpenAPITags, tags).
+		Returns(http.StatusOK, "", response.Response{}))
+
+	ws.Route(ws.POST("/install").
+		To(handler.handlerInstall).
+		Doc("").
+		Metadata(restfulspec.KeyOpenAPITags, tags).
+		Returns(http.StatusOK, "", response.Response{}))
+
+	// - debug
 	ws.Route(ws.POST("/test").
 		To(handler.handlerTest).
 		Doc("").
@@ -27,7 +47,7 @@ func AddContainer(c *restful.Container) error {
 		Returns(http.StatusOK, "", response.Response{}))
 
 	ws.Route(ws.POST("/download").
-		To(handler.handlerDownload).
+		To(handler.handlerDownloadEx).
 		Doc("").
 		Metadata(restfulspec.KeyOpenAPITags, tags).
 		Returns(http.StatusOK, "", response.Response{}))

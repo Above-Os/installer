@@ -25,6 +25,21 @@ import (
 	"bytetrade.io/web3os/installer/pkg/core/task"
 )
 
+// ~ GathererModule
+type GathererModule struct {
+	module.CustomModule
+}
+
+func (m *GathererModule) GetName() string {
+	return "GathererModule"
+}
+
+func (m *GathererModule) Init() {
+	m.Name = "GathererModule"
+	m.Desc = "gather os info"
+}
+
+// ~ GreetingsModule
 type GreetingsModule struct {
 	module.BaseTaskModule
 }
@@ -55,6 +70,7 @@ func (h *GreetingsModule) Init() {
 	}
 }
 
+// ~ NodePreCheckModule
 type NodePreCheckModule struct {
 	common.KubeModule
 	Skip bool
@@ -93,6 +109,7 @@ func (n *NodePreCheckModule) Init() {
 	}
 }
 
+// ~ ClusterPreCheckModule
 type ClusterPreCheckModule struct {
 	common.KubeModule
 }

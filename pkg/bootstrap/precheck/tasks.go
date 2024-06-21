@@ -32,6 +32,7 @@ import (
 	"bytetrade.io/web3os/installer/pkg/version/kubesphere"
 )
 
+// ~ GreetingsTask
 type GreetingsTask struct {
 	action.BaseAction
 }
@@ -45,6 +46,7 @@ func (h *GreetingsTask) Execute(runtime connector.Runtime) error {
 	return nil
 }
 
+// ~ NodePreCheck
 type NodePreCheck struct {
 	common.KubeAction
 }
@@ -113,6 +115,7 @@ func (n *NodePreCheck) Execute(runtime connector.Runtime) error {
 	return nil
 }
 
+// ~ GetKubeConfig
 type GetKubeConfig struct {
 	common.KubeAction
 }
@@ -155,6 +158,7 @@ func (g *GetKubeConfig) Execute(runtime connector.Runtime) error {
 	return errors.New("kube config not found")
 }
 
+// ~ GetAllNodesK8sVersion
 type GetAllNodesK8sVersion struct {
 	common.KubeAction
 }
@@ -181,6 +185,7 @@ func (g *GetAllNodesK8sVersion) Execute(runtime connector.Runtime) error {
 	return nil
 }
 
+// ~ CalculateMinK8sVersion
 type CalculateMinK8sVersion struct {
 	common.KubeAction
 }
@@ -209,6 +214,7 @@ func (g *CalculateMinK8sVersion) Execute(runtime connector.Runtime) error {
 	return nil
 }
 
+// ~ CheckDesiredK8sVersion
 type CheckDesiredK8sVersion struct {
 	common.KubeAction
 }
@@ -222,6 +228,7 @@ func (k *CheckDesiredK8sVersion) Execute(_ connector.Runtime) error {
 	return nil
 }
 
+// ~ KsVersionCheck
 type KsVersionCheck struct {
 	common.KubeAction
 }
@@ -248,6 +255,7 @@ func (k *KsVersionCheck) Execute(runtime connector.Runtime) error {
 	return nil
 }
 
+// ~ DependencyCheck
 type DependencyCheck struct {
 	common.KubeAction
 }
@@ -299,6 +307,7 @@ func (d *DependencyCheck) Execute(_ connector.Runtime) error {
 	return nil
 }
 
+// ~ GetKubernetesNodesStatus
 type GetKubernetesNodesStatus struct {
 	common.KubeAction
 }

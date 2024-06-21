@@ -10,6 +10,7 @@ import (
 	"bytetrade.io/web3os/installer/pkg/apiserver"
 	"bytetrade.io/web3os/installer/pkg/constants"
 	"bytetrade.io/web3os/installer/pkg/core/logger"
+	"bytetrade.io/web3os/installer/pkg/core/util"
 	"bytetrade.io/web3os/installer/pkg/utils"
 	"github.com/spf13/cobra"
 )
@@ -43,6 +44,12 @@ func NewCmdApi() *cobra.Command {
 			// logger.Info("[info]", "hello world!!!")
 			// fmt.Println("---end---")
 
+			// ! get info
+			util.GetDisk()
+			util.GetHost()
+			util.GetCpu()
+			util.GetMem()
+
 			if err := GetCurrentUser(); err != nil {
 				logger.Errorf(err.Error())
 				os.Exit(1)
@@ -52,7 +59,7 @@ func NewCmdApi() *cobra.Command {
 
 			if constants.CurrentUser != "root" {
 				logger.Error("Current user is not root!! exit ...")
-				os.Exit(1)
+				os.Exit(0)
 			}
 
 			logger.Info("Terminus Installer starting ...")

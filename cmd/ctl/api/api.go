@@ -10,7 +10,7 @@ import (
 	"bytetrade.io/web3os/installer/pkg/apiserver"
 	"bytetrade.io/web3os/installer/pkg/constants"
 	"bytetrade.io/web3os/installer/pkg/core/logger"
-	"bytetrade.io/web3os/installer/pkg/core/util"
+	"bytetrade.io/web3os/installer/pkg/phase/startup"
 	"bytetrade.io/web3os/installer/pkg/utils"
 	"github.com/spf13/cobra"
 )
@@ -44,12 +44,6 @@ func NewCmdApi() *cobra.Command {
 			// logger.Info("[info]", "hello world!!!")
 			// fmt.Println("---end---")
 
-			// ! get info
-			util.GetDisk()
-			util.GetHost()
-			util.GetCpu()
-			util.GetMem()
-
 			if err := GetCurrentUser(); err != nil {
 				logger.Errorf(err.Error())
 				os.Exit(1)
@@ -63,6 +57,12 @@ func NewCmdApi() *cobra.Command {
 			}
 
 			logger.Info("Terminus Installer starting ...")
+
+			if err := GetMachineInfo(); err != nil {
+				logger.Errorf("failed to get machine info: %+v", err)
+				os.Exit(1)
+			}
+
 			if err := Run(o.ApiOptions); err != nil {
 				logger.Errorf("failed to run installer api server: %+v", err)
 				os.Exit(1)
@@ -97,6 +97,13 @@ func GetCurrentUser() error {
 		return err
 	}
 	constants.CurrentUser = u.Username
+	return nil
+}
+
+func GetMachineInfo() error {
+	if err := startup.GetMachineInfo(); err != nil {
+		return err
+	}
 	return nil
 }
 

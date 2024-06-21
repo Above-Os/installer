@@ -2,53 +2,64 @@ package util
 
 import (
 	"bufio"
+	"bytes"
 	"fmt"
 	"os/exec"
+	"strings"
+
+	"bytetrade.io/web3os/installer/pkg/core/logger"
+	"github.com/pkg/errors"
 )
 
-func Exec(name string, printOutput bool) error {
+func Exec(name string, printOutput bool) (stdout string, code int, err error) {
+	exitCode := 0
+
 	cmd := exec.Command("/bin/sh", "-c", name)
-	stdout, err := cmd.StdoutPipe()
+	out, err := cmd.StdoutPipe()
 	if err != nil {
-		return err
+		return "", exitCode, err
 	}
+
+	logger.Infof("exec cmd: %s", cmd.String())
 
 	cmd.Stderr = cmd.Stdout
 
 	if err := cmd.Start(); err != nil {
-		return err
+		exitCode = -1
+		if exitErr, ok := err.(*exec.ExitError); ok {
+			exitCode = exitErr.ExitCode()
+		}
+		return "", exitCode, err
 	}
 
-	var (
-		output []byte
-		line   = ""
-		r      = bufio.NewReader(stdout)
-	)
+	var outputBuffer bytes.Buffer
+	r := bufio.NewReader(out)
 
 	for {
-		b, err := r.ReadByte()
+		line, err := r.ReadString('\n')
 		if err != nil {
+			if err.Error() != "EOF" {
+				fmt.Println("read error:", err)
+			}
 			break
 		}
-		output = append(output, b)
-		if b == byte('\n') {
-			fmt.Println(line)
-			line = ""
-			continue
-		}
-		line += string(b)
-		// tmp := make([]byte, 1024)
-		// _, err := stdout.Read(tmp)
-		// if errors.Is(err, io.EOF) {
-		// 	break
-		// } else if err != nil {
-		// 	fmt.Println("read error", err)
-		// 	break
-		// }
+		outputBuffer.WriteString(line)
 	}
 
-	if err = cmd.Wait(); err != nil {
-		return err
+	err = cmd.Wait()
+	if err != nil {
+		exitCode = -1
+		if exitErr, ok := err.(*exec.ExitError); ok {
+			exitCode = exitErr.ExitCode()
+		}
 	}
-	return nil
+
+	res := outputBuffer.String()
+	res = strings.TrimSpace(res)
+
+	if printOutput {
+		logger.Infof("exec cmd result: %s, cmd: %s", res, cmd.String())
+	}
+
+	return res, exitCode, errors.Wrapf(err, "Failed to exec command: %s \n%s", cmd, res)
 }

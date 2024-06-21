@@ -2,9 +2,11 @@ package utils
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net"
 	"net/http"
+	"regexp"
 	"time"
 
 	"bytetrade.io/web3os/installer/pkg/core/logger"
@@ -136,4 +138,23 @@ LOOP:
 	}
 
 	return ""
+}
+
+func ExtractIP(host string) ([]string, error) {
+	var ips []string
+	re := regexp.MustCompile(`\(([\d\.]+)\)|from ([\d\.]+):`)
+	matches := re.FindStringSubmatch(host)
+	if len(matches) > 1 {
+		if matches[1] != "" {
+			ips = append(ips, matches[1])
+		} else if len(matches) > 2 && matches[2] != "" {
+			ips = append(ips, matches[2])
+		}
+	}
+
+	if len(ips) == 0 {
+		return nil, fmt.Errorf("failed to extract ip from %s", host)
+	}
+
+	return ips, nil
 }

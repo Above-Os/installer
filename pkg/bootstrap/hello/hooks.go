@@ -24,7 +24,9 @@ func (h *HelloHook) Init(module module.Module, result *ending.ModuleResult) {
 
 func (h *HelloHook) Try() error {
 	fmt.Println("---hello hook / try---", h.Result.StartTime.String())
-	if err := util.Exec("echo 'hello, world!!!!!'", true); err != nil {
+	_, _, err := util.Exec("echo 'hello, world!!!!!'", true)
+
+	if err != nil {
 		h.Result.ErrResult(err)
 		return err
 	}

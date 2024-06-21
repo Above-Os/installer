@@ -589,10 +589,9 @@ func (s *SetUpgradePlan) Execute(_ connector.Runtime) error {
 	if cmp, err := versionutil.MustParseSemantic(currentVersion).Compare(desiredVersion); err != nil {
 		return err
 	} else if cmp == 1 {
-		logger.Log.Messagef(
-			common.LocalHost,
-			"The current version (%s) is greater than the target version (%s)",
-			currentVersion, desiredVersion)
+		logger.Infof(
+			"%s The current version (%s) is greater than the target version (%s)",
+			common.LocalHost, currentVersion, desiredVersion)
 		os.Exit(0)
 	}
 

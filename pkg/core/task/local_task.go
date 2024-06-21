@@ -169,7 +169,7 @@ func (l *LocalTask) WhenWithRetry(runtime connector.Runtime, host connector.Host
 	err := fmt.Errorf("pre-check exec failed after %d retires", l.Retry)
 	for i := 0; i < l.Retry; i++ {
 		if res, e := l.When(runtime); e != nil {
-			logger.Error(host.GetName(), e.Error())
+			logger.Errorf("%s %s", host.GetName(), e.Error())
 
 			if i == l.Retry-1 {
 				err = errors.New(err.Error() + e.Error())
@@ -205,7 +205,7 @@ func (l *LocalTask) ExecuteWithRetry(runtime connector.Runtime, host connector.H
 	for i := 0; i < l.Retry; i++ {
 		e := l.Action.Execute(runtime)
 		if e != nil {
-			logger.Error(host.GetName(), e.Error())
+			logger.Errorf("%s %s", host.GetName(), e.Error())
 
 			if i == l.Retry-1 {
 				err = errors.New(err.Error() + e.Error())

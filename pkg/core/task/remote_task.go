@@ -192,7 +192,7 @@ func (t *RemoteTask) WhenWithRetry(runtime connector.Runtime) (bool, error) {
 	err := fmt.Errorf("pre-check exec failed after %d retires", t.Retry)
 	for i := 0; i < t.Retry; i++ {
 		if res, e := t.When(runtime); e != nil {
-			logger.Error(runtime.RemoteHost().GetName(), e.Error())
+			logger.Errorf("%s %s", runtime.RemoteHost().GetName(), e.Error())
 
 			if i == t.Retry-1 {
 				err = errors.New(err.Error() + e.Error())
@@ -216,7 +216,7 @@ func (t *RemoteTask) ExecuteWithRetry(runtime connector.Runtime) error {
 	for i := 0; i < t.Retry; i++ {
 		e := t.Action.Execute(runtime)
 		if e != nil {
-			logger.Error(runtime.RemoteHost().GetName(), e.Error())
+			logger.Errorf("%s %s", runtime.RemoteHost().GetName(), e.Error())
 
 			if i == t.Retry-1 {
 				err = errors.New(err.Error() + e.Error())
@@ -274,11 +274,11 @@ func (t *RemoteTask) RollbackWithTimeout(ctx context.Context, runtime connector.
 	select {
 	case <-ctx.Done():
 		logger.Warnf("rollback-failed: [%s]", runtime.GetRunner().Host.GetName())
-		logger.Error(runtime.RemoteHost().GetName(), fmt.Sprintf("execute task timeout, Timeout=%d", t.Timeout))
+		logger.Errorf("%s execute task timeout, Timeout=%d", runtime.RemoteHost().GetName(), t.Timeout)
 	case e := <-resCh:
 		if e != nil {
 			logger.Warnf("rollback-failed: [%s]", runtime.GetRunner().Host.GetName())
-			logger.Error(runtime.RemoteHost().GetName(), e.Error())
+			logger.Errorf("%s %s", runtime.RemoteHost().GetName(), e.Error())
 		}
 	}
 

@@ -25,18 +25,23 @@ import (
 	"bytetrade.io/web3os/installer/pkg/core/task"
 )
 
-// ~ GathererModule
-type GathererModule struct {
-	module.CustomModule
+// ~ GetSysInfoModel
+type GetSysInfoModel struct {
+	module.BaseTaskModule
 }
 
-func (m *GathererModule) GetName() string {
-	return "GathererModule"
+func (m *GetSysInfoModel) GetName() string {
+	return "GetSysInfoModel"
 }
 
-func (m *GathererModule) Init() {
-	m.Name = "GathererModule"
-	m.Desc = "gather os info"
+func (m *GetSysInfoModel) Init() {
+	m.Name = "GetSysInfoModel"
+	m.Desc = "GetSysInfoModel"
+
+	m.PostHook = []module.PostHookInterface{
+		&GetSysInfoHook{},
+		&GetLocalIpHook{},
+	}
 }
 
 // ~ GreetingsModule

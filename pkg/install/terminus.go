@@ -15,7 +15,8 @@ type Terminus struct {
 func (a *Terminus) Execute(runtime connector.Runtime) error {
 	fmt.Println("[action] Terminus")
 	installCmd := "export TERMINUS_OS_DOMAINNAME=myterminus.com;export TERMINUS_OS_USERNAME=zhaoyu;export TERMINUS_OS_EMAIL=zhaoyu@bytetrade.io;bash /home/zhaoyu/install-wizard/install_cmd.sh"
-	if err := util.Exec(installCmd, false); err != nil {
+	_, _, err := util.Exec(installCmd, false)
+	if err != nil {
 		return err
 	}
 	// runtime.GetRunner().SudoCmd(installCmd, false)

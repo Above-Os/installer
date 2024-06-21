@@ -18,6 +18,7 @@ package precheck
 
 import (
 	"fmt"
+	"net"
 	"strings"
 
 	"bytetrade.io/web3os/installer/pkg/common"
@@ -26,6 +27,34 @@ import (
 	"bytetrade.io/web3os/installer/pkg/core/prepare"
 	"github.com/pkg/errors"
 )
+
+// ~ LocalIpCheck
+type LocalIpCheck struct {
+	prepare.BasePrepare
+}
+
+func (p *LocalIpCheck) PreCheck(runtime connector.Runtime) (bool, error) {
+	if constants.LocalIp == nil || len(constants.LocalIp) == 0 {
+		return false, fmt.Errorf("failed to get local ip")
+	}
+
+	var localIp = constants.LocalIp[0]
+	ip := net.ParseIP(localIp)
+	if ip == nil {
+		return false, fmt.Errorf("invalid local ip %s", localIp)
+	}
+
+	if ip4 := ip.To4(); ip4 == nil {
+		return false, fmt.Errorf("invalid local ip %s", localIp)
+	}
+
+	switch localIp {
+	case "172.17.0.1", "127.0.0.1", "127.0.1.1":
+		return false, fmt.Errorf("invalid local ip %s", localIp)
+	default:
+	}
+	return true, nil
+}
 
 // ~ OsSupportCheck
 type OsSupportCheck struct {

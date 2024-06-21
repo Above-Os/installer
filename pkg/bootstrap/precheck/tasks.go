@@ -25,12 +25,90 @@ import (
 	versionutil "k8s.io/apimachinery/pkg/util/version"
 
 	"bytetrade.io/web3os/installer/pkg/common"
+	"bytetrade.io/web3os/installer/pkg/constants"
 	"bytetrade.io/web3os/installer/pkg/core/action"
 	"bytetrade.io/web3os/installer/pkg/core/connector"
 	"bytetrade.io/web3os/installer/pkg/core/logger"
+	"bytetrade.io/web3os/installer/pkg/core/util"
+	"bytetrade.io/web3os/installer/pkg/utils"
 	"bytetrade.io/web3os/installer/pkg/version/kubernetes"
 	"bytetrade.io/web3os/installer/pkg/version/kubesphere"
 )
+
+// ~ GetSysInfoTask
+type GetSysInfoTask struct {
+	action.BaseAction
+}
+
+func (t *GetSysInfoTask) Execute(runtime connector.Runtime) error {
+	host, err := util.GetHost()
+	if err != nil {
+		return err
+	}
+	constants.HostName = host[0]
+	constants.HostId = host[1]
+	constants.OsType = host[2]
+	constants.OsPlatform = host[3]
+	constants.OsVersion = host[4]
+	constants.OsArch = host[5]
+
+	cpuModel, cpuLogicalCount, cpuPhysicalCount, err := util.GetCpu()
+	if err != nil {
+		return err
+	}
+	constants.CpuModel = cpuModel
+	constants.CpuLogicalCount = cpuLogicalCount
+	constants.CpuPhysicalCount = cpuPhysicalCount
+
+	diskTotal, diskFree, err := util.GetDisk()
+	if err != nil {
+		return err
+	}
+	constants.DiskTotal = diskTotal
+	constants.DiskFree = diskFree
+
+	memTotal, memFree, err := util.GetMem()
+	if err != nil {
+		return err
+	}
+	constants.MemTotal = memTotal
+	constants.MemFree = memFree
+
+	logger.Debugf("[task] GetSysInfoHook, hostname: %s, cpu: %d, mem: %d, disk: %d",
+		constants.HostName, constants.CpuPhysicalCount, constants.MemTotal, constants.DiskTotal)
+
+	logger.Infof("host info, hostname: %s, hostid: %s, os: %s, platform: %s, version: %s, arch: %s",
+		constants.HostName, constants.HostId, constants.OsType, constants.OsPlatform, constants.OsVersion, constants.OsArch)
+	logger.Infof("cpu info, model: %s, logical count: %d, physical count: %d",
+		constants.CpuModel, constants.CpuLogicalCount, constants.CpuPhysicalCount)
+	logger.Infof("disk info, total: %d, free: %d", constants.DiskTotal, constants.DiskFree)
+	logger.Infof("mem info, total: %d, free: %d", constants.MemTotal, constants.MemFree)
+
+	return nil
+}
+
+// ~ GetLocalIpTask
+type GetLocalIpTask struct {
+	action.BaseAction
+}
+
+func (t *GetLocalIpTask) Execute(runtime connector.Runtime) error {
+	pingCmd := fmt.Sprintf("ping -c 1 %s", constants.HostName)
+	pingCmdRes, _, err := util.Exec(pingCmd, true)
+	if err != nil {
+		return err
+	}
+
+	pingIps, err := utils.ExtractIP(pingCmdRes)
+	if err != nil {
+		return err
+	}
+
+	logger.Debugf("[task] GetLocalIpHook, local ip: %s", pingIps)
+	constants.LocalIp = pingIps
+
+	return nil
+}
 
 // ~ GreetingsTask
 type GreetingsTask struct {

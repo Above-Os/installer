@@ -28,6 +28,7 @@ import (
 	"bytetrade.io/web3os/installer/pkg/plugins/dns/templates"
 )
 
+// ~ ClusterDNSModule
 type ClusterDNSModule struct {
 	common.KubeModule
 }

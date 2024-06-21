@@ -38,10 +38,27 @@ func (m *GetSysInfoModel) Init() {
 	m.Name = "GetSysInfoModel"
 	m.Desc = "GetSysInfoModel"
 
-	m.PostHook = []module.PostHookInterface{
-		&GetSysInfoHook{},
-		&GetLocalIpHook{},
+	getSysInfoTask := &task.LocalTask{
+		Name:   "GetSysInfoTask",
+		Desc:   "GetSysInfoTask",
+		Action: new(GetSysInfoTask),
 	}
+
+	getLocalIpTask := &task.LocalTask{
+		Name:   "GetLocalIpTask",
+		Desc:   "GetLocalIpTask",
+		Action: new(GetLocalIpTask),
+	}
+
+	m.Tasks = []task.Interface{
+		getSysInfoTask,
+		getLocalIpTask,
+	}
+
+	// m.PostHook = []module.PostHookInterface{
+	// 	&GetSysInfoHook{},
+	// 	&GetLocalIpHook{},
+	// }
 }
 
 // ~ GreetingsModule

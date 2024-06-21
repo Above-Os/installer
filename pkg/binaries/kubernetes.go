@@ -29,6 +29,36 @@ import (
 	"github.com/pkg/errors"
 )
 
+func DownloadUbutun24AppArmor(path, version, arch string, pipelineCache *cache.Cache) error {
+	apparmor := files.NewKubeBinary("apparmor", arch, kubekeyapiv1alpha2.DefaultUbuntu24AppArmonVersion, path, nil)
+
+	if err := apparmor.CreateBaseDir(); err != nil {
+		return errors.Wrapf(errors.WithStack(err), "create file %s base dir failed", apparmor.FileName)
+	}
+
+	logger.Infof("%s downloading %s %s %s ...", common.LocalHost, arch, apparmor.ID, apparmor.Version)
+
+	if util.IsExist(apparmor.Path()) {
+		// download it again if it's incorrect
+		if err := apparmor.SHA256Check(); err != nil {
+			p := apparmor.Path()
+			_ = exec.Command("/bin/sh", "-c", fmt.Sprintf("rm -f %s", p)).Run()
+		} else {
+			logger.Infof("%s %s is existed", common.LocalHost, apparmor.ID)
+
+		}
+	}
+
+	if err := apparmor.Download(); err != nil {
+		return fmt.Errorf("Failed to download %s binary: %s error: %w ", apparmor.ID, apparmor.GetCmd(), err)
+	}
+
+	binariesMap := make(map[string]*files.KubeBinary)
+	binariesMap[apparmor.ID] = apparmor
+	pipelineCache.Set(common.KubeBinaries+"-"+arch, binariesMap)
+	return nil
+}
+
 // K8sFilesDownloadHTTP defines the kubernetes' binaries that need to be downloaded in advance and downloads them.
 func K8sFilesDownloadHTTP(kubeConf *common.KubeConf, path, version, arch string, pipelineCache *cache.Cache) error {
 

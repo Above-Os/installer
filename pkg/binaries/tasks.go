@@ -27,6 +27,17 @@ import (
 	"github.com/pkg/errors"
 )
 
+// ~ DownloadAppArmor
+type DownloadAppArmor struct {
+	common.KubeAction
+}
+
+func (t *DownloadAppArmor) Execute(runtime connector.Runtime) error {
+
+	return nil
+}
+
+// ~ Download
 type Download struct {
 	common.KubeAction
 }

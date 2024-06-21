@@ -54,6 +54,7 @@ const (
 	compose    = "compose"
 	containerd = "containerd"
 	runc       = "runc"
+	apparmor   = "apparmor"
 
 	// todo 安装包会进行拆分，可能不会再有 full 包了
 	// todo 所以我可以假设 f1.tar.gz f2.tar.gz f3.tar.gz ...
@@ -81,6 +82,7 @@ const (
 	RUNC       = "runc"
 	// todo installer package
 	INSTALLER = "installer"
+	PATCH     = "patch"
 )
 
 type KubeBinary struct {
@@ -243,6 +245,14 @@ func NewKubeBinary(name, arch, version, prePath string, getCmd func(path, url st
 		component.Url = "http://192.168.50.32/install-wizard-full.tar.gz"
 		component.CheckSum = false
 		component.BaseDir = filepath.Join(prePath, component.Type, pkg, component.Arch)
+	case apparmor:
+		component.Type = PATCH
+		component.FileName = fmt.Sprintf("apparmor_%s-0ubuntu1_%s.deb", version, arch)
+		component.CheckSum = true
+		// version 4.0.1
+		// arch    amd64  arm64
+		component.Url = fmt.Sprintf("https://launchpad.net/ubuntu/+archive/primary/+files/apparmor_%s-0ubuntu1_%s.deb", version, arch)
+		component.CheckSum = true
 	default:
 		logger.Fatalf("unsupported kube binaries %s", name)
 	}

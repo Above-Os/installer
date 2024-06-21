@@ -55,9 +55,6 @@ type ModuleRuntime interface {
 	// InitLogger() error
 }
 
-type PackageRuntime interface {
-}
-
 type Runtime interface {
 	GetRunner() *Runner
 	SetRunner(r *Runner)

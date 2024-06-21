@@ -27,31 +27,7 @@ import (
 	"bytetrade.io/web3os/installer/pkg/core/util"
 )
 
-type InstallerPackageRuntime struct { // only for installer
-	ObjName   string
-	connector Connector
-	runner    *Runner
-	workDir   string
-	verbose   bool
-	ignoreErr bool
-}
-
-func NewInstallerPackageRuntime(name string, connector Connector, verbose bool, ignoreErr bool) InstallerPackageRuntime {
-	installer := InstallerPackageRuntime{
-		ObjName:   name,
-		connector: connector,
-		verbose:   verbose,
-		ignoreErr: ignoreErr,
-	}
-
-	// todo logger
-
-	return installer
-}
-
-// - split -
-
-type BaseRuntime struct { // only for kubekey
+type BaseRuntime struct {
 	ObjName         string
 	connector       Connector
 	runner          *Runner

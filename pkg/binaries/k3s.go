@@ -44,7 +44,7 @@ func K3sFilesDownloadHTTP(kubeConf *common.KubeConf, path, version, arch string,
 			return errors.Wrapf(errors.WithStack(err), "create file %s base dir failed", binary.FileName)
 		}
 
-		logger.Log.Messagef(common.LocalHost, "downloading %s %s %s ...", arch, binary.ID, binary.Version)
+		logger.Infof("%s downloading %s %s %s ...", common.LocalHost, arch, binary.ID, binary.Version)
 
 		binariesMap[binary.ID] = binary
 		if util.IsExist(binary.Path()) {

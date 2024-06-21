@@ -19,10 +19,27 @@ package binaries
 import (
 	"bytetrade.io/web3os/installer/pkg/common"
 	"bytetrade.io/web3os/installer/pkg/core/logger"
+	"bytetrade.io/web3os/installer/pkg/core/module"
 	"bytetrade.io/web3os/installer/pkg/core/task"
 	"github.com/pkg/errors"
 )
 
+// ~ PatchUbuntu24AppArmorModule
+type PatchUbuntu24AppArmorModule struct {
+	module.BaseTaskModule
+}
+
+func (m *PatchUbuntu24AppArmorModule) GetName() string {
+	return "PatchUbuntu24AppArmorModule"
+}
+
+func (m *PatchUbuntu24AppArmorModule) Init() {
+	m.Name = "PatchUbuntu24AppArmorModule"
+	m.Desc = "Patch Ubuntu 24.04 AppArmor"
+
+}
+
+// ~ NodeBinariesModule
 type NodeBinariesModule struct {
 	common.KubeModule
 }

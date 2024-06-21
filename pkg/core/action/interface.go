@@ -26,9 +26,3 @@ type Action interface {
 	Execute(runtime connector.Runtime) (err error)
 	AutoAssert(runtime connector.Runtime)
 }
-
-type InstallerAction interface {
-	Init()
-	Execute(runtime connector.PackageRuntime) (err error)
-	AutoAssert(runtime connector.PackageRuntime)
-}

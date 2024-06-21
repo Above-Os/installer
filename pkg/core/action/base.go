@@ -38,18 +38,3 @@ func (b *BaseAction) Execute(runtime connector.Runtime) error {
 func (b *BaseAction) AutoAssert(runtime connector.Runtime) {
 
 }
-
-type InstallerBaseAction struct {
-}
-
-func (b *InstallerBaseAction) Init() {
-
-}
-
-func (b *InstallerBaseAction) Execute(runtime connector.PackageRuntime) error {
-	return nil
-}
-
-func (b *InstallerBaseAction) AutoAssert(runtime connector.PackageRuntime) {
-
-}

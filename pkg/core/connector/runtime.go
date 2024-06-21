@@ -120,10 +120,10 @@ func (b *BaseRuntime) GenerateWorkDir() error {
 	}
 	b.workDir = rootPath
 
-	logDir := filepath.Join(rootPath, "logs")
-	if err := util.CreateDir(logDir); err != nil {
-		return errors.Wrap(err, "create logs dir failed")
-	}
+	// logDir := filepath.Join(rootPath, "logs")
+	// if err := util.CreateDir(logDir); err != nil {
+	// 	return errors.Wrap(err, "create logs dir failed")
+	// }
 
 	for i := range b.allHosts {
 		subPath := filepath.Join(rootPath, b.allHosts[i].GetName())

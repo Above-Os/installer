@@ -3,13 +3,13 @@ package api
 import (
 	"fmt"
 	"os"
+	"os/user"
 	"path"
 
 	"bytetrade.io/web3os/installer/cmd/ctl/options"
 	"bytetrade.io/web3os/installer/pkg/apiserver"
 	"bytetrade.io/web3os/installer/pkg/constants"
 	"bytetrade.io/web3os/installer/pkg/core/logger"
-	phaseos "bytetrade.io/web3os/installer/pkg/phase/os"
 	"bytetrade.io/web3os/installer/pkg/utils"
 	"github.com/spf13/cobra"
 )
@@ -37,11 +37,25 @@ func NewCmdApi() *cobra.Command {
 				os.Exit(1)
 			}
 
-			if err := CheckCurrentUser(); err != nil {
+			// fmt.Println("---1---")
+			// logger.Debugf("this is hahah %s, max: %d", "123321", 900)
+			// logger.Error("[error]", "error world!")
+			// logger.Info("[info]", "hello world!!!")
+			// fmt.Println("---end---")
+
+			if err := GetCurrentUser(); err != nil {
 				logger.Errorf(err.Error())
 				os.Exit(1)
 			}
 
+			logger.Debugf("current user: %s", constants.CurrentUser)
+
+			if constants.CurrentUser != "root" {
+				logger.Error("Current user is not root!! exit ...")
+				os.Exit(1)
+			}
+
+			logger.Info("Terminus Installer starting ...")
 			if err := Run(o.ApiOptions); err != nil {
 				logger.Errorf("failed to run installer api server: %+v", err)
 				os.Exit(1)
@@ -70,8 +84,13 @@ func InitLog(option *options.ApiOptions) error {
 	return nil
 }
 
-func CheckCurrentUser() error {
-	return phaseos.CheckCurrentUserPipeline()
+func GetCurrentUser() error {
+	u, err := user.Current()
+	if err != nil {
+		return err
+	}
+	constants.CurrentUser = u.Username
+	return nil
 }
 
 func Run(option *options.ApiOptions) error {

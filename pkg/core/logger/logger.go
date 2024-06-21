@@ -24,21 +24,6 @@ const (
 )
 
 func InitLog(logDir string, level any) {
-	encoderConfig := zapcore.EncoderConfig{
-		TimeKey:        "time",
-		LevelKey:       "level",
-		NameKey:        "logger",
-		CallerKey:      "line",
-		MessageKey:     "msg",
-		StacktraceKey:  "stacktrace",
-		LineEnding:     zapcore.DefaultLineEnding,
-		EncodeLevel:    zapcore.LowercaseLevelEncoder,
-		EncodeTime:     zapcore.ISO8601TimeEncoder,
-		EncodeDuration: zapcore.SecondsDurationEncoder,
-		EncodeCaller:   zapcore.ShortCallerEncoder,
-		EncodeName:     zapcore.FullNameEncoder,
-	}
-
 	found, err := isDirExist(logDir)
 	if err != nil {
 		fmt.Println("installer log dir found error", err)
@@ -53,39 +38,54 @@ func InitLog(logDir string, level any) {
 		}
 	}
 
-	p := path.Join(logDir, "logfile.log")
+	p := path.Join(logDir, "terminus_install.log")
 	file, err := os.Create(p)
 	if err != nil {
 		panic(err)
 	}
 
-	var writers []zapcore.WriteSyncer
-	writers = append(writers, os.Stdout, zapcore.AddSync(file))
+	consolePriority := zap.LevelEnablerFunc(func(lvl zapcore.Level) bool {
+		return lvl == zapcore.DebugLevel || lvl == zapcore.ErrorLevel
+	})
+	filePriority := zap.LevelEnablerFunc(func(lvl zapcore.Level) bool {
+		return lvl >= zapcore.DebugLevel
+	})
 
-	atomicLevel := zap.NewAtomicLevel()
-	var l zapcore.Level
-	switch v := level.(type) {
-	case string:
-		l = getLevel(v)
-	case bool:
-		if v == true {
-			l = getLevel("debug")
-		} else {
-			l = getLevel("info")
-		}
-	case LevelLog:
-		l = v
+	fileEncoder := zapcore.EncoderConfig{
+		TimeKey:        "time",
+		LevelKey:       "level",
+		NameKey:        "logger",
+		CallerKey:      "line",
+		FunctionKey:    zapcore.OmitKey,
+		MessageKey:     "msg",
+		StacktraceKey:  "stacktrace",
+		LineEnding:     zapcore.DefaultLineEnding,
+		EncodeLevel:    zapcore.CapitalLevelEncoder,
+		EncodeTime:     zapcore.ISO8601TimeEncoder,
+		EncodeDuration: zapcore.StringDurationEncoder,
+		EncodeCaller:   zapcore.ShortCallerEncoder,
 	}
-	atomicLevel.SetLevel(l)
+	consoleEncoderConfig := zapcore.EncoderConfig{
+		TimeKey: "T",
+		// NameKey:        "N",
+		// CallerKey:      "C",
+		// FunctionKey:    zapcore.OmitKey,
+		MessageKey:     "M",
+		StacktraceKey:  "S",
+		LineEnding:     zapcore.DefaultLineEnding,
+		EncodeLevel:    zapcore.CapitalLevelEncoder,
+		EncodeTime:     zapcore.ISO8601TimeEncoder,
+		EncodeDuration: zapcore.StringDurationEncoder,
+		EncodeCaller:   zapcore.ShortCallerEncoder,
+	}
 
-	core := zapcore.NewCore(
-		zapcore.NewConsoleEncoder(encoderConfig),
-		zapcore.NewMultiWriteSyncer(writers...),
-		atomicLevel,
+	consoleDebugging := zapcore.Lock(os.Stdout)
+
+	core := zapcore.NewTee(
+		zapcore.NewCore(zapcore.NewConsoleEncoder(consoleEncoderConfig), consoleDebugging, consolePriority),
+		zapcore.NewCore(zapcore.NewJSONEncoder(fileEncoder), zapcore.AddSync(file), filePriority),
 	)
-
-	logger = zap.New(core,
-		zap.AddCaller(), zap.Development(),
+	logger = zap.New(core, zap.AddCaller(), zap.Development(),
 		zap.AddCallerSkip(1), zap.AddStacktrace(zapcore.FatalLevel)).Sugar()
 	defer logger.Sync()
 }

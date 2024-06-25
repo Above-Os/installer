@@ -37,6 +37,22 @@ func (m *PatchUbuntu24AppArmorModule) Init() {
 	m.Name = "PatchUbuntu24AppArmorModule"
 	m.Desc = "Patch Ubuntu 24.04 AppArmor"
 
+	appArmorDownload := &task.LocalTask{
+		Name:   "PatchUbuntu24AppArmorModule",
+		Desc:   "Setup App Armor for Ubuntu 24.x",
+		Action: new(AppArmorDownload),
+	}
+
+	appArmorInstall := &task.LocalTask{
+		Name:   "PatchUbuntu24AppArmorModule",
+		Desc:   "Setup App Armor for Ubuntu 24.x",
+		Action: new(AppArmorInstall),
+	}
+
+	m.Tasks = []task.Interface{
+		appArmorDownload,
+		appArmorInstall,
+	}
 }
 
 // ~ NodeBinariesModule

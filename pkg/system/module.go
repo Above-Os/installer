@@ -2,6 +2,10 @@ package system
 
 import "bytetrade.io/web3os/installer/pkg/core/module"
 
-type SystemInfoModule struct {
+/**
+ * system depend
+ */
+
+type SystemDepsModule struct {
 	module.BaseTaskModule
 }

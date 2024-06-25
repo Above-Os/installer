@@ -22,22 +22,39 @@ import (
 
 	kubekeyapiv1alpha2 "bytetrade.io/web3os/installer/apis/kubekey/v1alpha2"
 	"bytetrade.io/web3os/installer/pkg/common"
+	"bytetrade.io/web3os/installer/pkg/constants"
 	"bytetrade.io/web3os/installer/pkg/core/connector"
+	"bytetrade.io/web3os/installer/pkg/core/logger"
 	mapset "github.com/deckarep/golang-set"
 	"github.com/pkg/errors"
 )
 
-// ~ DownloadAppArmor
-type DownloadAppArmor struct {
+// - AppArmorDownload
+type AppArmorDownload struct {
 	common.KubeAction
 }
 
-func (t *DownloadAppArmor) Execute(runtime connector.Runtime) error {
+func (t *AppArmorDownload) Execute(runtime connector.Runtime) error {
+	logger.Debug("[action] AppArmorDownload")
+	if err := DownloadUbutun24AppArmor(runtime.GetWorkDir(), kubekeyapiv1alpha2.DefaultUbuntu24AppArmonVersion,
+		constants.OsArch, t.PipelineCache); err != nil {
+		return err
+	}
 
 	return nil
 }
 
-// ~ Download
+// - AppArmorInstall
+type AppArmorInstall struct {
+	common.KubeAction
+}
+
+func (t *AppArmorInstall) Execute(runtime connector.Runtime) error {
+	logger.Debugf("[action] AppArmorInstall")
+	return nil
+}
+
+// + Download
 type Download struct {
 	common.KubeAction
 }
@@ -72,6 +89,7 @@ func (d *Download) Execute(runtime connector.Runtime) error {
 	return nil
 }
 
+// + K3sDownload
 type K3sDownload struct {
 	common.KubeAction
 }
@@ -106,6 +124,7 @@ func (k *K3sDownload) Execute(runtime connector.Runtime) error {
 	return nil
 }
 
+// + ArtifactDownload
 type ArtifactDownload struct {
 	common.ArtifactAction
 }
@@ -151,6 +170,7 @@ func (a *ArtifactDownload) Execute(runtime connector.Runtime) error {
 	return nil
 }
 
+// + K3sArtifactDownload
 type K3sArtifactDownload struct {
 	common.ArtifactAction
 }
@@ -196,6 +216,7 @@ func (a *K3sArtifactDownload) Execute(runtime connector.Runtime) error {
 	return nil
 }
 
+// + RegistryPackageDownload
 type RegistryPackageDownload struct {
 	common.KubeAction
 }
@@ -209,6 +230,7 @@ func (k *RegistryPackageDownload) Execute(runtime connector.Runtime) error {
 	return nil
 }
 
+// + CriDownload
 type CriDownload struct {
 	common.KubeAction
 }

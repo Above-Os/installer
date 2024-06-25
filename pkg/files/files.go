@@ -55,6 +55,8 @@ const (
 	containerd = "containerd"
 	runc       = "runc"
 	apparmor   = "apparmor"
+	socat      = "socat"
+	contrack   = "contrack"
 
 	// todo 安装包会进行拆分，可能不会再有 full 包了
 	// todo 所以我可以假设 f1.tar.gz f2.tar.gz f3.tar.gz ...
@@ -253,6 +255,8 @@ func NewKubeBinary(name, arch, version, prePath string, getCmd func(path, url st
 		// arch    amd64  arm64
 		component.Url = fmt.Sprintf("https://launchpad.net/ubuntu/+archive/primary/+files/apparmor_%s-0ubuntu1_%s.deb", version, arch)
 		component.CheckSum = true
+	case socat:
+	case contrack:
 	default:
 		logger.Fatalf("unsupported kube binaries %s", name)
 	}

@@ -102,7 +102,7 @@ func K3sArtifactBinariesDownload(manifest *common.ArtifactManifest, path, arch, 
 			return errors.Wrapf(errors.WithStack(err), "create file %s base dir failed", binary.FileName)
 		}
 
-		logger.Log.Messagef(common.LocalHost, "downloading %s %s %s ...", arch, binary.ID, binary.Version)
+		logger.Debugf("%s downloading %s %s %s ...", common.LocalHost, arch, binary.ID, binary.Version)
 
 		if util.IsExist(binary.Path()) {
 			// download it again if it's incorrect

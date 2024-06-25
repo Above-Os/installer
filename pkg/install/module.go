@@ -5,6 +5,7 @@ import (
 	"bytetrade.io/web3os/installer/pkg/core/task"
 )
 
+// 这里是测试安装 kk 的
 type InstallModule struct {
 	common.KubeModule
 }

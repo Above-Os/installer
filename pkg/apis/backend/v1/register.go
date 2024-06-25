@@ -21,20 +21,26 @@ func AddContainer(c *restful.Container) error {
 	handler := New()
 
 	// + 正式接口
-	ws.Route(ws.GET("/public-ip").
-		To(handler.handlerPublicIp).
-		Doc("").
-		Metadata(restfulspec.KeyOpenAPITags, tags).
-		Returns(http.StatusOK, "", response.Response{}))
-
-	ws.Route(ws.POST("/download").
-		To(handler.handlerDownload).
-		Doc("").
-		Metadata(restfulspec.KeyOpenAPITags, tags).
-		Returns(http.StatusOK, "", response.Response{}))
+	// ws.Route(ws.GET("/public-ip").
+	// 	To(handler.handlerPublicIp).
+	// 	Doc("").
+	// 	Metadata(restfulspec.KeyOpenAPITags, tags).
+	// 	Returns(http.StatusOK, "", response.Response{}))
 
 	ws.Route(ws.POST("/install").
 		To(handler.handlerInstall).
+		Doc("").
+		Metadata(restfulspec.KeyOpenAPITags, tags).
+		Returns(http.StatusOK, "", response.Response{}))
+
+	ws.Route(ws.POST("/progress").
+		To(handler.handlerProgress).
+		Doc("").
+		Metadata(restfulspec.KeyOpenAPITags, tags).
+		Returns(http.StatusOK, "", response.Response{}))
+
+	ws.Route(ws.POST("/status").
+		To(handler.handlerStatus).
 		Doc("").
 		Metadata(restfulspec.KeyOpenAPITags, tags).
 		Returns(http.StatusOK, "", response.Response{}))

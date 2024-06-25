@@ -7,6 +7,7 @@ import (
 	"bytetrade.io/web3os/installer/pkg/common"
 	"bytetrade.io/web3os/installer/pkg/core/logger"
 	"bytetrade.io/web3os/installer/pkg/core/storage"
+	"bytetrade.io/web3os/installer/pkg/model"
 	"bytetrade.io/web3os/installer/pkg/phase/download"
 	"bytetrade.io/web3os/installer/pkg/phase/mock"
 	"bytetrade.io/web3os/installer/pkg/pipelines"
@@ -40,12 +41,28 @@ func (h *Handler) handlerPublicIp(req *restful.Request, resp *restful.Response) 
 	response.Success(resp, data)
 }
 
-// ~ download
-func (h *Handler) handlerDownload(req *restful.Request, resp *restful.Response) {
+func (h *Handler) handlerConfig(req *restful.Request, resp *restful.Response) {
+	response.SuccessNoData(resp)
 }
 
 // ~ install
 func (h *Handler) handlerInstall(req *restful.Request, resp *restful.Response) {
+	var reqModel model.InstallModelReq
+	err := req.ReadEntity(&reqModel)
+	if err != nil {
+		response.HandleError(resp, err)
+		return
+	}
+
+	// todo 写入数据库
+
+}
+
+func (h *Handler) handlerProgress(req *restful.Request, resp *restful.Response) {
+
+}
+
+func (h *Handler) handlerStatus(req *restful.Request, resp *restful.Response) {
 
 }
 

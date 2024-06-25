@@ -57,6 +57,8 @@ const (
 	DefaultRegistryVersion         = "2"
 	DefaultHarborVersion           = "v2.5.3"
 	DefaultUbuntu24AppArmonVersion = "4.0.1"
+	DefaultSocatVersion            = "1.7.3.2"
+	DefaultContrackVersion         = "1.4.1"
 
 	DefaultMaxPods             = 200
 	DefaultPodPidsLimit        = 10000

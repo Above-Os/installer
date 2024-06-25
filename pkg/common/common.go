@@ -48,6 +48,8 @@ const (
 	KubeScriptDir                = "/usr/local/bin/kube-scripts"
 	KubeletFlexvolumesPluginsDir = "/usr/libexec/kubernetes/kubelet-plugins/volume/exec"
 
+	InstallerScriptsDir = "scripts"
+
 	ETCDCertDir     = "/etc/ssl/etcd/ssl"
 	RegistryCertDir = "/etc/ssl/registry/ssl"
 
@@ -118,7 +120,10 @@ const (
 	Amd64   = "amd64"
 	Arm64   = "arm64"
 
-	Ubuntu = "ubuntu"
-	Debian = "debian"
-	CentOs = "centos"
+	Ubuntu   = "ubuntu"
+	Debian   = "debian"
+	CentOs   = "centos"
+	Fedora   = "fedora"
+	RHEl     = "rhel"
+	Raspbian = "raspbian"
 )

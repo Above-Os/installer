@@ -13,7 +13,7 @@ import (
 )
 
 func DownloadUbutun24AppArmor(path, version, arch string, pipelineCache *cache.Cache) error {
-	apparmor := files.NewKubeBinary("apparmor", arch, version, path, nil)
+	apparmor := files.NewKubeBinary("apparmor", arch, version, path)
 
 	if err := apparmor.CreateBaseDir(); err != nil {
 		return errors.Wrapf(errors.WithStack(err), "create file %s base dir failed", apparmor.FileName)
@@ -33,7 +33,7 @@ func DownloadUbutun24AppArmor(path, version, arch string, pipelineCache *cache.C
 	}
 
 	if err := apparmor.Download(); err != nil {
-		return fmt.Errorf("Failed to download %s binary: %s error: %w ", apparmor.ID, apparmor.GetCmd(), err)
+		return fmt.Errorf("Failed to download %s binary: %s error: %w ", apparmor.ID, apparmor.Url, err)
 	}
 
 	binariesMap := make(map[string]*files.KubeBinary)

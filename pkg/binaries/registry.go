@@ -36,12 +36,12 @@ func RegistryPackageDownloadHTTP(kubeConf *common.KubeConf, path, arch string, p
 	switch kubeConf.Cluster.Registry.Type {
 	case common.Harbor:
 		// TODO: Harbor only supports amd64, so there is no need to consider other architectures at present.
-		harbor := files.NewKubeBinary("harbor", arch, kubekeyapiv1alpha2.DefaultHarborVersion, path, kubeConf.Arg.DownloadCommand)
-		compose := files.NewKubeBinary("compose", arch, kubekeyapiv1alpha2.DefaultDockerComposeVersion, path, kubeConf.Arg.DownloadCommand)
-		docker := files.NewKubeBinary("docker", arch, kubekeyapiv1alpha2.DefaultDockerVersion, path, kubeConf.Arg.DownloadCommand)
+		harbor := files.NewKubeBinary("harbor", arch, kubekeyapiv1alpha2.DefaultHarborVersion, path)
+		compose := files.NewKubeBinary("compose", arch, kubekeyapiv1alpha2.DefaultDockerComposeVersion, path)
+		docker := files.NewKubeBinary("docker", arch, kubekeyapiv1alpha2.DefaultDockerVersion, path)
 		binaries = []*files.KubeBinary{harbor, docker, compose}
 	default:
-		registry := files.NewKubeBinary("registry", arch, kubekeyapiv1alpha2.DefaultRegistryVersion, path, kubeConf.Arg.DownloadCommand)
+		registry := files.NewKubeBinary("registry", arch, kubekeyapiv1alpha2.DefaultRegistryVersion, path)
 		binaries = []*files.KubeBinary{registry}
 	}
 
@@ -64,7 +64,7 @@ func RegistryPackageDownloadHTTP(kubeConf *common.KubeConf, path, arch string, p
 		}
 
 		if err := binary.Download(); err != nil {
-			return fmt.Errorf("Failed to download %s binary: %s error: %w ", binary.ID, binary.GetCmd(), err)
+			return fmt.Errorf("Failed to download %s binary: %s error: %w ", binary.ID, binary.Url, err)
 		}
 	}
 
@@ -78,12 +78,12 @@ func RegistryBinariesDownload(manifest *common.ArtifactManifest, path, arch stri
 	binaries := make([]*files.KubeBinary, 0, 0)
 
 	if m.Components.DockerRegistry.Version != "" {
-		registry := files.NewKubeBinary("registry", arch, kubekeyapiv1alpha2.DefaultRegistryVersion, path, manifest.Arg.DownloadCommand)
+		registry := files.NewKubeBinary("registry", arch, kubekeyapiv1alpha2.DefaultRegistryVersion, path)
 		binaries = append(binaries, registry)
 	}
 
 	if m.Components.Harbor.Version != "" {
-		harbor := files.NewKubeBinary("harbor", arch, kubekeyapiv1alpha2.DefaultHarborVersion, path, manifest.Arg.DownloadCommand)
+		harbor := files.NewKubeBinary("harbor", arch, kubekeyapiv1alpha2.DefaultHarborVersion, path)
 		// TODO: Harbor only supports amd64, so there is no need to consider other architectures at present.
 		if arch == "amd64" {
 			binaries = append(binaries, harbor)
@@ -91,9 +91,9 @@ func RegistryBinariesDownload(manifest *common.ArtifactManifest, path, arch stri
 	}
 
 	if m.Components.DockerCompose.Version != "" {
-		compose := files.NewKubeBinary("compose", arch, kubekeyapiv1alpha2.DefaultDockerComposeVersion, path, manifest.Arg.DownloadCommand)
+		compose := files.NewKubeBinary("compose", arch, kubekeyapiv1alpha2.DefaultDockerComposeVersion, path)
 		// TODO: Harbor only supports amd64, so there is no need to consider other architectures at present. docker-compose is required only if harbor is installed.
-		containerManager := files.NewKubeBinary("docker", arch, kubekeyapiv1alpha2.DefaultDockerVersion, path, manifest.Arg.DownloadCommand)
+		containerManager := files.NewKubeBinary("docker", arch, kubekeyapiv1alpha2.DefaultDockerVersion, path)
 		if arch == "amd64" {
 			binaries = append(binaries, compose)
 			binaries = append(binaries, containerManager)
@@ -118,7 +118,7 @@ func RegistryBinariesDownload(manifest *common.ArtifactManifest, path, arch stri
 		}
 
 		if err := binary.Download(); err != nil {
-			return fmt.Errorf("Failed to download %s binary: %s error: %w ", binary.ID, binary.GetCmd(), err)
+			return fmt.Errorf("Failed to download %s binary: %s error: %w ", binary.ID, binary.Url, err)
 		}
 	}
 	return nil

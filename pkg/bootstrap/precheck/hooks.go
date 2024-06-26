@@ -11,7 +11,7 @@ import (
 	"bytetrade.io/web3os/installer/pkg/utils"
 )
 
-// ~ GetSysInfoHook
+// ~ hook GetSysInfoHook
 type GetSysInfoHook struct {
 	Module module.Module
 	Result *ending.ModuleResult
@@ -77,7 +77,7 @@ func (h *GetSysInfoHook) Catch(err error) error {
 func (h *GetSysInfoHook) Finally() {
 }
 
-// ~ GetLocalIpHook
+// ~ hook GetLocalIpHook
 type GetLocalIpHook struct {
 	Module module.Module
 	Result *ending.ModuleResult

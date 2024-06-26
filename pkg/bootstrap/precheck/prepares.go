@@ -19,14 +19,76 @@ package precheck
 import (
 	"fmt"
 	"net"
+	"os/exec"
 	"strings"
 
+	kubekeyapiv1alpha2 "bytetrade.io/web3os/installer/apis/kubekey/v1alpha2"
 	"bytetrade.io/web3os/installer/pkg/common"
 	"bytetrade.io/web3os/installer/pkg/constants"
 	"bytetrade.io/web3os/installer/pkg/core/connector"
+	"bytetrade.io/web3os/installer/pkg/core/logger"
 	"bytetrade.io/web3os/installer/pkg/core/prepare"
+	"bytetrade.io/web3os/installer/pkg/core/util"
+	"bytetrade.io/web3os/installer/pkg/files"
 	"github.com/pkg/errors"
 )
+
+// ~ DownloadDepsExt
+type DownloadDepsExt struct {
+	prepare.BasePrepare
+}
+
+func (p *DownloadDepsExt) PreCheck(runtime connector.Runtime) (bool, error) {
+	logger.Debug("[prepare] DownloadDepsExt")
+	binaries := []*files.KubeBinary{}
+
+	// switch constants.OsPlatform {
+	// case common.Ubuntu:
+	// 	if strings.HasPrefix(constants.OsVersion, "24.") {
+	// 		apparmor := files.NewKubeBinary("apparmor", kubekeyapiv1alpha2.DefaultArch, kubekeyapiv1alpha2.DefaultUbuntu24AppArmonVersion, runtime.GetDependDir())
+	// 		binaries = append(binaries, apparmor)
+	// 	}
+	// case common.Debian, common.Raspbian, common.CentOs, common.Fedora, common.RHEl:
+	// default:
+	// 	socat := files.NewKubeBinary("socat", kubekeyapiv1alpha2.DefaultArch, kubekeyapiv1alpha2.DefaultSocatVersion, runtime.GetDependDir())
+	// 	contrack := files.NewKubeBinary("contrack", kubekeyapiv1alpha2.DefaultArch, kubekeyapiv1alpha2.DefaultContrackVersion, runtime.GetDependDir())
+	// 	binaries = append(binaries, socat, contrack)
+	// }
+
+	apparmor := files.NewKubeBinary("apparmor", kubekeyapiv1alpha2.DefaultArch, kubekeyapiv1alpha2.DefaultUbuntu24AppArmonVersion, runtime.GetDependDir())
+	binaries = append(binaries, apparmor)
+	socat := files.NewKubeBinary("socat", kubekeyapiv1alpha2.DefaultArch, kubekeyapiv1alpha2.DefaultSocatVersion, runtime.GetDependDir())
+	contrack := files.NewKubeBinary("contrack", kubekeyapiv1alpha2.DefaultArch, kubekeyapiv1alpha2.DefaultContrackVersion, runtime.GetDependDir())
+	binaries = append(binaries, socat, contrack)
+
+	binariesMap := make(map[string]*files.KubeBinary)
+
+	for _, binary := range binaries {
+		if err := binary.CreateBaseDir(); err != nil {
+			return false, errors.Wrapf(errors.WithStack(err), "create file %s base dir failed", binary.FileName)
+		}
+
+		logger.Infof("%s downloading %s %s %s ...", common.LocalHost, constants.OsArch, binary.ID, binary.Version)
+
+		binariesMap[binary.ID] = binary
+		if util.IsExist(binary.Path()) {
+			p := binary.Path()
+			if err := binary.SHA256Check(); err != nil {
+				_ = exec.Command("/bin/sh", "-c", fmt.Sprintf("rm -f %s", p)).Run()
+			} else {
+				continue
+			}
+		}
+
+		if err := binary.Download(); err != nil {
+			return false, fmt.Errorf("Failed to download %s binary: %s error: %w ", binary.ID, binary.Url, err)
+		}
+	}
+
+	p.PipelineCache.Set(common.KubeBinaries+"-"+constants.OsArch, binariesMap)
+
+	return true, nil
+}
 
 // ~ LocalIpCheck
 type LocalIpCheck struct {

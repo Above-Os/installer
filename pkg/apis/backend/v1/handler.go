@@ -72,6 +72,19 @@ func (h *Handler) handlerTest(req *restful.Request, resp *restful.Response) {
 	response.SuccessNoData(resp)
 }
 
+// + 测试安装的接口
+func (h *Handler) handlerInst(req *restful.Request, resp *restful.Response) {
+	args := common.Argument{}
+	runtime, err := common.NewKubeRuntime(common.AllInOne, args)
+	if err != nil {
+		response.HandleError(resp, err)
+		return
+	}
+
+	pipelines.NewCreateInstallerPipeline(runtime)
+	response.SuccessNoData(resp)
+}
+
 func (h *Handler) handlerGreetings(req *restful.Request, resp *restful.Response) {
 	logger.Infof("handler greetings req: %s", req.Request.Method)
 
@@ -87,7 +100,7 @@ func (h *Handler) handlerDownloadEx(req *restful.Request, resp *restful.Response
 
 	arg := common.Argument{}
 
-	if err := download.CreateDownload(arg, "curl -L -o %s %s"); err != nil {
+	if err := download.CreateDownload(arg); err != nil {
 		logger.Errorf("download failed %v", err)
 	}
 

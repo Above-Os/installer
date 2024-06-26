@@ -18,7 +18,12 @@ package common
 
 const (
 	// KubeKey = "kubekey"
-	KubeKey = "pkg"
+	KubeKey          = "pkg"
+	Components       = "components"
+	Scripts          = "scripts"
+	GreetingShell    = "greeting.sh"
+	PrecheckOsShell  = "precheck_os.sh"
+	InstallDepsShell = "install_deps.sh"
 
 	Pipeline = "Pipeline"
 	Module   = "Module"

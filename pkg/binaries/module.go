@@ -19,41 +19,9 @@ package binaries
 import (
 	"bytetrade.io/web3os/installer/pkg/common"
 	"bytetrade.io/web3os/installer/pkg/core/logger"
-	"bytetrade.io/web3os/installer/pkg/core/module"
 	"bytetrade.io/web3os/installer/pkg/core/task"
 	"github.com/pkg/errors"
 )
-
-// ~ PatchUbuntu24AppArmorModule
-type PatchUbuntu24AppArmorModule struct {
-	module.BaseTaskModule
-}
-
-func (m *PatchUbuntu24AppArmorModule) GetName() string {
-	return "PatchUbuntu24AppArmorModule"
-}
-
-func (m *PatchUbuntu24AppArmorModule) Init() {
-	m.Name = "PatchUbuntu24AppArmorModule"
-	m.Desc = "Patch Ubuntu 24.04 AppArmor"
-
-	appArmorDownload := &task.LocalTask{
-		Name:   "PatchUbuntu24AppArmorModule",
-		Desc:   "Setup App Armor for Ubuntu 24.x",
-		Action: new(AppArmorDownload),
-	}
-
-	appArmorInstall := &task.LocalTask{
-		Name:   "PatchUbuntu24AppArmorModule",
-		Desc:   "Setup App Armor for Ubuntu 24.x",
-		Action: new(AppArmorInstall),
-	}
-
-	m.Tasks = []task.Interface{
-		appArmorDownload,
-		appArmorInstall,
-	}
-}
 
 // ~ NodeBinariesModule
 type NodeBinariesModule struct {

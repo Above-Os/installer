@@ -14,7 +14,7 @@ import (
 
 // + 测试 full 包下载
 func DownloadInstallPackage(kubeConf *common.KubeConf, path, version, arch string, pipelineCache *cache.Cache) error {
-	installPackage := files.NewKubeBinary("full-package", arch, version, path, kubeConf.Arg.DownloadCommand)
+	installPackage := files.NewKubeBinary("full-package", arch, version, path)
 
 	downloadFiles := []*files.KubeBinary{installPackage}
 	filesMap := make(map[string]*files.KubeBinary)
@@ -36,7 +36,7 @@ func DownloadInstallPackage(kubeConf *common.KubeConf, path, version, arch strin
 
 		// todo doanload
 		if err := downloadFile.Download(); err != nil {
-			return fmt.Errorf("Failed to download %s binary: %s error: %w ", downloadFile.ID, downloadFile.GetCmd(), err)
+			return fmt.Errorf("Failed to download %s binary: %s error: %w ", downloadFile.ID, downloadFile.Url, err)
 		}
 	}
 
@@ -48,7 +48,7 @@ func DownloadPackage(kubeConf *common.KubeConf, path, version, arch string, pipe
 	// file1 := files.NewKubeBinary("file1", arch, version, path, kubeConf.Arg.DownloadCommand)
 	// file2 := files.NewKubeBinary("file2", arch, version, path, kubeConf.Arg.DownloadCommand)
 	// file3 := files.NewKubeBinary("file3", arch, version, path, kubeConf.Arg.DownloadCommand)
-	file4 := files.NewKubeBinary("kubekey", arch, "0.1.20", path, kubeConf.Arg.DownloadCommand) // todo test kubekey
+	file4 := files.NewKubeBinary("kubekey", arch, "0.1.20", path) // todo test kubekey
 
 	downloadFiles := []*files.KubeBinary{file4}
 
@@ -74,7 +74,7 @@ func DownloadPackage(kubeConf *common.KubeConf, path, version, arch string, pipe
 
 		// todo
 		if err := downloadFile.Download(); err != nil {
-			return fmt.Errorf("Failed to download %s binary: %s error: %w ", downloadFile.ID, downloadFile.GetCmd(), err)
+			return fmt.Errorf("Failed to download %s binary: %s error: %w ", downloadFile.ID, downloadFile.Url, err)
 		}
 	}
 

@@ -1,10 +1,10 @@
 package pipelines
 
 import (
-	"bytetrade.io/web3os/installer/pkg/binaries"
 	"bytetrade.io/web3os/installer/pkg/bootstrap/precheck"
 	"bytetrade.io/web3os/installer/pkg/common"
 	"bytetrade.io/web3os/installer/pkg/core/module"
+	"bytetrade.io/web3os/installer/pkg/core/pipeline"
 )
 
 // todo 安装 Terminus
@@ -14,13 +14,17 @@ func NewCreateInstallerPipeline(runtime *common.KubeRuntime) error {
 	// binaries/patch ubuntu24 apparmor
 
 	m := []module.Module{
-		&precheck.GreetingsModule{}, // 启动
-		&binaries.PatchUbuntu24AppArmorModule{},
+		&precheck.TerminusGreetingsModule{},
+		&precheck.PreCheckOsModule{},
 	}
 
-	if m == nil {
-
+	p := pipeline.Pipeline{
+		Name:    "CreateInstallPipeline",
+		Modules: m,
+		Runtime: runtime,
 	}
+
+	go p.Start()
 
 	return nil
 }

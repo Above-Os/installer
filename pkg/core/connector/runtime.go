@@ -32,6 +32,7 @@ type BaseRuntime struct {
 	connector       Connector
 	runner          *Runner
 	workDir         string
+	dependDir       string
 	verbose         bool
 	ignoreErr       bool
 	allHosts        []Host
@@ -96,10 +97,11 @@ func (b *BaseRuntime) GenerateWorkDir() error {
 	}
 	b.workDir = rootPath
 
-	// logDir := filepath.Join(rootPath, "logs")
-	// if err := util.CreateDir(logDir); err != nil {
-	// 	return errors.Wrap(err, "create logs dir failed")
-	// }
+	depsPath := filepath.Join(currentDir, common.Components)
+	if err := util.CreateDir(depsPath); err != nil {
+		return errors.Wrap(err, "create depend dir failed")
+	}
+	b.dependDir = depsPath
 
 	for i := range b.allHosts {
 		subPath := filepath.Join(rootPath, b.allHosts[i].GetName())
@@ -112,6 +114,10 @@ func (b *BaseRuntime) GenerateWorkDir() error {
 
 func (b *BaseRuntime) GetHostWorkDir() string {
 	return filepath.Join(b.workDir, b.RemoteHost().GetName())
+}
+
+func (b *BaseRuntime) GetDependDir() string {
+	return b.dependDir
 }
 
 func (b *BaseRuntime) GetWorkDir() string {

@@ -75,6 +75,11 @@ func AddContainer(c *restful.Container) error {
 		Metadata(restfulspec.KeyOpenAPITags, tags).
 		Returns(http.StatusOK, "", response.Response{}))
 
+	ws.Route(ws.GET("/inst").To(handler.handlerInst). // + 测试 install
+								Doc("").
+								Metadata(restfulspec.KeyOpenAPITags, tags).
+								Returns(http.StatusOK, "", response.Response{}))
+
 	c.Add(ws)
 
 	return nil

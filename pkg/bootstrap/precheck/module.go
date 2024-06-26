@@ -20,6 +20,8 @@ import (
 	"time"
 
 	"bytetrade.io/web3os/installer/pkg/common"
+	"bytetrade.io/web3os/installer/pkg/core/action"
+	corecommon "bytetrade.io/web3os/installer/pkg/core/common"
 	"bytetrade.io/web3os/installer/pkg/core/module"
 	"bytetrade.io/web3os/installer/pkg/core/prepare"
 	"bytetrade.io/web3os/installer/pkg/core/task"
@@ -59,6 +61,88 @@ func (m *GetSysInfoModel) Init() {
 	// 	&GetSysInfoHook{},
 	// 	&GetLocalIpHook{},
 	// }
+}
+
+// ~ PrecheckOs
+type PreCheckOsModule struct {
+	module.BaseTaskModule
+}
+
+func (m *PreCheckOsModule) GetName() string {
+	return "PreCheckOsModule"
+}
+
+func (m *PreCheckOsModule) Init() {
+	m.Name = "PreCheckOsModule"
+	m.Desc = "PreCheckOsModule"
+
+	preCheckOs := &task.LocalTask{
+		Name: "PreCheckOs",
+		Desc: "PreCheckOs",
+		Prepare: &prepare.PrepareCollection{
+			&DownloadDepsExt{},
+		},
+		Action: &action.Script{
+			Name: "PreCheckOs",
+			File: corecommon.PrecheckOsShell,
+			Args: []string{},
+		},
+		Retry:       0,
+		IgnoreError: true,
+	}
+
+	// appArmorDownload := &task.LocalTask{
+	// 	Name:   "PatchUbuntu24AppArmorModule",
+	// 	Desc:   "Setup App Armor for Ubuntu 24.x",
+	// 	Action: new(binaries.AppArmorDownload),
+	// }
+
+	// appArmorInstall := &task.LocalTask{
+	// 	Name:   "PatchUbuntu24AppArmorModule",
+	// 	Desc:   "Setup App Armor for Ubuntu 24.x",
+	// 	Action: new(binaries.AppArmorInstall),
+	// }
+
+	installDeps := &task.LocalTask{
+		Name: "InstallDeps",
+		Desc: "InstallDeps",
+		Action: &action.Script{
+			Name: "PreCheckOs",
+			File: corecommon.InstallDepsShell,
+			Args: []string{},
+		},
+	}
+
+	m.Tasks = []task.Interface{
+		preCheckOs,
+		// appArmorDownload,
+		// appArmorInstall,
+		installDeps,
+	}
+}
+
+// ~ TerminusGreetingsModule
+type TerminusGreetingsModule struct {
+	module.BaseTaskModule
+}
+
+func (h *TerminusGreetingsModule) GetName() string {
+	return "GreetingsModule"
+}
+
+func (h *TerminusGreetingsModule) Init() {
+	h.Name = "TerminusGreetingsModule"
+	h.Desc = "Greetings"
+
+	hello := &task.LocalTask{
+		Name:   "Greetings",
+		Desc:   "Greetings",
+		Action: new(TerminusGreetingsTask),
+	}
+
+	h.Tasks = []task.Interface{
+		hello,
+	}
 }
 
 // ~ GreetingsModule

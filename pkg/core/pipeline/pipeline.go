@@ -59,7 +59,7 @@ func (p *Pipeline) Start() error {
 		if m.IsSkip() {
 			continue
 		}
-		logger.Infof("[pipeline] run module %s", m.GetName())
+		logger.Debugf("[pipeline] run module %s", m.GetName())
 		moduleCache := p.newModuleCache()
 		m.Default(p.Runtime, p.PipelineCache, moduleCache)
 		m.AutoAssert()
@@ -90,7 +90,7 @@ func (p *Pipeline) Start() error {
 		logger.Errorf("[pipeline] %s execute failed: there are some error in your spec hosts", p.Name)
 		return errors.Errorf("Pipeline[%s] execute failed: there are some error in your spec hosts", p.Name)
 	}
-	logger.Infof("[pipeline] %s execute successfully", p.Name)
+	logger.Debugf("[pipeline] %s execute successfully", p.Name)
 
 	return nil
 }

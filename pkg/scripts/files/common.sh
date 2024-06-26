@@ -9,13 +9,9 @@ BASE_DIR=$(dirname $(realpath -s $0))
 
 [[ -f "${BASE_DIR}/.env" && -z "$DEBUG_VERSION" ]] && . "${BASE_DIR}/.env"
 
-
-echo "---1---"
 if [ ! -d "/tmp/install_log" ]; then
-    echo "---11---"
     $(mkdir -p /tmp/install_log)
 fi
-echo "---2---"
 
 fd_errlog=/tmp/install_log/errlog_fd_13
 
@@ -146,4 +142,5 @@ log_fatal() {
 }
 
 
-echo "---a--- $BASE_DIR"
+get_distribution
+get_shell_exec

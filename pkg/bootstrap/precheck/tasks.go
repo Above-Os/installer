@@ -18,22 +18,70 @@ package precheck
 
 import (
 	"fmt"
+	"os/exec"
 	"regexp"
 	"strings"
 
-	"github.com/pkg/errors"
-	versionutil "k8s.io/apimachinery/pkg/util/version"
-
+	kubekeyapiv1alpha2 "bytetrade.io/web3os/installer/apis/kubekey/v1alpha2"
 	"bytetrade.io/web3os/installer/pkg/common"
 	"bytetrade.io/web3os/installer/pkg/constants"
 	"bytetrade.io/web3os/installer/pkg/core/action"
 	"bytetrade.io/web3os/installer/pkg/core/connector"
 	"bytetrade.io/web3os/installer/pkg/core/logger"
 	"bytetrade.io/web3os/installer/pkg/core/util"
+	"bytetrade.io/web3os/installer/pkg/files"
 	"bytetrade.io/web3os/installer/pkg/utils"
 	"bytetrade.io/web3os/installer/pkg/version/kubernetes"
 	"bytetrade.io/web3os/installer/pkg/version/kubesphere"
+	"github.com/pkg/errors"
+	versionutil "k8s.io/apimachinery/pkg/util/version"
 )
+
+// ~ PatchDeps
+// install socat and contrack on other systemc
+type PatchDeps struct {
+	action.BaseAction
+}
+
+func (t *PatchDeps) Execute(runtime connector.Runtime) error {
+	logger.Debug("[action] PatchDeps")
+	// 如果是特殊的系统，需要通过源代码来安装 socat 和 contrack
+	switch constants.OsPlatform {
+	case common.Ubuntu, common.Debian, common.Raspbian, common.CentOs, common.Fedora, common.RHEl:
+		return nil
+	}
+
+	socat := files.NewKubeBinary("socat", constants.OsArch, kubekeyapiv1alpha2.DefaultSocatVersion, runtime.GetDependDir())
+	contrack := files.NewKubeBinary("contrack", constants.OsArch, kubekeyapiv1alpha2.DefaultContrackVersion, runtime.GetDependDir())
+
+	binaries := []*files.KubeBinary{socat, contrack}
+	binariesMap := make(map[string]*files.KubeBinary)
+
+	for _, binary := range binaries {
+		if err := binary.CreateBaseDir(); err != nil {
+			return errors.Wrapf(errors.WithStack(err), "create file %s base dir failed", binary.FileName)
+		}
+
+		logger.Infof("%s downloading %s %s %s ...", common.LocalHost, constants.OsArch, binary.ID, binary.Version)
+
+		binariesMap[binary.ID] = binary
+		if util.IsExist(binary.Path()) {
+			p := binary.Path()
+			if err := binary.SHA256Check(); err != nil {
+				_ = exec.Command("/bin/sh", "-c", fmt.Sprintf("rm -f %s", p)).Run()
+			} else {
+				continue
+			}
+		}
+
+		if err := binary.Download(); err != nil {
+			return fmt.Errorf("Failed to download %s binary: %s error: %w ", binary.ID, binary.Url, err)
+		}
+	}
+
+	t.PipelineCache.Set(common.KubeBinaries+"-"+constants.OsArch, binariesMap)
+	return nil
+}
 
 // ~ GetSysInfoTask
 type GetSysInfoTask struct {
@@ -76,6 +124,8 @@ func (t *GetSysInfoTask) Execute(runtime connector.Runtime) error {
 
 	logger.Debugf("[task] GetSysInfoHook, hostname: %s, cpu: %d, mem: %d, disk: %d",
 		constants.HostName, constants.CpuPhysicalCount, constants.MemTotal, constants.DiskTotal)
+	logger.Debugf("[task] GetHostInfoHook, os: %s, platform: %s, arch: %s, version: %s",
+		constants.OsType, constants.OsPlatform, constants.OsArch, constants.OsVersion)
 
 	logger.Infof("host info, hostname: %s, hostid: %s, os: %s, platform: %s, version: %s, arch: %s",
 		constants.HostName, constants.HostId, constants.OsType, constants.OsPlatform, constants.OsVersion, constants.OsArch)
@@ -107,6 +157,20 @@ func (t *GetLocalIpTask) Execute(runtime connector.Runtime) error {
 	logger.Debugf("[task] GetLocalIpHook, local ip: %s", pingIps)
 	constants.LocalIp = pingIps
 
+	return nil
+}
+
+// ~ TerminusGreetingsTask
+type TerminusGreetingsTask struct {
+	action.BaseAction
+}
+
+func (h *TerminusGreetingsTask) Execute(runtime connector.Runtime) error {
+	stdout, _, err := util.Exec("echo 'Greetings, Terminus!!!!!' ", false)
+	if err != nil {
+		return err
+	}
+	logger.Infof("[action] TerminusGreetingsTask %s", stdout)
 	return nil
 }
 

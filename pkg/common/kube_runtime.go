@@ -43,19 +43,19 @@ type Argument struct {
 	SKipPushImages      bool
 	SecurityEnhancement bool
 	DeployLocalStorage  *bool
-	DownloadCommand     func(path, url string) string
-	SkipConfirmCheck    bool
-	InCluster           bool
-	ContainerManager    string
-	FromCluster         bool
-	KubeConfig          string
-	Artifact            string
-	InstallPackages     bool
-	ImagesDir           string
-	Namespace           string
-	DeleteCRI           bool
-	Role                string
-	Type                string
+	// DownloadCommand     func(path, url string) string
+	SkipConfirmCheck bool
+	InCluster        bool
+	ContainerManager string
+	FromCluster      bool
+	KubeConfig       string
+	Artifact         string
+	InstallPackages  bool
+	ImagesDir        string
+	Namespace        string
+	DeleteCRI        bool
+	Role             string
+	Type             string
 
 	// Extra args
 	ExtraAddon string // addon yaml config

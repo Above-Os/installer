@@ -32,10 +32,10 @@ import (
 // K3sFilesDownloadHTTP defines the kubernetes' binaries that need to be downloaded in advance and downloads them.
 func K3sFilesDownloadHTTP(kubeConf *common.KubeConf, path, version, arch string, pipelineCache *cache.Cache) error {
 
-	etcd := files.NewKubeBinary("etcd", arch, kubekeyapiv1alpha2.DefaultEtcdVersion, path, kubeConf.Arg.DownloadCommand)
-	kubecni := files.NewKubeBinary("kubecni", arch, kubekeyapiv1alpha2.DefaultCniVersion, path, kubeConf.Arg.DownloadCommand)
-	helm := files.NewKubeBinary("helm", arch, kubekeyapiv1alpha2.DefaultHelmVersion, path, kubeConf.Arg.DownloadCommand)
-	k3s := files.NewKubeBinary("k3s", arch, version, path, kubeConf.Arg.DownloadCommand)
+	etcd := files.NewKubeBinary("etcd", arch, kubekeyapiv1alpha2.DefaultEtcdVersion, path)
+	kubecni := files.NewKubeBinary("kubecni", arch, kubekeyapiv1alpha2.DefaultCniVersion, path)
+	helm := files.NewKubeBinary("helm", arch, kubekeyapiv1alpha2.DefaultHelmVersion, path)
+	k3s := files.NewKubeBinary("k3s", arch, version, path)
 
 	binaries := []*files.KubeBinary{k3s, helm, kubecni, etcd}
 	binariesMap := make(map[string]*files.KubeBinary)
@@ -58,7 +58,7 @@ func K3sFilesDownloadHTTP(kubeConf *common.KubeConf, path, version, arch string,
 		}
 
 		if err := binary.Download(); err != nil {
-			return fmt.Errorf("Failed to download %s binary: %s error: %w ", binary.ID, binary.GetCmd(), err)
+			return fmt.Errorf("Failed to download %s binary: %s error: %w ", binary.ID, binary.Url, err)
 		}
 	}
 
@@ -69,11 +69,11 @@ func K3sFilesDownloadHTTP(kubeConf *common.KubeConf, path, version, arch string,
 func K3sArtifactBinariesDownload(manifest *common.ArtifactManifest, path, arch, version string) error {
 	m := manifest.Spec
 
-	etcd := files.NewKubeBinary("etcd", arch, m.Components.ETCD.Version, path, manifest.Arg.DownloadCommand)
-	kubecni := files.NewKubeBinary("kubecni", arch, m.Components.CNI.Version, path, manifest.Arg.DownloadCommand)
-	helm := files.NewKubeBinary("helm", arch, m.Components.Helm.Version, path, manifest.Arg.DownloadCommand)
-	k3s := files.NewKubeBinary("k3s", arch, version, path, manifest.Arg.DownloadCommand)
-	crictl := files.NewKubeBinary("crictl", arch, m.Components.Crictl.Version, path, manifest.Arg.DownloadCommand)
+	etcd := files.NewKubeBinary("etcd", arch, m.Components.ETCD.Version, path)
+	kubecni := files.NewKubeBinary("kubecni", arch, m.Components.CNI.Version, path)
+	helm := files.NewKubeBinary("helm", arch, m.Components.Helm.Version, path)
+	k3s := files.NewKubeBinary("k3s", arch, version, path)
+	crictl := files.NewKubeBinary("crictl", arch, m.Components.Crictl.Version, path)
 	binaries := []*files.KubeBinary{k3s, helm, kubecni, etcd}
 
 	dockerArr := make([]*files.KubeBinary, 0, 0)
@@ -87,7 +87,7 @@ func K3sArtifactBinariesDownload(manifest *common.ArtifactManifest, path, arch, 
 		}
 		if _, ok := dockerVersionMap[dockerVersion]; !ok {
 			dockerVersionMap[dockerVersion] = struct{}{}
-			docker := files.NewKubeBinary("docker", arch, dockerVersion, path, manifest.Arg.DownloadCommand)
+			docker := files.NewKubeBinary("docker", arch, dockerVersion, path)
 			dockerArr = append(dockerArr, docker)
 		}
 	}
@@ -114,7 +114,7 @@ func K3sArtifactBinariesDownload(manifest *common.ArtifactManifest, path, arch, 
 		}
 
 		if err := binary.Download(); err != nil {
-			return fmt.Errorf("Failed to download %s binary: %s error: %w ", binary.ID, binary.GetCmd(), err)
+			return fmt.Errorf("Failed to download %s binary: %s error: %w ", binary.ID, binary.Url, err)
 		}
 	}
 

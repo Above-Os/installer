@@ -97,18 +97,15 @@ type KubeBinary struct {
 	BaseDir  string
 	Zone     string
 	CheckSum bool
-	getCmd   func(path, url string) string
 }
 
-func NewKubeBinary(name, arch, version, prePath string, getCmd func(path, url string) string) *KubeBinary {
+func NewKubeBinary(name, arch, version, prePath string) *KubeBinary {
 	component := new(KubeBinary)
 	component.ID = name
 	component.Arch = arch
 	component.Version = version
 	component.CheckSum = true
 	component.Zone = os.Getenv("KKZONE")
-
-	component.getCmd = getCmd
 
 	switch name {
 	case etcd:
@@ -254,9 +251,20 @@ func NewKubeBinary(name, arch, version, prePath string, getCmd func(path, url st
 		// version 4.0.1
 		// arch    amd64  arm64
 		component.Url = fmt.Sprintf("https://launchpad.net/ubuntu/+archive/primary/+files/apparmor_%s-0ubuntu1_%s.deb", version, arch)
-		component.CheckSum = true
+		component.CheckSum = false
+		component.BaseDir = filepath.Join(prePath)
 	case socat:
+		component.Type = PATCH
+		component.FileName = fmt.Sprintf("socat-%s.tar.gz", version)
+		component.Url = fmt.Sprintf("http://www.dest-unreach.org/socat/download/socat-%s.tar.gz", version)
+		component.CheckSum = false
+		component.BaseDir = filepath.Join(prePath)
 	case contrack:
+		component.Type = PATCH
+		component.FileName = fmt.Sprintf("conntrack-tools-%s.tar.gz", version)
+		component.Url = fmt.Sprintf("https://github.com/fqrouter/conntrack-tools/archive/refs/tags/conntrack-tools-%s.tar.gz", version)
+		component.CheckSum = false
+		component.BaseDir = filepath.Join(prePath)
 	default:
 		logger.Fatalf("unsupported kube binaries %s", name)
 	}
@@ -327,16 +335,16 @@ func (b *KubeBinary) GetTarCmd() string {
 	return cmd
 }
 
-func (b *KubeBinary) GetCmd() string {
-	cmd := b.getCmd(b.Path(), b.Url)
+// func (b *KubeBinary) GetCmd() string {
+// 	cmd := b.getCmd(b.Path(), b.Url)
 
-	if b.ID == helm && b.Zone != "cn" {
-		get := b.getCmd(filepath.Join(b.BaseDir, fmt.Sprintf("helm-%s-linux-%s.tar.gz", b.Version, b.Arch)), b.Url)
-		cmd = fmt.Sprintf("%s && cd %s && tar -zxf helm-%s-linux-%s.tar.gz && mv linux-%s/helm . && rm -rf *linux-%s*",
-			get, b.BaseDir, b.Version, b.Arch, b.Arch, b.Arch)
-	}
-	return cmd
-}
+// 	if b.ID == helm && b.Zone != "cn" {
+// 		get := b.getCmd(filepath.Join(b.BaseDir, fmt.Sprintf("helm-%s-linux-%s.tar.gz", b.Version, b.Arch)), b.Url)
+// 		cmd = fmt.Sprintf("%s && cd %s && tar -zxf helm-%s-linux-%s.tar.gz && mv linux-%s/helm . && rm -rf *linux-%s*",
+// 			get, b.BaseDir, b.Version, b.Arch, b.Arch, b.Arch)
+// 	}
+// 	return cmd
+// }
 
 func (b *KubeBinary) GetSha256() string {
 	s := FileSha256[b.ID][b.Arch][b.Version]
@@ -356,19 +364,19 @@ func (b *KubeBinary) GetFileSize() (int64, error) {
 
 	size, err := strconv.ParseInt(resp.Header.Get("Content-Length"), 10, 64)
 	if err != nil {
-		return 0, err
+		return 0, fmt.Errorf("failed to parse content length: %v, header: %s", err, resp.Header.Get("Content-Length"))
 	}
 	return size, nil
 }
 
 func (b *KubeBinary) Download() error {
 	var newfunc bool = true
-
+	fmt.Println("---download---", b.FileName)
 	if newfunc {
 		for i := 5; i > 0; i-- {
 			totalSize, err := b.GetFileSize()
 			if err != nil {
-				return err
+				logger.Warnf("Get file %s size failed", b.FileName)
 			}
 
 			// parsedUrl, err := url.Parse(b.Url)
@@ -395,8 +403,12 @@ func (b *KubeBinary) Download() error {
 				select {
 				case <-t.C:
 					downloaded := resp.BytesComplete()
-					result := float64(downloaded) / float64(totalSize)
-					logger.Infof("  transferred %s %d / %d bytes (%.2f%%)", b.FileName, resp.BytesComplete(), totalSize, math.Round(result*10000)/100)
+					if totalSize != 0 {
+						result := float64(downloaded) / float64(totalSize)
+						logger.Debugf("transferred %s %d / %d bytes (%.2f%%)", b.FileName, resp.BytesComplete(), totalSize, math.Round(result*10000)/100)
+					} else {
+						logger.Debugf("transferred %s %d", b.FileName, resp.BytesComplete())
+					}
 				case <-resp.Done:
 					break Loop
 				}
@@ -430,7 +442,7 @@ func (b *KubeBinary) Download() error {
 				continue
 			}
 
-			logger.Info("Download succeeded")
+			logger.Debugf("%s download succeeded", b.FileName)
 			break
 		}
 

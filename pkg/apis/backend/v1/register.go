@@ -33,17 +33,17 @@ func AddContainer(c *restful.Container) error {
 		Metadata(restfulspec.KeyOpenAPITags, tags).
 		Returns(http.StatusOK, "", response.Response{}))
 
-	ws.Route(ws.POST("/progress").
-		To(handler.handlerProgress).
-		Doc("").
-		Metadata(restfulspec.KeyOpenAPITags, tags).
-		Returns(http.StatusOK, "", response.Response{}))
-
 	ws.Route(ws.POST("/status").
 		To(handler.handlerStatus).
 		Doc("").
 		Metadata(restfulspec.KeyOpenAPITags, tags).
 		Returns(http.StatusOK, "", response.Response{}))
+
+	ws.Route(ws.POST("/progress"). // ! 先不做
+					To(handler.handlerProgress).
+					Doc("").
+					Metadata(restfulspec.KeyOpenAPITags, tags).
+					Returns(http.StatusOK, "", response.Response{}))
 
 	// - debug
 	ws.Route(ws.POST("/test").

@@ -8,15 +8,9 @@ import (
 	"bytetrade.io/web3os/installer/pkg/packages"
 )
 
+// + 测试函数，测试下载 full 包，并执行安装
 func InstallTerminusPipeline(args common.Argument) error {
-	var loaderType string
-	if args.FilePath != "" {
-		loaderType = common.File
-	} else {
-		loaderType = common.AllInOne
-	}
-
-	runtime, err := common.NewKubeRuntime(loaderType, args)
+	runtime, err := common.NewKubeRuntime(common.AllInOne, args)
 	if err != nil {
 		return err
 	}

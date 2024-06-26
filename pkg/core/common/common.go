@@ -20,6 +20,7 @@ const (
 	// KubeKey = "kubekey"
 	KubeKey          = "pkg"
 	Components       = "components"
+	Packages         = "packages"
 	Scripts          = "scripts"
 	GreetingShell    = "greeting.sh"
 	PrecheckOsShell  = "precheck_os.sh"

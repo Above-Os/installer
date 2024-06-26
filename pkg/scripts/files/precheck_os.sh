@@ -3,79 +3,27 @@
 BASE_DIR=$(dirname $(realpath -s $0))
 source $BASE_DIR/common.sh
 
-is_debian() {
-    lsb_release=$(lsb_release -d 2>&1 | awk -F'\t' '{print $2}')
-    if [ -z "$lsb_release" ]; then
-        echo 0
-        return
-    fi
-    if [[ ${lsb_release} == *Debian*} ]]; then
-        case "$lsb_release" in
-            *12.* | *11.*)
-                echo 1
-                ;;
-            *)
-                echo 0
-                ;;
-        esac
-    else
-        echo 0
-    fi
-}
+local_ip=$1
+os_platform=$2
+ubuntuversion=$3
 
-is_ubuntu() {
-    lsb_release=$(lsb_release -d 2>&1 | awk -F'\t' '{print $2}')
-    if [ -z "$lsb_release" ]; then
-        echo 0
-        return
-    fi
-    if [[ ${lsb_release} == *Ubuntu* ]];then 
-        case "$lsb_release" in
-            *24.*)
-                echo 2
-                ;;
-            *22.* | *20.*)
-                echo 1
-                ;;
-            *)
-                echo 0
-                ;;
-        esac
-    else
-        echo 0
-    fi
-}
+if [ -z "$os_platform" ]; then
+  os_platform="$lsb_dist"
+fi
 
 precheck_os() {
-    local ip os_type os_arch
-
-    # check os type and arch and os vesion
-    os_type=$(uname -s)
-    os_arch=$(uname -m)
-    os_verion=$(lsb_release -d 2>&1 | awk -F'\t' '{print $2}')
-
-    if [ x"${os_type}" != x"Linux" ]; then
-        log_fatal "unsupported os type '${os_type}', only supported 'Linux' operating system"
-    fi
-
-    if [[ x"${os_arch}" != x"x86_64" && x"${os_arch}" != x"amd64" ]]; then
-        log_fatal "unsupported os arch '${os_arch}', only supported 'x86_64' architecture"
-    fi
-
-    if [[ $(is_ubuntu) -eq 0 && $(is_debian) -eq 0 ]]; then
-        log_fatal "unsupported os version '${os_verion}', only supported Ubuntu 20.x, 22.x, 24.x and Debian 11, 12"
-    fi
-
     # try to resolv hostname
     ensure_success $sh_c "hostname -i >/dev/null"
 
-    ip=$(ping -c 1 "$HOSTNAME" |awk -F '[()]' '/icmp_seq/{print $2}')
-    printf "%s\t%s\n\n" "$ip" "$HOSTNAME"
-
-    local_ip="$ip"
+    if [ -z "$local_ip" ]; then
+        ip=$(ping -c 1 "$HOSTNAME" |awk -F '[()]' '/icmp_seq/{print $2}')
+        printf "%s\t%s\n\n" "$ip" "$HOSTNAME"
+        local_ip="$ip"
+    fi
+    
 
     # disable local dns
-    case "$lsb_dist" in
+    case "$os_platform" in
         ubuntu|debian|raspbian)
             if system_service_active "systemd-resolved"; then
                 ensure_success $sh_c "systemctl stop systemd-resolved.service >/dev/null"
@@ -113,18 +61,16 @@ precheck_os() {
     fi
 
     # ubuntu 24 upgrade apparmor
-    ubuntuversion=$(is_ubuntu)
-    if [ ${ubuntuversion} -eq 2 ]; then
+    if [ ${ubuntuversion} = "2" ]; then
         aapv=$(apparmor_parser --version)
         if [[ ! ${aapv} =~ "4.0.1" ]]; then
             local aapv_tar="${BASE_DIR}/../components/apparmor_4.0.1-0ubuntu1_amd64.deb"
             if [ ! -f "$aapv_tar" ]; then
-                ensure_success $sh_c "curl ${CURL_TRY} -k -sfLO https://launchpad.net/ubuntu/+source/apparmor/4.0.1-0ubuntu1/+build/28428840/+files/apparmor_4.0.1-0ubuntu1_amd64.deb"
-            else
-                ensure_success $sh_c "cp ${aapv_tar} ./"
+                ensure_success $sh_c "curl ${CURL_TRY} -k -sfLO --output-dir ${BASE_DIR}/../components/ https://launchpad.net/ubuntu/+source/apparmor/4.0.1-0ubuntu1/+build/28428840/+files/apparmor_4.0.1-0ubuntu1_amd64.deb"
             fi
-            # todo 
-            # ensure_success $sh_c "dpkg -i apparmor_4.0.1-0ubuntu1_amd64.deb"
+            # todo test
+            ensure_success $sh_c "echo 'apparmor setup'"
+            # ensure_success $sh_c "dpkg -i ${BASE_DIR}/../components/apparmor_4.0.1-0ubuntu1_amd64.deb"
         fi
     fi
 
@@ -134,6 +80,6 @@ precheck_os() {
     fi
 }
 
-echo "---precheck_os---"
+echo ">>> precheck_os.sh [$local_ip] [$os_platform] [$ubuntuversion]"
 precheck_os
 exit

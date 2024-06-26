@@ -17,9 +17,11 @@
 package precheck
 
 import (
+	"strings"
 	"time"
 
 	"bytetrade.io/web3os/installer/pkg/common"
+	"bytetrade.io/web3os/installer/pkg/constants"
 	"bytetrade.io/web3os/installer/pkg/core/action"
 	corecommon "bytetrade.io/web3os/installer/pkg/core/common"
 	"bytetrade.io/web3os/installer/pkg/core/module"
@@ -76,6 +78,11 @@ func (m *PreCheckOsModule) Init() {
 	m.Name = "PreCheckOsModule"
 	m.Desc = "PreCheckOsModule"
 
+	var flag = "2" // ! debug
+	if constants.OsPlatform == common.Ubuntu && strings.HasPrefix("24.", constants.OsVersion) {
+		flag = "2"
+	}
+
 	preCheckOs := &task.LocalTask{
 		Name: "PreCheckOs",
 		Desc: "PreCheckOs",
@@ -83,40 +90,28 @@ func (m *PreCheckOsModule) Init() {
 			&DownloadDepsExt{},
 		},
 		Action: &action.Script{
-			Name: "PreCheckOs",
-			File: corecommon.PrecheckOsShell,
-			Args: []string{},
+			Name:        "PreCheckOs",
+			File:        corecommon.PrecheckOsShell,
+			Args:        []string{constants.LocalIp[0], constants.OsPlatform, flag},
+			PrintOutput: true,
 		},
-		Retry:       0,
-		IgnoreError: true,
+		Retry: 0,
 	}
-
-	// appArmorDownload := &task.LocalTask{
-	// 	Name:   "PatchUbuntu24AppArmorModule",
-	// 	Desc:   "Setup App Armor for Ubuntu 24.x",
-	// 	Action: new(binaries.AppArmorDownload),
-	// }
-
-	// appArmorInstall := &task.LocalTask{
-	// 	Name:   "PatchUbuntu24AppArmorModule",
-	// 	Desc:   "Setup App Armor for Ubuntu 24.x",
-	// 	Action: new(binaries.AppArmorInstall),
-	// }
 
 	installDeps := &task.LocalTask{
 		Name: "InstallDeps",
 		Desc: "InstallDeps",
 		Action: &action.Script{
-			Name: "PreCheckOs",
-			File: corecommon.InstallDepsShell,
-			Args: []string{},
+			Name:        "PreCheckOs",
+			File:        corecommon.InstallDepsShell,
+			Args:        []string{"aa"},
+			PrintOutput: true,
 		},
+		Retry: 0,
 	}
 
 	m.Tasks = []task.Interface{
 		preCheckOs,
-		// appArmorDownload,
-		// appArmorInstall,
 		installDeps,
 	}
 }

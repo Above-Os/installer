@@ -141,6 +141,19 @@ log_fatal() {
     exit $ERR_EXIT
 }
 
+system_service_active() {
+    if [[ $# -ne 1 || x"$1" == x"" ]]; then
+        return 1
+    fi
+
+    local ret
+    ret=$($sh_c "systemctl is-active $1")
+    if [ "$ret" == "active" ]; then
+        return 0
+    fi
+    return 1
+}
+
 
 get_distribution
 get_shell_exec

@@ -29,7 +29,7 @@ func (t *Greeting) Execute(runtime connector.Runtime) error {
 		if err != nil {
 			return err
 		}
-		logger.Debugf("[script] output: %s", outstd)
+		logger.Debugf("[script] OUT: %s, CMD: %s", outstd, p)
 	}
 	return nil
 }

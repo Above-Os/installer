@@ -122,9 +122,9 @@ func (t *GetSysInfoTask) Execute(runtime connector.Runtime) error {
 	constants.MemTotal = memTotal
 	constants.MemFree = memFree
 
-	logger.Debugf("[task] GetSysInfoHook, hostname: %s, cpu: %d, mem: %d, disk: %d",
+	logger.Debugf("[action] GetSysInfoHook, hostname: %s, cpu: %d, mem: %d, disk: %d",
 		constants.HostName, constants.CpuPhysicalCount, constants.MemTotal, constants.DiskTotal)
-	logger.Debugf("[task] GetHostInfoHook, os: %s, platform: %s, arch: %s, version: %s",
+	logger.Debugf("[action] GetHostInfoHook, os: %s, platform: %s, arch: %s, version: %s",
 		constants.OsType, constants.OsPlatform, constants.OsArch, constants.OsVersion)
 
 	logger.Infof("host info, hostname: %s, hostid: %s, os: %s, platform: %s, version: %s, arch: %s",
@@ -144,7 +144,7 @@ type GetLocalIpTask struct {
 
 func (t *GetLocalIpTask) Execute(runtime connector.Runtime) error {
 	pingCmd := fmt.Sprintf("ping -c 1 %s", constants.HostName)
-	pingCmdRes, _, err := util.Exec(pingCmd, true)
+	pingCmdRes, _, err := util.Exec(pingCmd, false)
 	if err != nil {
 		return err
 	}
@@ -154,7 +154,7 @@ func (t *GetLocalIpTask) Execute(runtime connector.Runtime) error {
 		return err
 	}
 
-	logger.Debugf("[task] GetLocalIpHook, local ip: %s", pingIps)
+	logger.Debugf("[action] GetLocalIpHook, local ip: %s", pingIps)
 	constants.LocalIp = pingIps
 
 	return nil

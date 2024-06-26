@@ -20,8 +20,7 @@ func Exec(name string, printOutput bool) (stdout string, code int, err error) {
 		return "", exitCode, err
 	}
 
-	logger.Infof("exec cmd: %s", cmd.String())
-
+	// logger.Infof("exec cmd: %s", cmd.String())
 	cmd.Stderr = cmd.Stdout
 
 	if err := cmd.Start(); err != nil {
@@ -43,6 +42,7 @@ func Exec(name string, printOutput bool) (stdout string, code int, err error) {
 			}
 			break
 		}
+
 		outputBuffer.WriteString(line)
 	}
 
@@ -58,7 +58,7 @@ func Exec(name string, printOutput bool) (stdout string, code int, err error) {
 	res = strings.TrimSpace(res)
 
 	if printOutput {
-		logger.Infof("exec cmd result: %s, cmd: %s", res, cmd.String())
+		logger.Debugf("[exec] OUT: %s, CMD: %s", res, cmd.String())
 	}
 
 	return res, exitCode, errors.Wrapf(err, "Failed to exec command: %s \n%s", cmd, res)

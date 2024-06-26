@@ -238,12 +238,12 @@ func NewKubeBinary(name, arch, version, prePath string) *KubeBinary {
 		component.Type = INSTALLER
 		component.FileName = fmt.Sprintf("kubekey-ext-v%s-linux-%s.tar.gz", version, arch)
 		component.Url = fmt.Sprintf("https://github.com/beclab/kubekey-ext/releases/download/%s/kubekey-ext-v%s-linux-%s.tar.gz", version, version, arch)
-	case fullpkg: // ! 模拟 full 包下载和安装
+	case fullpkg: // + 模拟 full 包下载和安装
 		component.Type = INSTALLER
-		component.FileName = fmt.Sprintf("install-wizard_%s_full.tar.gz", arch)
+		component.FileName = fmt.Sprintf("install-wizard-full_%s.tar.gz", arch)
 		component.Url = "http://192.168.50.32/install-wizard-full.tar.gz"
 		component.CheckSum = false
-		component.BaseDir = filepath.Join(prePath, component.Type, pkg, component.Arch)
+		component.BaseDir = filepath.Join(prePath)
 	case apparmor:
 		component.Type = PATCH
 		component.FileName = fmt.Sprintf("apparmor_%s-0ubuntu1_%s.deb", version, arch)
@@ -371,12 +371,13 @@ func (b *KubeBinary) GetFileSize() (int64, error) {
 
 func (b *KubeBinary) Download() error {
 	var newfunc bool = true
-	fmt.Println("---download---", b.FileName)
 	if newfunc {
 		for i := 5; i > 0; i-- {
 			totalSize, err := b.GetFileSize()
 			if err != nil {
 				logger.Warnf("Get file %s size failed", b.FileName)
+			} else if totalSize > 0 {
+				logger.Debugf("get file %s size: %d", b.FileName, totalSize)
 			}
 
 			// parsedUrl, err := url.Parse(b.Url)

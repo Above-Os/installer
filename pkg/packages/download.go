@@ -23,6 +23,8 @@ func DownloadInstallPackage(kubeConf *common.KubeConf, path, version, arch strin
 			return errors.Wrapf(errors.WithStack(err), "create file %s base dir failed", downloadFile.FileName)
 		}
 
+		logger.Infof("%s downloading %s %s %s ...", common.LocalHost, arch, downloadFile.ID, downloadFile.Version)
+
 		filesMap[downloadFile.ID] = downloadFile
 		if util.IsExist(downloadFile.Path()) {
 			if err := downloadFile.SHA256Check(); err != nil {

@@ -7,7 +7,6 @@ import (
 	"bytetrade.io/web3os/installer/pkg/common"
 	"bytetrade.io/web3os/installer/pkg/core/logger"
 	"bytetrade.io/web3os/installer/pkg/core/storage"
-	"bytetrade.io/web3os/installer/pkg/model"
 	"bytetrade.io/web3os/installer/pkg/phase/download"
 	"bytetrade.io/web3os/installer/pkg/phase/mock"
 	"bytetrade.io/web3os/installer/pkg/pipelines"
@@ -45,16 +44,24 @@ func (h *Handler) handlerConfig(req *restful.Request, resp *restful.Response) {
 	response.SuccessNoData(resp)
 }
 
-// ~ install
+// + install
 func (h *Handler) handlerInstall(req *restful.Request, resp *restful.Response) {
-	var reqModel model.InstallModelReq
-	err := req.ReadEntity(&reqModel)
-	if err != nil {
+	logger.Infof("handler installer req: %s", req.Request.Method)
+
+	// var reqModel model.InstallModelReq
+	// err := req.ReadEntity(&reqModel)
+	// if err != nil {
+	// 	response.HandleError(resp, err)
+	// 	return
+	// }
+
+	arg := common.Argument{}
+	if err := pipelines.InstallTerminusPipeline(arg); err != nil {
 		response.HandleError(resp, err)
 		return
 	}
 
-	// todo 写入数据库
+	response.SuccessNoData(resp)
 
 }
 

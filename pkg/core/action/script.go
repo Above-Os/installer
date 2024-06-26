@@ -23,19 +23,20 @@ func Assets() embed.FS {
 
 type Script struct {
 	BaseAction
-	Name string
-	File string
-	Args []string
+	Name        string
+	File        string
+	Args        []string
+	PrintOutput bool
 }
 
 func (s *Script) Execute(runtime connector.Runtime) error {
-	logger.Debugf("[script] Script: %s, file: %s", s.Name, s.File)
+	logger.Debugf("[action] Script: %s, file: %s", s.Name, s.File)
 	scriptFileName := path.Join(constants.WorkDir, common.Scripts, s.File)
 	if !util.IsExist(scriptFileName) {
 		return errors.New(fmt.Sprintf("script file %s not exist", s.File))
 	}
 	var cmd = fmt.Sprintf("bash %s %s", scriptFileName, strings.Join(s.Args, " "))
-	_, _, err := util.Exec(cmd, false)
+	_, _, err := util.Exec(cmd, s.PrintOutput)
 	if err != nil {
 		return errors.Wrap(errors.WithStack(err), fmt.Sprintf("exec script %s failed, args: %v", s.File, s.Args))
 	}

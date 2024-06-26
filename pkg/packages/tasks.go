@@ -19,6 +19,7 @@ package packages
 import (
 	"fmt"
 
+	kubekeyapiv1alpha2 "bytetrade.io/web3os/installer/apis/kubekey/v1alpha2"
 	"bytetrade.io/web3os/installer/pkg/common"
 	"bytetrade.io/web3os/installer/pkg/core/connector"
 	"bytetrade.io/web3os/installer/pkg/core/logger"
@@ -30,15 +31,11 @@ type PackageDownload struct {
 }
 
 func (d *PackageDownload) Execute(runtime connector.Runtime) error {
-	// todo download
-	fmt.Println("---PackageDownload / Execute---")
+	logger.Debug("[action] PackageDownload")
 
-	var arch = "amd64"
-	// DownloadPackage(d.KubeConf, runtime.GetWorkDir(), "0.0.1", arch, d.PipelineCache)
-	if err := DownloadInstallPackage(d.KubeConf, runtime.GetWorkDir(), "0.0.1", arch, d.PipelineCache); err != nil {
+	if err := DownloadInstallPackage(d.KubeConf, runtime.GetPackageDir(), "0.0.1", kubekeyapiv1alpha2.DefaultArch, d.PipelineCache); err != nil {
 		return err
 	}
-
 	return nil
 }
 
@@ -48,7 +45,7 @@ type PackageUntar struct {
 }
 
 func (a *PackageUntar) Execute(runtime connector.Runtime) error {
-	var pkgFile = fmt.Sprintf("%s/installer/package/amd64/install-wizard_amd64_full.tar.gz", runtime.GetWorkDir())
+	var pkgFile = fmt.Sprintf("%s/install-wizard-full_%s.tar.gz", runtime.GetPackageDir(), kubekeyapiv1alpha2.DefaultArch)
 	if ok := util.IsExist(pkgFile); !ok {
 		return fmt.Errorf("package %s not exist", pkgFile)
 	}

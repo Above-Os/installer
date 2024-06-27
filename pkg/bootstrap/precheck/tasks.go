@@ -129,7 +129,7 @@ func (t *GetSysInfoTask) Execute(runtime connector.Runtime) error {
 	constants.MemTotal = memTotal
 	constants.MemFree = memFree
 
-	logger.Debugf("MACHINE, hostname: %s, cpu: %d, mem: %d, disk: %d",
+	logger.Debugf("MACHINE, hostname: %s, cpu: %d, mem: %s, disk: %s",
 		constants.HostName, constants.CpuPhysicalCount, utils.FormatBytes(int64(constants.MemTotal)), utils.FormatBytes(int64(constants.DiskTotal)))
 	logger.Debugf("SYSTEM, os: %s, platform: %s, arch: %s, version: %s",
 		constants.OsType, constants.OsPlatform, constants.OsArch, constants.OsVersion)
@@ -138,8 +138,8 @@ func (t *GetSysInfoTask) Execute(runtime connector.Runtime) error {
 		constants.HostName, constants.HostId, constants.OsType, constants.OsPlatform, constants.OsVersion, constants.OsArch)
 	logger.Infof("cpu info, model: %s, logical count: %d, physical count: %d",
 		constants.CpuModel, constants.CpuLogicalCount, constants.CpuPhysicalCount)
-	logger.Infof("disk info, total: %d, free: %d", utils.FormatBytes(int64(constants.DiskTotal)), utils.FormatBytes(int64(constants.DiskFree)))
-	logger.Infof("mem info, total: %d, free: %d", utils.FormatBytes(int64(constants.MemTotal)), utils.FormatBytes(int64(constants.MemFree)))
+	logger.Infof("disk info, total: %s, free: %s", utils.FormatBytes(int64(constants.DiskTotal)), utils.FormatBytes(int64(constants.DiskFree)))
+	logger.Infof("mem info, total: %s, free: %s", utils.FormatBytes(int64(constants.MemTotal)), utils.FormatBytes(int64(constants.MemFree)))
 
 	return nil
 }

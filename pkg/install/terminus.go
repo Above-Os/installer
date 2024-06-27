@@ -12,7 +12,7 @@ type Terminus struct {
 }
 
 func (a *Terminus) GetName() string {
-	return "Terminus"
+	return "Install"
 }
 
 func (a *Terminus) Execute(runtime connector.Runtime) error {

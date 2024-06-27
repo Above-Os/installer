@@ -3,6 +3,10 @@ package storage
 import "regexp"
 
 const (
+	tableInstallConfig = "install_config"
+)
+
+const (
 	providerDriverName     = "sqlite3" // sqlite3e
 	providerDataSourceName = "storage.db"
 	providerSQLite         = "sqlite"

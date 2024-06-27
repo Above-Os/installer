@@ -98,7 +98,7 @@ func GetImage(runtime connector.ModuleRuntime, kubeConf *common.KubeConf, name s
 		corednsTag = "1.8.6"
 	}
 
-	logger.Log.Debugf("pauseTag: %s, corednsTag: %s", pauseTag, corednsTag)
+	logger.Debugf("pauseTag: %s, corednsTag: %s", pauseTag, corednsTag)
 
 	ImageList := map[string]Image{
 		"pause":                   {RepoAddr: kubeConf.Cluster.Registry.PrivateRegistry, Namespace: kubekeyv1alpha2.DefaultKubeImageNamespace, Repo: "pause", Tag: pauseTag, Group: kubekeyv1alpha2.K8s, Enable: true},
@@ -171,8 +171,8 @@ func (s *SaveImages) Execute(runtime connector.Runtime) error {
 			// oci:./kubekey/artifact/images:kubesphere:kube-apiserver-amd64:v1.21.5
 			// oci:./kubekey/artifact/images:kubesphere:kube-apiserver-arm-v7:v1.21.5
 			destName := fmt.Sprintf("oci:%s:%s:%s-%s%s", dirName, imageFullName[1], imageFullName[2], arch, variant)
-			logger.Log.Infof("Source: %s", srcName)
-			logger.Log.Infof("Destination: %s", destName)
+			logger.Infof("Source: %s", srcName)
+			logger.Infof("Destination: %s", destName)
 
 			o := &CopyImageOptions{
 				srcImage: &srcImageOptions{
@@ -270,8 +270,8 @@ func (c *CopyImagesToRegistry) Execute(runtime connector.Runtime) error {
 
 		srcName := fmt.Sprintf("oci:%s:%s", imagesPath, ref)
 		destName := fmt.Sprintf("docker://%s", image.ImageName())
-		logger.Log.Infof("Source: %s", srcName)
-		logger.Log.Infof("Destination: %s", destName)
+		logger.Infof("Source: %s", srcName)
+		logger.Infof("Destination: %s", destName)
 
 		o := &CopyImageOptions{
 			srcImage: &srcImageOptions{
@@ -329,16 +329,16 @@ func (p *PushManifest) Execute(_ connector.Runtime) error {
 
 	for imageName, platforms := range list {
 		manifestSpec := NewManifestSpec(imageName, platforms)
-		logger.Log.Debug(manifestSpec)
+		logger.Debug(manifestSpec)
 
-		logger.Log.Infof("Push multi-arch manifest list: %s", imageName)
+		logger.Infof("Push multi-arch manifest list: %s", imageName)
 		// todo: the function can't support specify a certs dir
 		digest, length, err := manifestregistry.PushManifestList(auth.Username, auth.Password, manifestSpec,
 			false, true, auth.PlainHTTP, "")
 		if err != nil {
 			return errors.Wrap(errors.WithStack(err), fmt.Sprintf("push image %s multi-arch manifest failed", imageName))
 		}
-		logger.Log.Infof("Digest: %s Length: %d", digest, length)
+		logger.Infof("Digest: %s Length: %d", digest, length)
 	}
 
 	return nil

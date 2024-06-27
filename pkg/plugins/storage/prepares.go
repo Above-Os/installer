@@ -42,6 +42,6 @@ func (c *CheckDefaultStorageClass) PreCheck(runtime connector.Runtime) (bool, er
 		return true, nil
 	}
 	host := runtime.RemoteHost()
-	logger.Log.Messagef(host.GetName(), "Default storageClass in cluster is not unique!")
+	logger.Info(host.GetName(), "Default storageClass in cluster is not unique!")
 	return false, nil
 }

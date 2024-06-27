@@ -270,7 +270,7 @@ func NewKubeBinary(name, arch, version, prePath string) *KubeBinary {
 		component.BaseDir = filepath.Join(prePath) // /packages/...
 		component.OverWrite = true
 		component.LessTransferLog = true
-		component.TransferLogSeed = 0.2
+		component.LessTransferLogSeed = 0.2
 	default:
 		logger.Fatalf("unsupported kube binaries %s", name)
 	}

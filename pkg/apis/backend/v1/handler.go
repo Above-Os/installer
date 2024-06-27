@@ -7,24 +7,28 @@ import (
 	"bytetrade.io/web3os/installer/pkg/common"
 	"bytetrade.io/web3os/installer/pkg/core/logger"
 	"bytetrade.io/web3os/installer/pkg/core/storage"
+	"bytetrade.io/web3os/installer/pkg/model"
 	"bytetrade.io/web3os/installer/pkg/phase/download"
 	"bytetrade.io/web3os/installer/pkg/phase/mock"
 	"bytetrade.io/web3os/installer/pkg/pipelines"
 	"github.com/emicklei/go-restful/v3"
+	"github.com/go-playground/validator/v10"
 )
 
 type Handler struct {
 	// apis.Base
 	// appService *app_service.Client
+	validate        *validator.Validate
 	StorageProvider storage.Provider
 }
 
-func New() *Handler {
-	// as := app_service.NewAppServiceClient()
-	// return &Handler{
-	// 	appService: as,
-	// }
-	return &Handler{}
+func New(db storage.Provider) *Handler {
+	v := validator.New(validator.WithRequiredStructEnabled())
+	v.RegisterValidation("kubeTypeValid", model.KubeTypeValid)
+	return &Handler{
+		validate:        v,
+		StorageProvider: db,
+	}
 }
 
 // ~ get public ip
@@ -49,15 +53,29 @@ func (h *Handler) handlerConfig(req *restful.Request, resp *restful.Response) {
 func (h *Handler) handlerInstall(req *restful.Request, resp *restful.Response) {
 	logger.Infof("handler installer req: %s", req.Request.Method)
 
-	// var reqModel model.InstallModelReq
-	// err := req.ReadEntity(&reqModel)
-	// if err != nil {
-	// 	response.HandleError(resp, err)
-	// 	return
-	// }
+	var reqModel model.InstallModelReq
+	err := req.ReadEntity(&reqModel)
+	if err != nil {
+		response.HandleError(resp, err)
+		return
+	}
 
-	arg := common.Argument{}
-	if err := pipelines.InstallTerminusPipeline(arg); err != nil {
+	if err = h.validate.Struct(&reqModel); err != nil {
+		if validationErrors := err.(validator.ValidationErrors); validationErrors != nil {
+			response.HandleError(resp, fmt.Errorf("request parameter invalid"))
+			return
+		}
+	}
+
+	if reqModel.DomainName == "" {
+		reqModel.DomainName = "myterminus.com"
+	}
+
+	arg := common.Argument{
+		Provider: h.StorageProvider,
+		Request:  reqModel,
+	}
+	if err := pipelines.InstallTerminusPipeline(arg, reqModel); err != nil { // dev
 		response.HandleError(resp, err)
 		return
 	}
@@ -130,12 +148,12 @@ func (h *Handler) handlerInstallKk(req *restful.Request, resp *restful.Response)
 
 // todo 一个完整的测试流程，下载 full 包并安装
 func (h *Handler) handlerInstallTerminus(req *restful.Request, resp *restful.Response) {
-	logger.Infof("handler installer req: %s", req.Request.Method)
+	// logger.Infof("handler installer req: %s", req.Request.Method)
 
-	arg := common.Argument{}
-	if err := pipelines.InstallTerminusPipeline(arg); err != nil {
-		fmt.Println("---api installer terminus / err---", err)
-	}
+	// arg := common.Argument{}
+	// if err := pipelines.InstallTerminusPipeline(arg); err != nil {
+	// 	fmt.Println("---api installer terminus / err---", err)
+	// }
 
 	response.SuccessNoData(resp)
 }

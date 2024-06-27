@@ -102,7 +102,7 @@ func ParseArchVariant(platform string) (string, string) {
 func ParseImageWithArchTag(ref string) (string, ocispec.Platform) {
 	n := strings.LastIndex(ref, "-")
 	if n < 0 {
-		logger.Log.Fatalf("get arch or variant index failed: %s", ref)
+		logger.Fatalf("get arch or variant index failed: %s", ref)
 	}
 	archOrVariant := ref[n+1:]
 
@@ -115,7 +115,7 @@ func ParseImageWithArchTag(ref string) (string, ocispec.Platform) {
 	archStr := ref[:n]
 	a := strings.LastIndex(archStr, "-")
 	if a < 0 {
-		logger.Log.Fatalf("get arch index failed: %s", ref)
+		logger.Fatalf("get arch index failed: %s", ref)
 	}
 	arch := archStr[a+1:]
 
@@ -123,7 +123,7 @@ func ParseImageWithArchTag(ref string) (string, ocispec.Platform) {
 	specifier = fmt.Sprintf("linux/%s/%s", arch, archOrVariant)
 	p, err := platforms.Parse(specifier)
 	if err != nil {
-		logger.Log.Fatalf("parse image %s failed: %s", ref, err.Error())
+		logger.Fatalf("parse image %s failed: %s", ref, err.Error())
 	}
 
 	return ref[:a], p

@@ -103,7 +103,7 @@ func (s *APIServer) installStorage() {
 }
 
 func (s *APIServer) installModuleAPI() {
-	urlruntime.Must(apisV1alpha1.AddContainer(s.container))
+	urlruntime.Must(apisV1alpha1.AddContainer(s.container, s.StorageProvider))
 }
 
 func enrichSwaggerObject(swo *spec.Swagger) {

@@ -34,6 +34,7 @@ type PackageDownload struct {
 
 func (d *PackageDownload) Execute(runtime connector.Runtime) error {
 	logger.Debug("[action] PackageDownload")
+	return nil
 
 	if err := DownloadInstallPackage(d.KubeConf, runtime.GetPackageDir(), "0.0.1", kubekeyapiv1alpha2.DefaultArch, d.PipelineCache); err != nil {
 		return err
@@ -48,6 +49,8 @@ type PackageUntar struct {
 
 func (a *PackageUntar) Execute(runtime connector.Runtime) error {
 	logger.Debug("[action] PackageUntar")
+	return nil
+
 	var pkgFile = fmt.Sprintf("%s/install-wizard-full.tar.gz", runtime.GetPackageDir())
 	if ok := util.IsExist(pkgFile); !ok {
 		return fmt.Errorf("package %s not exist", pkgFile)

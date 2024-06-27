@@ -196,7 +196,7 @@ func (n *NodePreCheckModule) Init() {
 		//Prepare: &prepare.FastPrepare{
 		//	Inject: func(runtime connector.Runtime) (bool, error) {
 		//		if len(n.Runtime.GetHostsByRole(common.ETCD))%2 == 0 {
-		//			logger.Log.Error("The number of etcd is even. Please configure it to be odd.")
+		//			logger.Error("The number of etcd is even. Please configure it to be odd.")
 		//			return false, errors.New("the number of etcd is even")
 		//		}
 		//		return true, nil

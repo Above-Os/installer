@@ -304,7 +304,7 @@ func GetKubeletConfiguration(runtime connector.Runtime, kubeConf *common.KubeCon
 
 	cgroupDriver, err := GetKubeletCgroupDriver(runtime, kubeConf)
 	if err != nil {
-		logger.Log.Fatal(err)
+		logger.Fatal(err)
 	}
 	if len(cgroupDriver) == 0 {
 		defaultKubeletConfiguration["cgroupDriver"] = "systemd"
@@ -319,7 +319,7 @@ func GetKubeletConfiguration(runtime connector.Runtime, kubeConf *common.KubeCon
 	if len(kubeConf.Cluster.Kubernetes.KubeletConfiguration.Raw) != 0 {
 		err := yaml.Unmarshal(kubeConf.Cluster.Kubernetes.KubeletConfiguration.Raw, &customKubeletConfiguration)
 		if err != nil {
-			logger.Log.Fatal("failed to parse kubelet configuration")
+			logger.Fatal("failed to parse kubelet configuration")
 		}
 	}
 
@@ -357,7 +357,7 @@ func GetKubeletConfiguration(runtime connector.Runtime, kubeConf *common.KubeCon
 	}
 
 	if kubeConf.Arg.Debug {
-		logger.Log.Debugf("Set kubeletConfiguration: %v", kubeletConfiguration)
+		logger.Debugf("Set kubeletConfiguration: %v", kubeletConfiguration)
 	}
 
 	return kubeletConfiguration
@@ -408,7 +408,7 @@ func GetKubeProxyConfiguration(kubeConf *common.KubeConf) map[string]interface{}
 	if len(kubeConf.Cluster.Kubernetes.KubeProxyConfiguration.Raw) != 0 {
 		err := yaml.Unmarshal(kubeConf.Cluster.Kubernetes.KubeProxyConfiguration.Raw, &customKubeProxyConfiguration)
 		if err != nil {
-			logger.Log.Fatal("failed to parse kube-proxy's configuration")
+			logger.Fatal("failed to parse kube-proxy's configuration")
 		}
 	}
 

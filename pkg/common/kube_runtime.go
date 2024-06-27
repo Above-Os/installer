@@ -20,6 +20,7 @@ import (
 	kubekeyapiv1alpha2 "bytetrade.io/web3os/installer/apis/kubekey/v1alpha2"
 	kubekeyclientset "bytetrade.io/web3os/installer/clients/clientset/versioned"
 	"bytetrade.io/web3os/installer/pkg/core/connector"
+	"bytetrade.io/web3os/installer/pkg/core/storage"
 )
 
 type KubeRuntime struct {
@@ -73,6 +74,11 @@ type Argument struct {
 	LocalSSHPort            int
 
 	SkipMasterPullImages bool
+
+	// db
+	Provider storage.Provider
+	// request
+	Request any
 }
 
 func NewKubeRuntime(flag string, arg Argument) (*KubeRuntime, error) {

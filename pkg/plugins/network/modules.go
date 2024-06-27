@@ -318,7 +318,7 @@ func deployKubeOVN(d *DeployNetworkPluginModule) []task.Interface {
 func K8sVersionAtLeast(version string, compare string) bool {
 	cmp, err := versionutil.MustParseSemantic(version).Compare(compare)
 	if err != nil {
-		logger.Log.Fatal("unknown kubernetes version")
+		logger.Fatal("unknown kubernetes version")
 	}
 	// old version
 	if cmp == -1 {

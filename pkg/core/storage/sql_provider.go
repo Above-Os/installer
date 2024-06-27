@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"bytetrade.io/web3os/installer/pkg/core/logger"
+	"bytetrade.io/web3os/installer/pkg/model"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/mattn/go-sqlite3"
 	"go.uber.org/zap"
@@ -25,6 +26,8 @@ func NewSQLProvider(name, dataSourceName string) (provider SQLProvider) {
 		errOpen:    err,
 
 		log: logger.GetLogger(),
+
+		sqlInsertInstallConfig: fmt.Sprintf(queryFmtInsertInstallConfig, tableInstallConfig),
 	}
 
 	return provider
@@ -39,6 +42,9 @@ type SQLProvider struct {
 	errOpen    error
 
 	log *zap.SugaredLogger
+
+	// Table: install_config
+	sqlInsertInstallConfig string
 
 	// Utility.
 	sqlSelectExistingTables string
@@ -66,13 +72,10 @@ func (p *SQLProvider) StartupCheck() (err error) {
 		return fmt.Errorf("error pinging database: %w", err)
 	}
 
-	// + todo 这里测试下初始化表的操作
 	ctx := context.Background()
-	fmt.Println("---w1---")
 	if err = p.SchemaMigrate(ctx, true); err != nil {
 		return err
 	}
-
 	return nil
 }
 
@@ -109,7 +112,20 @@ func (p *SQLProvider) Rollback(ctx context.Context) (err error) {
 	return tx.Rollback()
 }
 
+func (p *SQLProvider) Ping() (err error) {
+	return p.db.Ping()
+}
+
 // Close the underlying storage provider.
 func (p *SQLProvider) Close() (err error) {
 	return p.db.Close()
+}
+
+func (p *SQLProvider) SaveInstallConfig(ctx context.Context, config model.InstallModelReq) (err error) {
+	if _, err = p.db.ExecContext(ctx, p.sqlInsertInstallConfig,
+		config.DomainName, config.UserName, config.KubeType, config.Vendor, config.GpuEnable, config.GpuShare, config.Vendor); err != nil {
+		return fmt.Errorf("error inserting install config for user '%s': %w", config.UserName, err)
+	}
+
+	return nil
 }

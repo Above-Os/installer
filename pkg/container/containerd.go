@@ -233,7 +233,7 @@ func (i *RestartCri) Execute(runtime connector.Runtime) error {
 		}
 
 	default:
-		logger.Log.Fatalf("Unsupported container runtime: %s", strings.TrimSpace(i.KubeConf.Arg.Type))
+		logger.Fatalf("Unsupported container runtime: %s", strings.TrimSpace(i.KubeConf.Arg.Type))
 	}
 	return nil
 }
@@ -258,7 +258,7 @@ func (i *EditKubeletCri) Execute(runtime connector.Runtime) error {
 		}
 
 	default:
-		logger.Log.Fatalf("Unsupported container runtime: %s", strings.TrimSpace(i.KubeConf.Arg.Type))
+		logger.Fatalf("Unsupported container runtime: %s", strings.TrimSpace(i.KubeConf.Arg.Type))
 	}
 	return nil
 }

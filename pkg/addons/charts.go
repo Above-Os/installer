@@ -65,7 +65,7 @@ func InstallChart(kubeConf *common.KubeConf, addon *kubekeyapiv1alpha2.Addon, ku
 	}
 
 	if err := actionConfig.Init(settings.RESTClientGetter(), namespace, helmDriver, debug); err != nil {
-		logger.Log.Fatal(err)
+		logger.Fatal(err)
 	}
 
 	valueOpts := &values.Options{}
@@ -106,7 +106,7 @@ func InstallChart(kubeConf *common.KubeConf, addon *kubekeyapiv1alpha2.Addon, ku
 			chartName = addon.Sources.Chart.Name
 		}
 	} else {
-		logger.Log.Fatalln("No chart name is specified")
+		logger.Fatal("No chart name is specified")
 	}
 
 	args := []string{addon.Name, chartName}
@@ -169,7 +169,7 @@ func InstallChart(kubeConf *common.KubeConf, addon *kubekeyapiv1alpha2.Addon, ku
 	}
 
 	if ch.Metadata.Deprecated {
-		logger.Log.Warningln("This chart is deprecated")
+		logger.Warn("This chart is deprecated")
 	}
 
 	r, err1 := client.Run(args[0], ch, v)
@@ -212,7 +212,7 @@ func runInstall(args []string, client *action.Install, valueOpts *values.Options
 	}
 
 	if chartRequested.Metadata.Deprecated {
-		logger.Log.Warningln("This chart is deprecated")
+		logger.Warn("This chart is deprecated")
 	}
 
 	if req := chartRequested.Metadata.Dependencies; req != nil {

@@ -5,6 +5,7 @@ import (
 
 	"bytetrade.io/web3os/installer/pkg/api/response"
 	"bytetrade.io/web3os/installer/pkg/apiserver/runtime"
+	"bytetrade.io/web3os/installer/pkg/core/storage"
 	restfulspec "github.com/emicklei/go-restful-openapi/v2"
 	"github.com/emicklei/go-restful/v3"
 )
@@ -13,12 +14,12 @@ var ModuleVersion = runtime.ModuleVersion{Name: "webserver", Version: "v1"}
 
 var tags = []string{"apiserver"}
 
-func AddContainer(c *restful.Container) error {
+func AddContainer(c *restful.Container, db storage.Provider) error {
 	ws := runtime.NewWebService(ModuleVersion)
 	ws.Consumes(restful.MIME_JSON)
 	ws.Produces(restful.MIME_JSON)
 
-	handler := New()
+	handler := New(db)
 
 	// + 正式接口
 	// ws.Route(ws.GET("/public-ip").
@@ -52,11 +53,11 @@ func AddContainer(c *restful.Container) error {
 		Metadata(restfulspec.KeyOpenAPITags, tags).
 		Returns(http.StatusOK, "", response.Response{}))
 
-	ws.Route(ws.POST("/download").
-		To(handler.handlerDownloadEx).
-		Doc("").
-		Metadata(restfulspec.KeyOpenAPITags, tags).
-		Returns(http.StatusOK, "", response.Response{}))
+	// ws.Route(ws.POST("/download").
+	// 	To(handler.handlerDownloadEx).
+	// 	Doc("").
+	// 	Metadata(restfulspec.KeyOpenAPITags, tags).
+	// 	Returns(http.StatusOK, "", response.Response{}))
 
 	ws.Route(ws.POST("/install").
 		To(handler.handlerInstallKk).

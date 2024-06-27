@@ -27,6 +27,8 @@ const (
 	PrecheckOsShell  = "precheck_os.sh"
 	InstallDepsShell = "install_deps.sh"
 
+	DefaultDomainName = "myterminus.com"
+
 	Pipeline = "Pipeline"
 	Module   = "Module"
 	Task     = "Task"

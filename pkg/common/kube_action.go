@@ -19,11 +19,13 @@ package common
 import (
 	"bytetrade.io/web3os/installer/pkg/core/action"
 	"bytetrade.io/web3os/installer/pkg/core/connector"
+	"bytetrade.io/web3os/installer/pkg/core/storage"
 )
 
 type KubeAction struct {
 	action.BaseAction
 	KubeConf *KubeConf
+	Db       storage.Provider
 }
 
 func (k *KubeAction) AutoAssert(runtime connector.Runtime) {

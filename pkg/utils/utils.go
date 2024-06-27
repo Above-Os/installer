@@ -20,6 +20,7 @@ import (
 	"bytes"
 	"fmt"
 	"math"
+	"math/rand"
 	"os"
 	"os/exec"
 	"os/user"
@@ -28,6 +29,7 @@ import (
 	"sort"
 	"strings"
 	"text/template"
+	"time"
 
 	"bytetrade.io/web3os/installer/pkg/common"
 	"bytetrade.io/web3os/installer/pkg/core/connector"
@@ -167,5 +169,40 @@ func ArchAlias(arch string) string {
 		return "aarch64"
 	default:
 		return ""
+	}
+}
+
+func FormatBytes(bytes int64) string {
+	const (
+		KB = 1 << 10 // 1024
+		MB = 1 << 20 // 1024 * 1024
+		GB = 1 << 30 // 1024 * 1024 * 1024
+		TB = 1 << 40 // 1024 * 1024 * 1024 * 1024
+	)
+
+	var result string
+	switch {
+	case bytes >= TB:
+		result = fmt.Sprintf("%.2f TB", float64(bytes)/TB)
+	case bytes >= GB:
+		result = fmt.Sprintf("%.2f GB", float64(bytes)/GB)
+	case bytes >= MB:
+		result = fmt.Sprintf("%.2f MB", float64(bytes)/MB)
+	case bytes >= KB:
+		result = fmt.Sprintf("%.2f KB", float64(bytes)/KB)
+	default:
+		result = fmt.Sprintf("%d Byte", bytes)
+	}
+
+	return result
+}
+
+func GenerateNumberWithProbability(p float64) int {
+	rand.Seed(time.Now().UnixNano())
+	randomFloat := rand.Float64()
+	if randomFloat < p {
+		return 2 * rand.Intn(50)
+	} else {
+		return 2*rand.Intn(50) + 1
 	}
 }

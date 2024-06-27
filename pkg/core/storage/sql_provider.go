@@ -10,13 +10,14 @@ import (
 
 	"bytetrade.io/web3os/installer/pkg/core/logger"
 	"github.com/jmoiron/sqlx"
+	_ "github.com/mattn/go-sqlite3"
 	"go.uber.org/zap"
 )
 
 func NewSQLProvider(name, dataSourceName string) (provider SQLProvider) {
 	dbName := path.Join(dataSourceName, providerDataSourceName)
-	db, err := sqlx.Open(providerDriverName, dbName)
-
+	db, err := sqlx.Open(providerDriverName, fmt.Sprintf("file:%s?cache=shared", dbName))
+	db.SetMaxIdleConns(1)
 	provider = SQLProvider{
 		db:         db,
 		name:       name,
@@ -41,6 +42,11 @@ type SQLProvider struct {
 
 	// Utility.
 	sqlSelectExistingTables string
+
+	// Table: migrations.
+	sqlInsertMigration       string
+	sqlSelectMigrations      string
+	sqlSelectLatestMigration string
 }
 
 func (p *SQLProvider) StartupCheck() (err error) {
@@ -48,7 +54,7 @@ func (p *SQLProvider) StartupCheck() (err error) {
 		return fmt.Errorf("error opening database: %w", p.errOpen)
 	}
 
-	for i := 0; i < 19; i++ {
+	for i := 0; i < 10; i++ {
 		if err = p.db.Ping(); err == nil {
 			break
 		}
@@ -58,6 +64,13 @@ func (p *SQLProvider) StartupCheck() (err error) {
 
 	if err != nil {
 		return fmt.Errorf("error pinging database: %w", err)
+	}
+
+	// + todo 这里测试下初始化表的操作
+	ctx := context.Background()
+	fmt.Println("---w1---")
+	if err = p.SchemaMigrate(ctx, true); err != nil {
+		return err
 	}
 
 	return nil

@@ -5,6 +5,7 @@ import (
 	"os"
 	"path"
 
+	"bytetrade.io/web3os/installer/pkg/core/common"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
@@ -31,7 +32,7 @@ func InitLog(logDir string, level any) {
 	}
 
 	if !found {
-		err := os.MkdirAll(logDir, os.ModePerm)
+		err := os.MkdirAll(logDir, common.FileMode0755)
 		if err != nil {
 			fmt.Println("create log dir error", err)
 			os.Exit(1)
@@ -39,7 +40,7 @@ func InitLog(logDir string, level any) {
 	}
 
 	p := path.Join(logDir, "terminus_install.log")
-	file, err := os.Create(p)
+	file, err := os.OpenFile(p, os.O_APPEND|os.O_CREATE|os.O_WRONLY, common.FileMode0755)
 	if err != nil {
 		panic(err)
 	}

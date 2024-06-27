@@ -21,6 +21,7 @@ const (
 	KubeKey          = "pkg"
 	Components       = "components"
 	Packages         = "packages"
+	InstallDir       = "install-wizard"
 	Scripts          = "scripts"
 	GreetingShell    = "greeting.sh"
 	PrecheckOsShell  = "precheck_os.sh"

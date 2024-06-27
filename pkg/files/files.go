@@ -88,15 +88,18 @@ const (
 )
 
 type KubeBinary struct {
-	Type     string
-	ID       string
-	FileName string
-	Arch     string
-	Version  string
-	Url      string
-	BaseDir  string
-	Zone     string
-	CheckSum bool
+	Type                string
+	ID                  string
+	FileName            string
+	Arch                string
+	Version             string
+	Url                 string
+	BaseDir             string
+	Zone                string
+	CheckSum            bool
+	OverWrite           bool
+	LessTransferLog     bool
+	LessTransferLogSeed float64
 }
 
 func NewKubeBinary(name, arch, version, prePath string) *KubeBinary {
@@ -221,29 +224,6 @@ func NewKubeBinary(name, arch, version, prePath string) *KubeBinary {
 		if component.Zone == "cn" {
 			component.Url = fmt.Sprintf("https://kubernetes-release.pek3b.qingstor.com/opencontainers/runc/releases/download/%s/runc.%s", version, arch)
 		}
-	case file1: // todo 这里是新增的文件类型，后面应该都是跟安装包有关
-		// todo 要区分内外网了，公网肯定是走 CDN
-		component.Type = INSTALLER
-		component.FileName = fmt.Sprintf("file1_%s_v%s.tar.gz", arch, version)
-		component.Url = "http://192.168.50.32/containerd/containerd/releases/download/v1.6.4/containerd-1.6.4-linux-amd64.tar.gz"
-	case file2:
-		component.Type = INSTALLER
-		component.FileName = fmt.Sprintf("file2_%s_v%s.tar.gz", arch, version)
-		component.Url = "http://192.168.50.32/coreos/etcd/releases/download/v3.4.13/etcd-v3.4.13-linux-amd64.tar.gz"
-	case file3:
-		component.Type = INSTALLER
-		component.FileName = fmt.Sprintf("file3_%s_v%s.tar.gz", arch, version)
-		component.Url = "http://192.168.50.32/kubernetes-release/release/v1.22.10/bin/linux/amd64/kubelet"
-	case kubekey: // ! 模拟 kk 的下载和安装
-		component.Type = INSTALLER
-		component.FileName = fmt.Sprintf("kubekey-ext-v%s-linux-%s.tar.gz", version, arch)
-		component.Url = fmt.Sprintf("https://github.com/beclab/kubekey-ext/releases/download/%s/kubekey-ext-v%s-linux-%s.tar.gz", version, version, arch)
-	case fullpkg: // + 模拟 full 包下载和安装
-		component.Type = INSTALLER
-		component.FileName = fmt.Sprintf("install-wizard-full_%s.tar.gz", arch)
-		component.Url = "http://192.168.50.32/install-wizard-full.tar.gz"
-		component.CheckSum = false
-		component.BaseDir = filepath.Join(prePath)
 	case apparmor:
 		component.Type = PATCH
 		component.FileName = fmt.Sprintf("apparmor_%s-0ubuntu1_%s.deb", version, arch)
@@ -265,6 +245,32 @@ func NewKubeBinary(name, arch, version, prePath string) *KubeBinary {
 		component.Url = fmt.Sprintf("https://github.com/fqrouter/conntrack-tools/archive/refs/tags/conntrack-tools-%s.tar.gz", version)
 		component.CheckSum = false
 		component.BaseDir = filepath.Join(prePath)
+	case file1: // + test 这里是新增的文件类型，后面应该都是跟安装包有关
+		// todo 要区分内外网了，公网肯定是走 CDN
+		component.Type = INSTALLER
+		component.FileName = fmt.Sprintf("file1_%s_v%s.tar.gz", arch, version)
+		component.Url = "http://192.168.50.32/containerd/containerd/releases/download/v1.6.4/containerd-1.6.4-linux-amd64.tar.gz"
+	case file2:
+		component.Type = INSTALLER
+		component.FileName = fmt.Sprintf("file2_%s_v%s.tar.gz", arch, version)
+		component.Url = "http://192.168.50.32/coreos/etcd/releases/download/v3.4.13/etcd-v3.4.13-linux-amd64.tar.gz"
+	case file3:
+		component.Type = INSTALLER
+		component.FileName = fmt.Sprintf("file3_%s_v%s.tar.gz", arch, version)
+		component.Url = "http://192.168.50.32/kubernetes-release/release/v1.22.10/bin/linux/amd64/kubelet"
+	case kubekey: // ! 模拟 kk 的下载和安装
+		component.Type = INSTALLER
+		component.FileName = fmt.Sprintf("kubekey-ext-v%s-linux-%s.tar.gz", version, arch)
+		component.Url = fmt.Sprintf("https://github.com/beclab/kubekey-ext/releases/download/%s/kubekey-ext-v%s-linux-%s.tar.gz", version, version, arch)
+	case fullpkg: // + test 模拟 full 包下载和安装
+		component.Type = INSTALLER
+		component.FileName = fmt.Sprintf("install-wizard-full.tar.gz")
+		component.Url = "http://192.168.50.32/install-wizard-full.tar.gz"
+		component.CheckSum = false
+		component.BaseDir = filepath.Join(prePath) // /packages/...
+		component.OverWrite = true
+		component.LessTransferLog = true
+		component.TransferLogSeed = 0.2
 	default:
 		logger.Fatalf("unsupported kube binaries %s", name)
 	}
@@ -375,9 +381,9 @@ func (b *KubeBinary) Download() error {
 		for i := 5; i > 0; i-- {
 			totalSize, err := b.GetFileSize()
 			if err != nil {
-				logger.Warnf("Get file %s size failed", b.FileName)
+				logger.Warnf("get file %s size failed", b.FileName)
 			} else if totalSize > 0 {
-				logger.Debugf("get file %s size: %d", b.FileName, totalSize)
+				logger.Debugf("get file %s size: %d", b.FileName, utils.FormatBytes(totalSize))
 			}
 
 			// parsedUrl, err := url.Parse(b.Url)
@@ -388,7 +394,7 @@ func (b *KubeBinary) Download() error {
 
 			client := grab.NewClient()
 			req, _ := grab.NewRequest(fmt.Sprintf("%s/%s", b.BaseDir, b.FileName), b.Url)
-			// req.RateLimiter = NewLimiter(1024 * 4096) // ! debug
+			// req.RateLimiter = NewLimiter(1024 * 4096)
 			req.HTTPRequest = req.HTTPRequest.WithContext(context.Background())
 			ctx, cancel := context.WithTimeout(req.HTTPRequest.Context(), 5*time.Minute)
 			defer cancel()
@@ -404,11 +410,15 @@ func (b *KubeBinary) Download() error {
 				select {
 				case <-t.C:
 					downloaded := resp.BytesComplete()
+					num := utils.GenerateNumberWithProbability(b.LessTransferLogSeed)
+					if b.LessTransferLog && num%2 != 0 {
+						continue
+					}
 					if totalSize != 0 {
 						result := float64(downloaded) / float64(totalSize)
-						logger.Debugf("transferred %s %d / %d bytes (%.2f%%)", b.FileName, resp.BytesComplete(), totalSize, math.Round(result*10000)/100)
+						logger.Debugf("transferred %s %s / %s (%.2f%%) / speed: %s", b.FileName, utils.FormatBytes(resp.BytesComplete()), utils.FormatBytes(totalSize), math.Round(result*10000)/100, utils.FormatBytes(int64(resp.BytesPerSecond())))
 					} else {
-						logger.Debugf("transferred %s %d", b.FileName, resp.BytesComplete())
+						logger.Debugf("transferred %s %s / speed: %s", b.FileName, utils.FormatBytes(resp.BytesComplete()), utils.FormatBytes(int64(resp.BytesPerSecond())))
 					}
 				case <-resp.Done:
 					break Loop
@@ -416,7 +426,6 @@ func (b *KubeBinary) Download() error {
 			}
 
 			if err := resp.Err(); err != nil {
-				// fmt.Fprintf(os.Stderr, "Download failed: %v\n", err)
 				logger.Errorf("Download failed: %v", err)
 				if i == 1 {
 					logger.Error("All download attempts failed")

@@ -8,6 +8,7 @@ import (
 	"bytetrade.io/web3os/installer/pkg/core/util"
 )
 
+// ~ Terminus（第一阶段的测试 full 安装）
 type Terminus struct {
 	common.KubeAction
 }
@@ -19,10 +20,6 @@ func (a *Terminus) Execute(runtime connector.Runtime) error {
 	if err != nil {
 		return err
 	}
-	// runtime.GetRunner().SudoCmd(installCmd, false)
-	// if _, err := runtime.GetRunner().SudoCmd(installCmd, false); err != nil {
-	// 	return errors.Wrapf(errors.WithStack(err), "install terminus failed")
-	// }
 
 	return nil
 }

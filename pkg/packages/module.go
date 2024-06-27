@@ -17,12 +17,14 @@ func (m *PackagesModule) Init() {
 		Name:   "DownloadPackage",
 		Desc:   "Download installer packages",
 		Action: new(PackageDownload),
+		Retry:  0,
 	}
 
 	untar := &task.LocalTask{
 		Name:   "UntarPackage",
 		Desc:   "Untar installer package",
 		Action: new(PackageUntar),
+		Retry:  0,
 	}
 
 	m.Tasks = []task.Interface{download, untar}

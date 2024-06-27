@@ -7,6 +7,8 @@ import (
 	"github.com/mattn/go-sqlite3"
 )
 
+var Db Provider
+
 type SQLiteProvider struct {
 	SQLProvider
 }
@@ -19,8 +21,8 @@ func NewSQLiteProvider(dbPath string) (provider *SQLiteProvider) {
 	// All providers have differing SELECT existing table statements.
 	provider.sqlSelectExistingTables = querySQLiteSelectExistingTables
 
+	Db = provider
 	return provider
-
 }
 
 func sqlite3BLOBToTEXTBase64(data []byte) (b64 string) {

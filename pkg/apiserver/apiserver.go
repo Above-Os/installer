@@ -95,7 +95,11 @@ func (s *APIServer) installStorage() {
 		util.CreateDir(storageDir)
 	}
 	s.StorageProvider = storage.NewSQLiteProvider(storageDir)
-	s.StorageProvider.StartupCheck()
+	if err := s.StorageProvider.StartupCheck(); err != nil {
+		logger.Errorf("db connect failed: %v", err)
+		panic(err)
+	}
+	logger.Debugf("db connect successful ...")
 }
 
 func (s *APIServer) installModuleAPI() {

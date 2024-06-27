@@ -97,6 +97,10 @@ func FileMD5(path string) (string, error) {
 	return fileMd5, nil
 }
 
+func DeleteFile(path string) error {
+	return os.Remove(path)
+}
+
 func LocalMd5Sum(src string) string {
 	md5Str, err := FileMD5(src)
 	if err != nil {

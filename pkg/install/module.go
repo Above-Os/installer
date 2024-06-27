@@ -30,7 +30,7 @@ func (m *InstallModule) Init() {
 	m.Tasks = []task.Interface{checkFileExists, copyInstallPackage}
 }
 
-// + 下载 full 包
+// + 安装 full 包
 type InstallTerminusModule struct {
 	common.KubeModule
 }

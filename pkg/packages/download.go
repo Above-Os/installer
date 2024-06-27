@@ -9,6 +9,7 @@ import (
 	"bytetrade.io/web3os/installer/pkg/core/logger"
 	"bytetrade.io/web3os/installer/pkg/core/util"
 	"bytetrade.io/web3os/installer/pkg/files"
+	"bytetrade.io/web3os/installer/pkg/utils"
 	"github.com/pkg/errors"
 )
 
@@ -27,12 +28,16 @@ func DownloadInstallPackage(kubeConf *common.KubeConf, path, version, arch strin
 
 		filesMap[downloadFile.ID] = downloadFile
 		if util.IsExist(downloadFile.Path()) {
-			if err := downloadFile.SHA256Check(); err != nil {
-				p := downloadFile.Path()
-				_ = exec.Command("/bin/sh", "-c", fmt.Sprintf("rm -f %s", p)).Run()
+			if downloadFile.OverWrite {
+				utils.DeleteFile(downloadFile.Path())
 			} else {
-				logger.Infof("%s %s is existed", common.LocalHost, downloadFile.FileName)
-				continue
+				if err := downloadFile.SHA256Check(); err != nil {
+					p := downloadFile.Path()
+					_ = exec.Command("/bin/sh", "-c", fmt.Sprintf("rm -f %s", p)).Run()
+				} else {
+					logger.Infof("%s %s is existed", common.LocalHost, downloadFile.FileName)
+					continue
+				}
 			}
 		}
 

@@ -1,7 +1,9 @@
 package storage
 
+import "regexp"
+
 const (
-	providerDriverName     = "sqlite3e"
+	providerDriverName     = "sqlite3" // sqlite3e
 	providerDataSourceName = "storage.db"
 	providerSQLite         = "sqlite"
 )
@@ -9,5 +11,13 @@ const (
 type ctxKey int
 
 const (
+	pathMigrations = "migrations"
+)
+
+const (
 	ctxKeyTransaction ctxKey = iota
+)
+
+var (
+	reMigration = regexp.MustCompile(`^V(?P<Version>\d{4})\.(?P<Name>[^.]+)\.(?P<Direction>(up|down))\.sql$`)
 )

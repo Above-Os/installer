@@ -18,9 +18,11 @@ package packages
 
 import (
 	"fmt"
+	"path"
 
 	kubekeyapiv1alpha2 "bytetrade.io/web3os/installer/apis/kubekey/v1alpha2"
 	"bytetrade.io/web3os/installer/pkg/common"
+	corecommon "bytetrade.io/web3os/installer/pkg/core/common"
 	"bytetrade.io/web3os/installer/pkg/core/connector"
 	"bytetrade.io/web3os/installer/pkg/core/logger"
 	"bytetrade.io/web3os/installer/pkg/core/util"
@@ -45,16 +47,23 @@ type PackageUntar struct {
 }
 
 func (a *PackageUntar) Execute(runtime connector.Runtime) error {
-	var pkgFile = fmt.Sprintf("%s/install-wizard-full_%s.tar.gz", runtime.GetPackageDir(), kubekeyapiv1alpha2.DefaultArch)
+	logger.Debug("[action] PackageUntar")
+	var pkgFile = fmt.Sprintf("%s/install-wizard-full.tar.gz", runtime.GetPackageDir())
 	if ok := util.IsExist(pkgFile); !ok {
 		return fmt.Errorf("package %s not exist", pkgFile)
 	}
 
-	if err := util.RemoveDir("/home/zhaoyu/install-wizard"); err != nil {
-		return fmt.Errorf("remove %s failed %v", "/home/zhaoyu/install-wizard", err)
+	var p = path.Join(runtime.GetPackageDir(), corecommon.InstallDir)
+	// ./packages/
+	if err := util.RemoveDir(p); err != nil {
+		return fmt.Errorf("remove %s failed %v", p, err)
 	}
 
-	if err := util.Untar(pkgFile, "/home/zhaoyu/install-wizard"); err != nil {
+	if err := util.Mkdir(p); err != nil {
+		return fmt.Errorf("mkdir %s failed %v", p, err)
+	}
+
+	if err := util.Untar(pkgFile, p); err != nil {
 		return fmt.Errorf("untar %s failed %v", pkgFile, err)
 	}
 	logger.Infof("untar %s success", pkgFile)

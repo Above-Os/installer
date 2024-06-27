@@ -28,8 +28,13 @@ import (
 	"github.com/pkg/errors"
 )
 
+// ~ OverrideCoreDNS
 type OverrideCoreDNS struct {
 	common.KubeAction
+}
+
+func (o *OverrideCoreDNS) GetName() string {
+	return "OverrideCoreDNS"
 }
 
 func (o *OverrideCoreDNS) Execute(runtime connector.Runtime) error {
@@ -45,8 +50,13 @@ func (o *OverrideCoreDNS) Execute(runtime connector.Runtime) error {
 	return nil
 }
 
+// ~ DeployNodeLocalDNS
 type DeployNodeLocalDNS struct {
 	common.KubeAction
+}
+
+func (d *DeployNodeLocalDNS) GetName() string {
+	return "DeployNodeLocalDNS"
 }
 
 func (d *DeployNodeLocalDNS) Execute(runtime connector.Runtime) error {
@@ -56,8 +66,13 @@ func (d *DeployNodeLocalDNS) Execute(runtime connector.Runtime) error {
 	return nil
 }
 
+// ~ GenerateNodeLocalDNSConfigMap
 type GenerateNodeLocalDNSConfigMap struct {
 	common.KubeAction
+}
+
+func (g *GenerateNodeLocalDNSConfigMap) GetName() string {
+	return "GenerateNodeLocalDNSConfigMap"
 }
 
 func (g *GenerateNodeLocalDNSConfigMap) Execute(runtime connector.Runtime) error {
@@ -87,8 +102,13 @@ func (g *GenerateNodeLocalDNSConfigMap) Execute(runtime connector.Runtime) error
 	return nil
 }
 
+// ~ ApplyNodeLocalDNSConfigMap
 type ApplyNodeLocalDNSConfigMap struct {
 	common.KubeAction
+}
+
+func (a *ApplyNodeLocalDNSConfigMap) GetName() string {
+	return "ApplyNodeLocalDNSConfigMap"
 }
 
 func (a *ApplyNodeLocalDNSConfigMap) Execute(runtime connector.Runtime) error {

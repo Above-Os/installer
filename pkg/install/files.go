@@ -10,13 +10,17 @@ import (
 	"github.com/pkg/errors"
 )
 
+// ~ CheckFilesExists
 type CheckFilesExists struct {
 	common.KubeAction
 }
 
+func (a *CheckFilesExists) GetName() string {
+	return "CheckFilesExists"
+}
+
 // todo 检查 kk 文件是否存在
 func (a *CheckFilesExists) Execute(runtime connector.Runtime) error {
-	fmt.Println("[action] CheckFilesExists")
 	src := runtime.GetWorkDir()
 	filePath := fmt.Sprintf("%s/installer/0.1.20/amd64/kk", src)
 	if ok := util.IsExist(filePath); !ok {
@@ -26,12 +30,16 @@ func (a *CheckFilesExists) Execute(runtime connector.Runtime) error {
 	return nil
 }
 
+// ~ CopyInstallPackage
 type CopyInstallPackage struct {
 	common.KubeAction
 }
 
+func (a *CopyInstallPackage) GetName() string {
+	return "CopyInstallPackage"
+}
+
 func (a *CopyInstallPackage) Execute(runtime connector.Runtime) error {
-	fmt.Println("[action] CopyInstallPackage")
 	src := runtime.GetWorkDir()
 	dst := "/tmp/install_log"
 

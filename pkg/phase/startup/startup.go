@@ -20,7 +20,7 @@ func GetMachineInfo() error {
 	}
 
 	p := pipeline.Pipeline{
-		Name:    "CreateStartupPipeline",
+		Name:    "Startup",
 		Modules: m,
 		Runtime: &runtime,
 	}

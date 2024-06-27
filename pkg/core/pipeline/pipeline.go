@@ -49,17 +49,17 @@ func (p *Pipeline) Init() error {
 }
 
 func (p *Pipeline) Start() error {
-	logger.Info("[pipeline] Start ...")
+	logger.Debugf("[Job] %s start ...", p.Name)
 	if err := p.Init(); err != nil {
-		logger.Errorf("[pipeline] %s execute failed %v", p.Name, err)
-		return errors.Wrapf(err, "Pipeline[%s] execute failed", p.Name)
+		logger.Errorf("[Job] %s execute failed %v", p.Name, err)
+		return errors.Wrapf(err, "Job %s execute failed", p.Name)
 	}
 	for i := range p.Modules {
 		m := p.Modules[i]
 		if m.IsSkip() {
 			continue
 		}
-		logger.Debugf("[pipeline] run module %s", m.GetName())
+		logger.Debugf("[Module] %s", m.GetName())
 		moduleCache := p.newModuleCache()
 		m.Default(p.Runtime, p.PipelineCache, moduleCache)
 		m.AutoAssert()
@@ -70,12 +70,12 @@ func (p *Pipeline) Start() error {
 		res := p.RunModule(m)
 		err := m.CallPostHook(res)
 		if res.IsFailed() {
-			logger.Errorf("[pipeline] %s execute failed %v", p.Name, err)
+			logger.Errorf("[Job] %s execute failed %v", p.Name, err)
 			return errors.Wrapf(res.CombineResult, "Pipeline[%s] execute failed", p.Name)
 		}
 		if err != nil {
-			logger.Errorf("[pipeline] %s execute failed %v", p.Name, err)
-			return errors.Wrapf(err, "Pipeline[%s] execute failed", p.Name)
+			logger.Errorf("[Job] %s execute failed %v", p.Name, err)
+			return errors.Wrapf(err, "Job[%s] execute failed", p.Name)
 		}
 		p.releaseModuleCache(moduleCache)
 	}
@@ -87,10 +87,10 @@ func (p *Pipeline) Start() error {
 	}
 
 	if p.SpecHosts != len(p.Runtime.GetAllHosts()) {
-		logger.Errorf("[pipeline] %s execute failed: there are some error in your spec hosts", p.Name)
-		return errors.Errorf("Pipeline[%s] execute failed: there are some error in your spec hosts", p.Name)
+		logger.Errorf("[Job] %s execute failed: there are some error in your spec hosts", p.Name)
+		return errors.Errorf("[Job] %s execute failed: there are some error in your spec hosts", p.Name)
 	}
-	logger.Debugf("[pipeline] %s execute successfully", p.Name)
+	logger.Debugf("[Job] %s execute successfully!!!", p.Name)
 
 	return nil
 }

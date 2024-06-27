@@ -109,7 +109,6 @@ type FetchCerts struct {
 }
 
 func (f *FetchCerts) Execute(runtime connector.Runtime) error {
-	fmt.Println("[action] FetchCerts")
 	src := "/etc/ssl/etcd/ssl"
 	dst := fmt.Sprintf("%s/pki/etcd", runtime.GetWorkDir())
 
@@ -139,13 +138,16 @@ func (f *FetchCerts) Execute(runtime connector.Runtime) error {
 	return nil
 }
 
+// ~ GenerateCerts
 type GenerateCerts struct {
 	common.KubeAction
 }
 
-func (g *GenerateCerts) Execute(runtime connector.Runtime) error {
-	fmt.Println("[action] GenerateCerts")
+func (g *GenerateCerts) GetName() string {
+	return "GenerateCerts"
+}
 
+func (g *GenerateCerts) Execute(runtime connector.Runtime) error {
 	pkiPath := fmt.Sprintf("%s/pki/etcd", runtime.GetWorkDir())
 
 	altName := GenerateAltName(g.KubeConf, &runtime)
@@ -217,12 +219,16 @@ func GenerateAltName(k *common.KubeConf, runtime *connector.Runtime) *cert.AltNa
 	return &altName
 }
 
+// ~ FetchCertsForExternalEtcd
 type FetchCertsForExternalEtcd struct {
 	common.KubeAction
 }
 
+func (f *FetchCertsForExternalEtcd) GetName() string {
+	return "FetchCertsForExternalEtcd"
+}
+
 func (f *FetchCertsForExternalEtcd) Execute(runtime connector.Runtime) error {
-	fmt.Println("[action] FetchCertsForExternalEtcd")
 	pkiPath := fmt.Sprintf("%s/pki/etcd", runtime.GetWorkDir())
 
 	if err := util.CreateDir(pkiPath); err != nil {

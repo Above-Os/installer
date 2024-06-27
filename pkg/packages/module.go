@@ -13,6 +13,10 @@ type PackagesModule struct {
 	common.KubeConf
 }
 
+func (m *PackagesModule) GetName() string {
+	return "PackagesModule"
+}
+
 func (m *PackagesModule) Init() {
 	m.Name = "PackageModule"
 	m.Desc = "Download installer packages"

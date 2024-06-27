@@ -33,8 +33,13 @@ import (
 	coreutil "bytetrade.io/web3os/installer/pkg/core/util"
 )
 
+// ~ DownloadISOFile
 type DownloadISOFile struct {
 	common.ArtifactAction
+}
+
+func (d *DownloadISOFile) GetName() string {
+	return "DownloadISOFile"
 }
 
 func (d *DownloadISOFile) Execute(runtime connector.Runtime) error {
@@ -76,8 +81,13 @@ func (d *DownloadISOFile) Execute(runtime connector.Runtime) error {
 	return nil
 }
 
+// ~ LocalCopy
 type LocalCopy struct {
 	common.ArtifactAction
+}
+
+func (l *LocalCopy) GetName() string {
+	return "LocalCopy"
 }
 
 func (l *LocalCopy) Execute(runtime connector.Runtime) error {
@@ -100,8 +110,13 @@ func (l *LocalCopy) Execute(runtime connector.Runtime) error {
 	return nil
 }
 
+// ~ ArchiveDependencies
 type ArchiveDependencies struct {
 	common.ArtifactAction
+}
+
+func (a *ArchiveDependencies) GetName() string {
+	return "ArchiveDependencies"
 }
 
 func (a *ArchiveDependencies) Execute(runtime connector.Runtime) error {
@@ -117,24 +132,34 @@ func (a *ArchiveDependencies) Execute(runtime connector.Runtime) error {
 	return nil
 }
 
+// ~ UnArchive
 type UnArchive struct {
 	common.KubeAction
 }
 
+func (u *UnArchive) GetName() string {
+	return "UnArchive"
+}
+
 func (u *UnArchive) Execute(runtime connector.Runtime) error {
-	fmt.Println("[action] UnArchive")
+	fmt.Println("[A] UnArchive")
 	if err := coreutil.Untar(u.KubeConf.Arg.Artifact, runtime.GetWorkDir()); err != nil {
 		return errors.Wrapf(errors.WithStack(err), "unArchive %s failed", u.KubeConf.Arg.Artifact)
 	}
 	return nil
 }
 
+// ~ Md5Check
 type Md5Check struct {
 	common.KubeAction
 }
 
+func (m *Md5Check) GetName() string {
+	return "Md5Check"
+}
+
 func (m *Md5Check) Execute(runtime connector.Runtime) error {
-	fmt.Println("[action] Md5Check")
+	fmt.Println("[A] Md5Check")
 	m.ModuleCache.Set("md5AreEqual", false)
 
 	// check if there is a md5.sum file. This file's content contains the last artifact md5 value.
@@ -156,12 +181,17 @@ func (m *Md5Check) Execute(runtime connector.Runtime) error {
 	return nil
 }
 
+// ~ CreateMd5File
 type CreateMd5File struct {
 	common.KubeAction
 }
 
+func (c *CreateMd5File) GetName() string {
+	return "CreateMd5File"
+}
+
 func (c *CreateMd5File) Execute(runtime connector.Runtime) error {
-	fmt.Println("[action] CreateMd5File")
+	fmt.Println("[A] CreateMd5File")
 	oldFile := filepath.Join(runtime.GetWorkDir(), "artifact.md5")
 	newMd5 := coreutil.LocalMd5Sum(c.KubeConf.Arg.Artifact)
 	f, err := os.Create(oldFile)

@@ -41,7 +41,6 @@ type SyncContainerd struct {
 }
 
 func (s *SyncContainerd) Execute(runtime connector.Runtime) error {
-	fmt.Println("[action] SyncContainerd")
 	if err := utils.ResetTmpDir(runtime); err != nil {
 		return err
 	}
@@ -75,7 +74,6 @@ type SyncCrictlBinaries struct {
 }
 
 func (s *SyncCrictlBinaries) Execute(runtime connector.Runtime) error {
-	fmt.Println("[action] SyncCrictlBinaries")
 	if err := utils.ResetTmpDir(runtime); err != nil {
 		return err
 	}

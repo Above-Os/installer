@@ -30,6 +30,7 @@ import (
 	"bytetrade.io/web3os/installer/pkg/common"
 	"bytetrade.io/web3os/installer/pkg/core/action"
 	"bytetrade.io/web3os/installer/pkg/core/connector"
+	"bytetrade.io/web3os/installer/pkg/core/logger"
 	"bytetrade.io/web3os/installer/pkg/core/util"
 	"bytetrade.io/web3os/installer/pkg/files"
 	"bytetrade.io/web3os/installer/pkg/images"
@@ -43,12 +44,16 @@ import (
 	"k8s.io/client-go/tools/clientcmd"
 )
 
+// ~ GetClusterStatus
 type GetClusterStatus struct {
 	common.KubeAction
 }
 
+func (g *GetClusterStatus) GetName() string {
+	return "GetClusterStatus(k3s)"
+}
+
 func (g *GetClusterStatus) Execute(runtime connector.Runtime) error {
-	fmt.Println("[action] GetClusterStatus(k3s)")
 	exist, err := runtime.GetRunner().FileExist("/etc/systemd/system/k3s.service")
 	if err != nil {
 		return err
@@ -88,12 +93,16 @@ func (g *GetClusterStatus) Execute(runtime connector.Runtime) error {
 	return nil
 }
 
+// ~ SyncKubeBinary
 type SyncKubeBinary struct {
 	common.KubeAction
 }
 
+func (s *SyncKubeBinary) GetName() string {
+	return "SyncKubeBinary(k3s)"
+}
+
 func (s *SyncKubeBinary) Execute(runtime connector.Runtime) error {
-	fmt.Println("[action] SyncKubeBinary(k3s)")
 	binariesMapObj, ok := s.PipelineCache.Get(common.KubeBinaries + "-" + runtime.RemoteHost().GetArch())
 	if !ok {
 		return errors.New("get KubeBinary by pipeline cache failed")
@@ -123,7 +132,7 @@ func SyncKubeBinaries(runtime connector.Runtime, binariesMap map[string]*files.K
 		switch name {
 		case "kubecni":
 			dst := filepath.Join(common.TmpDir, fileName)
-			fmt.Printf("[action] SyncKubeBinary cp %s from %s to %s\n", name, binary.Path(), dst)
+			logger.Debugf("SyncKubeBinary cp %s from %s to %s\n", name, binary.Path(), dst)
 			if err := runtime.GetRunner().Scp(binary.Path(), dst); err != nil {
 				return errors.Wrap(errors.WithStack(err), fmt.Sprintf("sync kube binaries failed"))
 			}
@@ -132,7 +141,7 @@ func SyncKubeBinaries(runtime connector.Runtime, binariesMap map[string]*files.K
 			}
 		default:
 			dst := filepath.Join(common.BinDir, fileName)
-			fmt.Printf("[action] SyncKubeBinary cp %s from %s to %s\n", name, binary.Path(), dst)
+			logger.Debugf("SyncKubeBinary cp %s from %s to %s\n", name, binary.Path(), dst)
 			if err := runtime.GetRunner().SudoScp(binary.Path(), dst); err != nil {
 				return errors.Wrap(errors.WithStack(err), fmt.Sprintf("sync kube binaries failed"))
 			}
@@ -154,12 +163,16 @@ func SyncKubeBinaries(runtime connector.Runtime, binariesMap map[string]*files.K
 	return nil
 }
 
+// ~ ChmodScript
 type ChmodScript struct {
 	common.KubeAction
 }
 
+func (c *ChmodScript) GetName() string {
+	return "ChmodScript(k3s)"
+}
+
 func (c *ChmodScript) Execute(runtime connector.Runtime) error {
-	fmt.Println("[action] ChmodScript(k3s)")
 	killAllScript := filepath.Join("/usr/local/bin", templates.K3sKillallScript.Name())
 	uninstallScript := filepath.Join("/usr/local/bin", templates.K3sUninstallScript.Name())
 
@@ -174,12 +187,16 @@ func (c *ChmodScript) Execute(runtime connector.Runtime) error {
 	return nil
 }
 
+// ~ GenerateK3sService
 type GenerateK3sService struct {
 	common.KubeAction
 }
 
+func (g *GenerateK3sService) GetName() string {
+	return "GenerateK3sService"
+}
+
 func (g *GenerateK3sService) Execute(runtime connector.Runtime) error {
-	fmt.Println("[action] GenerateK3sService")
 	host := runtime.RemoteHost()
 
 	var server string
@@ -252,12 +269,16 @@ func (g *GenerateK3sService) Execute(runtime connector.Runtime) error {
 	return nil
 }
 
+// ~ GenerateK3sServiceEnv
 type GenerateK3sServiceEnv struct {
 	common.KubeAction
 }
 
+func (g *GenerateK3sServiceEnv) GetName() string {
+	return "GenerateK3sServiceEnv"
+}
+
 func (g *GenerateK3sServiceEnv) Execute(runtime connector.Runtime) error {
-	fmt.Println("[action] GenerateK3sServiceEnv")
 	host := runtime.RemoteHost()
 
 	clusterStatus, ok := g.PipelineCache.Get(common.ClusterStatus)
@@ -324,12 +345,16 @@ func (g *GenerateK3sServiceEnv) Execute(runtime connector.Runtime) error {
 	return nil
 }
 
+// ~ EnableK3sService
 type EnableK3sService struct {
 	common.KubeAction
 }
 
+func (e *EnableK3sService) GetName() string {
+	return "EnableK3sService"
+}
+
 func (e *EnableK3sService) Execute(runtime connector.Runtime) error {
-	fmt.Println("[action] EnableK3sService")
 	if _, err := runtime.GetRunner().SudoCmd("systemctl daemon-reload && systemctl enable --now k3s",
 		false); err != nil {
 		return errors.Wrap(errors.WithStack(err), "enable k3s failed")
@@ -337,12 +362,16 @@ func (e *EnableK3sService) Execute(runtime connector.Runtime) error {
 	return nil
 }
 
+// ~ CopyK3sKubeConfig
 type CopyK3sKubeConfig struct {
 	common.KubeAction
 }
 
+func (c *CopyK3sKubeConfig) GetName() string {
+	return "CopyK3sKubeConfig"
+}
+
 func (c *CopyK3sKubeConfig) Execute(runtime connector.Runtime) error {
-	fmt.Println("[action] CopyK3sKubeConfig")
 	createConfigDirCmd := "mkdir -p /root/.kube && mkdir -p $HOME/.kube"
 	getKubeConfigCmd := "cp -f /etc/rancher/k3s/k3s.yaml /root/.kube/config"
 
@@ -378,12 +407,16 @@ func (c *CopyK3sKubeConfig) Execute(runtime connector.Runtime) error {
 	return nil
 }
 
+// ~ AddMasterTaint
 type AddMasterTaint struct {
 	common.KubeAction
 }
 
+func (a *AddMasterTaint) GetName() string {
+	return "AddMasterTaint(k3s)"
+}
+
 func (a *AddMasterTaint) Execute(runtime connector.Runtime) error {
-	fmt.Println("[action] AddMasterTaint(k3s)")
 	host := runtime.RemoteHost()
 
 	cmd := fmt.Sprintf(
@@ -396,8 +429,13 @@ func (a *AddMasterTaint) Execute(runtime connector.Runtime) error {
 	return nil
 }
 
+// ~ AddWorkerLabel
 type AddWorkerLabel struct {
 	common.KubeAction
+}
+
+func (a *AddWorkerLabel) GetName() string {
+	return "AddWorkerLabel"
 }
 
 func (a *AddWorkerLabel) Execute(runtime connector.Runtime) error {
@@ -412,16 +450,20 @@ func (a *AddWorkerLabel) Execute(runtime connector.Runtime) error {
 	if out, err = runtime.GetRunner().SudoCmd(cmd, false); err != nil {
 		return errors.Wrap(errors.WithStack(err), "add master NoSchedule taint failed")
 	}
-	fmt.Printf("[action] AddWorkerLabel successed: %s\n", out)
+	fmt.Printf("AddWorkerLabel successed: %s\n", out)
 	return nil
 }
 
+// ~ SyncKubeConfigToWorker
 type SyncKubeConfigToWorker struct {
 	common.KubeAction
 }
 
+func (s *SyncKubeConfigToWorker) GetName() string {
+	return "SyncKubeConfigToWorker(k3s)"
+}
+
 func (s *SyncKubeConfigToWorker) Execute(runtime connector.Runtime) error {
-	fmt.Println("[action] SyncKubeConfigToWorker(k3s)")
 	if v, ok := s.PipelineCache.Get(common.ClusterStatus); ok {
 		cluster := v.(*K3sStatus)
 
@@ -469,12 +511,16 @@ func (s *SyncKubeConfigToWorker) Execute(runtime connector.Runtime) error {
 	return nil
 }
 
+// ~ ExecUninstallScript
 type ExecUninstallScript struct {
 	common.KubeAction
 }
 
+func (e *ExecUninstallScript) GetName() string {
+	return "ExecUninstallScript(k3s)"
+}
+
 func (e *ExecUninstallScript) Execute(runtime connector.Runtime) error {
-	fmt.Println("[action] ExecUninstallScript(k3s)")
 	if _, err := runtime.GetRunner().SudoCmd("systemctl daemon-reload && /usr/local/bin/k3s-killall.sh",
 		true); err != nil {
 		return errors.Wrap(errors.WithStack(err), "add master NoSchedule taint failed")
@@ -486,12 +532,16 @@ func (e *ExecUninstallScript) Execute(runtime connector.Runtime) error {
 	return nil
 }
 
+// ~ SaveKubeConfig
 type SaveKubeConfig struct {
 	common.KubeAction
 }
 
+func (s *SaveKubeConfig) GetName() string {
+	return "SaveKubeConfig(k3s)"
+}
+
 func (s *SaveKubeConfig) Execute(_ connector.Runtime) error {
-	fmt.Println("[action] SaveKubeConfig(k3s)")
 	status, ok := s.PipelineCache.Get(common.ClusterStatus)
 	if !ok {
 		return errors.New("get kubernetes status failed by pipeline cache")
@@ -546,12 +596,16 @@ func (s *SaveKubeConfig) Execute(_ connector.Runtime) error {
 	return nil
 }
 
+// ~ GenerateK3sRegistryConfig
 type GenerateK3sRegistryConfig struct {
 	common.KubeAction
 }
 
+func (g *GenerateK3sRegistryConfig) GetName() string {
+	return "GenerateK3sRegistryConfig"
+}
+
 func (g *GenerateK3sRegistryConfig) Execute(runtime connector.Runtime) error {
-	fmt.Println("[action] GenerateK3sRegistryConfig")
 	dockerioMirror := registry.Mirror{}
 	registryConfigs := map[string]registry.RegistryConfig{}
 

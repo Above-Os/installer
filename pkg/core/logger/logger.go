@@ -53,10 +53,10 @@ func InitLog(logDir string, level any) {
 	})
 
 	fileEncoder := zapcore.EncoderConfig{
-		TimeKey:        "time",
-		LevelKey:       "level",
-		NameKey:        "logger",
-		CallerKey:      "line",
+		TimeKey:  "time",
+		LevelKey: "level",
+		NameKey:  "logger",
+		// CallerKey:      "line",
 		FunctionKey:    zapcore.OmitKey,
 		MessageKey:     "msg",
 		StacktraceKey:  "stacktrace",

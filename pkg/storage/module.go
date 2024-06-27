@@ -9,6 +9,10 @@ type SaveInstallConfigModule struct {
 	common.KubeModule
 }
 
+func (m *SaveInstallConfigModule) GetName() string {
+	return "SaveInstallConfigModule"
+}
+
 func (m *SaveInstallConfigModule) Init() {
 	m.Name = "SaveInstallConfigModule"
 	m.Desc = "SaveInstallConfigModule"

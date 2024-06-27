@@ -28,8 +28,13 @@ import (
 	"github.com/pkg/errors"
 )
 
+// ~ SyncCertsFile
 type SyncCertsFile struct {
 	common.KubeAction
+}
+
+func (s *SyncCertsFile) GetName() string {
+	return "SyncCertsFile"
 }
 
 func (s *SyncCertsFile) Execute(runtime connector.Runtime) error {
@@ -53,8 +58,13 @@ func (s *SyncCertsFile) Execute(runtime connector.Runtime) error {
 	return nil
 }
 
+// ~ SyncCertsToAllNodes
 type SyncCertsToAllNodes struct {
 	common.KubeAction
+}
+
+func (s *SyncCertsToAllNodes) GetName() string {
+	return "SyncCertsToAllNodes"
 }
 
 func (s *SyncCertsToAllNodes) Execute(runtime connector.Runtime) error {
@@ -96,8 +106,13 @@ func (s *SyncCertsToAllNodes) Execute(runtime connector.Runtime) error {
 	return nil
 }
 
+// ~ InstallRegistryBinary
 type InstallRegistryBinary struct {
 	common.KubeAction
+}
+
+func (g *InstallRegistryBinary) GetName() string {
+	return "InstallRegistryBinary"
 }
 
 func (g *InstallRegistryBinary) Execute(runtime connector.Runtime) error {
@@ -128,8 +143,13 @@ func (g *InstallRegistryBinary) Execute(runtime connector.Runtime) error {
 	return nil
 }
 
+// ~ StartRegistryService
 type StartRegistryService struct {
 	common.KubeAction
+}
+
+func (g *StartRegistryService) GetName() string {
+	return "StartRegistryService"
 }
 
 func (g *StartRegistryService) Execute(runtime connector.Runtime) error {
@@ -145,8 +165,13 @@ func (g *StartRegistryService) Execute(runtime connector.Runtime) error {
 	return nil
 }
 
+// ~ InstallDockerCompose
 type InstallDockerCompose struct {
 	common.KubeAction
+}
+
+func (g *InstallDockerCompose) GetName() string {
+	return "InstallDockerCompose"
 }
 
 func (g *InstallDockerCompose) Execute(runtime connector.Runtime) error {
@@ -178,8 +203,13 @@ func (g *InstallDockerCompose) Execute(runtime connector.Runtime) error {
 	return nil
 }
 
+// ~ SyncHarborPackage
 type SyncHarborPackage struct {
 	common.KubeAction
+}
+
+func (g *SyncHarborPackage) GetName() string {
+	return "SyncHarborPackage"
 }
 
 func (g *SyncHarborPackage) Execute(runtime connector.Runtime) error {
@@ -211,8 +241,13 @@ func (g *SyncHarborPackage) Execute(runtime connector.Runtime) error {
 	return nil
 }
 
+// ~ StartHarbor
 type StartHarbor struct {
 	common.KubeAction
+}
+
+func (g *StartHarbor) GetName() string {
+	return "StartHarbor"
 }
 
 func (g *StartHarbor) Execute(runtime connector.Runtime) error {

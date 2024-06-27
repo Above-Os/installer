@@ -55,8 +55,13 @@ type PreCheckResults struct {
 	Time       string `table:"time"`
 }
 
+// ~ InstallationConfirm
 type InstallationConfirm struct {
 	common.KubeAction
+}
+
+func (i *InstallationConfirm) GetName() string {
+	return "InstallationConfirm"
 }
 
 func (i *InstallationConfirm) Execute(runtime connector.Runtime) error {
@@ -146,9 +151,14 @@ func (i *InstallationConfirm) Execute(runtime connector.Runtime) error {
 	return nil
 }
 
+// ~ DeleteConfirm
 type DeleteConfirm struct {
 	common.KubeAction
 	Content string
+}
+
+func (d *DeleteConfirm) GetName() string {
+	return "DeleteConfirm"
 }
 
 func (d *DeleteConfirm) Execute(runtime connector.Runtime) error {
@@ -176,8 +186,13 @@ func (d *DeleteConfirm) Execute(runtime connector.Runtime) error {
 	return nil
 }
 
+// ~ UpgradeConfirm
 type UpgradeConfirm struct {
 	common.KubeAction
+}
+
+func (u *UpgradeConfirm) GetName() string {
+	return "UpgradeConfirm"
 }
 
 func (u *UpgradeConfirm) Execute(runtime connector.Runtime) error {
@@ -310,9 +325,14 @@ func RefineDockerVersion(version string) (string, error) {
 	return strings.Join(newVersionComponents, "."), nil
 }
 
+// ~ CheckFile
 type CheckFile struct {
 	action.BaseAction
 	FileName string
+}
+
+func (c *CheckFile) GetName() string {
+	return "CheckFile"
 }
 
 func (c *CheckFile) Execute(runtime connector.Runtime) error {
@@ -340,8 +360,13 @@ func (c *CheckFile) Execute(runtime connector.Runtime) error {
 	return nil
 }
 
+// ~ MigrateCri
 type MigrateCri struct {
 	common.KubeAction
+}
+
+func (d *MigrateCri) GetName() string {
+	return "MigrateCri"
 }
 
 func (d *MigrateCri) Execute(runtime connector.Runtime) error {

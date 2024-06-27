@@ -11,7 +11,6 @@ import (
 	"bytetrade.io/web3os/installer/pkg/constants"
 	"bytetrade.io/web3os/installer/pkg/core/common"
 	"bytetrade.io/web3os/installer/pkg/core/connector"
-	"bytetrade.io/web3os/installer/pkg/core/logger"
 	"bytetrade.io/web3os/installer/pkg/core/util"
 )
 
@@ -29,8 +28,11 @@ type Script struct {
 	PrintOutput bool
 }
 
+func (s *Script) GetName() string {
+	return "script"
+}
+
 func (s *Script) Execute(runtime connector.Runtime) error {
-	logger.Debugf("[action] Script: %s, file: %s", s.Name, s.File)
 	scriptFileName := path.Join(constants.WorkDir, common.Scripts, s.File)
 	if !util.IsExist(scriptFileName) {
 		return errors.New(fmt.Sprintf("script file %s not exist", s.File))

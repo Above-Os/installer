@@ -37,12 +37,16 @@ import (
 	yamlV2 "gopkg.in/yaml.v2"
 )
 
+// ~ AddInstallerConfig
 type AddInstallerConfig struct {
 	common.KubeAction
 }
 
+func (a *AddInstallerConfig) GetName() string {
+	return "AddInstallerConfig"
+}
+
 func (a *AddInstallerConfig) Execute(runtime connector.Runtime) error {
-	fmt.Println("[action] AddInstallerConfig")
 	configurationBase64 := base64.StdEncoding.EncodeToString([]byte(a.KubeConf.Cluster.KubeSphere.Configurations))
 	if _, err := runtime.GetRunner().SudoCmd(
 		fmt.Sprintf("echo %s | base64 -d >> /etc/kubernetes/addons/kubesphere.yaml", configurationBase64),
@@ -52,12 +56,16 @@ func (a *AddInstallerConfig) Execute(runtime connector.Runtime) error {
 	return nil
 }
 
+// ~ CreateNamespace
 type CreateNamespace struct {
 	common.KubeAction
 }
 
+func (c *CreateNamespace) GetName() string {
+	return "CreateNamespace"
+}
+
 func (c *CreateNamespace) Execute(runtime connector.Runtime) error {
-	fmt.Println("[action] CreateNamespace")
 	_, err := runtime.GetRunner().SudoCmd(`cat <<EOF | /usr/local/bin/kubectl apply -f -
 apiVersion: v1
 kind: Namespace
@@ -76,12 +84,16 @@ EOF
 	return nil
 }
 
+// ~ Setup
 type Setup struct {
 	common.KubeAction
 }
 
+func (s *Setup) GetName() string {
+	return "Setup"
+}
+
 func (s *Setup) Execute(runtime connector.Runtime) error {
-	fmt.Println("[action] Setup")
 	filePath := filepath.Join(common.KubeAddonsDir, templates.KsInstaller.Name())
 
 	var addrList []string
@@ -232,12 +244,16 @@ func (s *Setup) Execute(runtime connector.Runtime) error {
 	return nil
 }
 
+// ~ Apply
 type Apply struct {
 	common.KubeAction
 }
 
+func (a *Apply) GetName() string {
+	return "Apply"
+}
+
 func (a *Apply) Execute(runtime connector.Runtime) error {
-	fmt.Println("[action] Apply")
 	filePath := filepath.Join(common.KubeAddonsDir, templates.KsInstaller.Name())
 
 	deployKubesphereCmd := fmt.Sprintf("/usr/local/bin/kubectl apply -f %s --force", filePath)
@@ -247,8 +263,13 @@ func (a *Apply) Execute(runtime connector.Runtime) error {
 	return nil
 }
 
+// ~ Check
 type Check struct {
 	common.KubeAction
+}
+
+func (c *Check) GetName() string {
+	return "Check"
 }
 
 func (c *Check) Execute(runtime connector.Runtime) error {
@@ -256,7 +277,6 @@ func (c *Check) Execute(runtime connector.Runtime) error {
 	// 	position = 1
 	// 	notes    = "Please wait for the installation to complete: "
 	// )
-	fmt.Println("[action] Check")
 	ch := make(chan string)
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
@@ -382,22 +402,30 @@ func CheckKubeSphereStatus(ctx context.Context, runtime connector.Runtime, stopC
 	}
 }
 
+// ~ CleanCC
 type CleanCC struct {
 	common.KubeAction
 }
 
+func (c *CleanCC) GetName() string {
+	return "CleanCC"
+}
+
 func (c *CleanCC) Execute(runtime connector.Runtime) error {
-	fmt.Println("[action] CleanCC")
 	c.KubeConf.Cluster.KubeSphere.Configurations = "\n"
 	return nil
 }
 
+// ~ ConvertV2ToV3
 type ConvertV2ToV3 struct {
 	common.KubeAction
 }
 
+func (c *ConvertV2ToV3) GetName() string {
+	return "ConvertV2ToV3"
+}
+
 func (c *ConvertV2ToV3) Execute(runtime connector.Runtime) error {
-	fmt.Println("[action] ConvertV2ToV3")
 	configV2Str, err := runtime.GetRunner().SudoCmd(
 		"/usr/local/bin/kubectl get cm -n kubesphere-system ks-installer -o jsonpath='{.data.ks-config\\.yaml}'",
 		false)

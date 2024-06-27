@@ -20,16 +20,18 @@ type Greeting struct {
 	action.BaseAction
 }
 
-func (t *Greeting) Execute(runtime connector.Runtime) error {
-	logger.Debugf("[action] Greeting Scripts")
+func (t *Greeting) GetName() string {
+	return "Greeting Script"
+}
 
+func (t *Greeting) Execute(runtime connector.Runtime) error {
 	p := fmt.Sprintf("%s/%s/%s", constants.WorkDir, common.Scripts, common.GreetingShell)
 	if ok := util.IsExist(p); ok {
 		outstd, _, err := util.Exec(p, false)
 		if err != nil {
 			return err
 		}
-		logger.Debugf("[script] OUT: %s, CMD: %s", outstd, p)
+		logger.Debugf("script OUT: %s, CMD: %s", outstd, p)
 	}
 	return nil
 }
@@ -39,9 +41,11 @@ type Copy struct {
 	action.BaseAction
 }
 
-func (t *Copy) Execute(runtime connector.Runtime) error {
-	logger.Debugf("[action] Copy Scripts")
+func (t *Copy) GetName() string {
+	return "Copy Scripts"
+}
 
+func (t *Copy) Execute(runtime connector.Runtime) error {
 	p := fmt.Sprintf("%s/%s", constants.WorkDir, common.Scripts)
 	if ok := util.IsExist(p); !ok {
 		if err := util.CreateDir(p); err != nil {

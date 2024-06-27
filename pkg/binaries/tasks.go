@@ -34,8 +34,12 @@ type AppArmorDownload struct {
 	common.KubeAction
 }
 
+func (t *AppArmorDownload) GetName() string {
+	return "AppArmorDownload"
+}
+
 func (t *AppArmorDownload) Execute(runtime connector.Runtime) error {
-	logger.Debug("[action] AppArmorDownload")
+	logger.Debug("[A] AppArmorDownload")
 	if err := DownloadUbutun24AppArmor(runtime.GetWorkDir(), kubekeyapiv1alpha2.DefaultUbuntu24AppArmonVersion,
 		constants.OsArch, t.PipelineCache); err != nil {
 		return err
@@ -49,14 +53,22 @@ type AppArmorInstall struct {
 	common.KubeAction
 }
 
+func (t *AppArmorInstall) GetName() string {
+	return "AppArmorInstall"
+}
+
 func (t *AppArmorInstall) Execute(runtime connector.Runtime) error {
-	logger.Debugf("[action] AppArmorInstall")
+	logger.Debugf("[A] AppArmorInstall")
 	return nil
 }
 
 // ~ Download
 type Download struct {
 	common.KubeAction
+}
+
+func (d *Download) GetName() string {
+	return "Download"
 }
 
 func (d *Download) Execute(runtime connector.Runtime) error {
@@ -89,9 +101,13 @@ func (d *Download) Execute(runtime connector.Runtime) error {
 	return nil
 }
 
-// + K3sDownload
+// ~ K3sDownload
 type K3sDownload struct {
 	common.KubeAction
+}
+
+func (k *K3sDownload) GetName() string {
+	return "K3sDownload"
 }
 
 func (k *K3sDownload) Execute(runtime connector.Runtime) error {
@@ -124,9 +140,13 @@ func (k *K3sDownload) Execute(runtime connector.Runtime) error {
 	return nil
 }
 
-// + ArtifactDownload
+// ~ ArtifactDownload
 type ArtifactDownload struct {
 	common.ArtifactAction
+}
+
+func (a *ArtifactDownload) GetName() string {
+	return "ArtifactDownload"
 }
 
 func (a *ArtifactDownload) Execute(runtime connector.Runtime) error {
@@ -170,9 +190,13 @@ func (a *ArtifactDownload) Execute(runtime connector.Runtime) error {
 	return nil
 }
 
-// + K3sArtifactDownload
+// ~ K3sArtifactDownload
 type K3sArtifactDownload struct {
 	common.ArtifactAction
+}
+
+func (a *K3sArtifactDownload) GetName() string {
+	return "K3sArtifactDownload"
 }
 
 func (a *K3sArtifactDownload) Execute(runtime connector.Runtime) error {
@@ -216,9 +240,13 @@ func (a *K3sArtifactDownload) Execute(runtime connector.Runtime) error {
 	return nil
 }
 
-// + RegistryPackageDownload
+// ~ RegistryPackageDownload
 type RegistryPackageDownload struct {
 	common.KubeAction
+}
+
+func (d *RegistryPackageDownload) GetName() string {
+	return "RegistryPackageDownload"
 }
 
 func (k *RegistryPackageDownload) Execute(runtime connector.Runtime) error {
@@ -230,9 +258,13 @@ func (k *RegistryPackageDownload) Execute(runtime connector.Runtime) error {
 	return nil
 }
 
-// + CriDownload
+// ~ CriDownload
 type CriDownload struct {
 	common.KubeAction
+}
+
+func (d *CriDownload) GetName() string {
+	return "CriDownload"
 }
 
 func (d *CriDownload) Execute(runtime connector.Runtime) error {

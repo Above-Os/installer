@@ -22,7 +22,6 @@ import (
 	"text/template"
 
 	"bytetrade.io/web3os/installer/pkg/core/connector"
-	"bytetrade.io/web3os/installer/pkg/core/logger"
 	"bytetrade.io/web3os/installer/pkg/core/util"
 	"github.com/pkg/errors"
 )
@@ -35,8 +34,11 @@ type Template struct {
 	Data     util.Data
 }
 
+func (t *Template) GetName() string {
+	return "template"
+}
+
 func (t *Template) Execute(runtime connector.Runtime) error {
-	logger.Debugf("[action] Template: %s", t.Name)
 	templateStr, err := util.Render(t.Template, t.Data)
 	if err != nil {
 		return errors.Wrap(errors.WithStack(err), fmt.Sprintf("render template %s failed", t.Template.Name()))

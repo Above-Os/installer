@@ -30,12 +30,17 @@ import (
 	"bytetrade.io/web3os/installer/pkg/utils"
 )
 
+// ~ NodeConfigureOS
 type NodeConfigureOS struct {
 	common.KubeAction
 }
 
+func (n *NodeConfigureOS) GetName() string {
+	return "NodeConfigureOS"
+}
+
 func (n *NodeConfigureOS) Execute(runtime connector.Runtime) error {
-	fmt.Println("[action] NodeConfigureOS")
+	fmt.Println("[A] NodeConfigureOS")
 	host := runtime.RemoteHost()
 	if err := addUsers(runtime, host); err != nil {
 		return errors.Wrap(errors.WithStack(err), "Failed to add users")
@@ -117,12 +122,17 @@ func createDirectories(runtime connector.Runtime, node connector.Host) error {
 	return nil
 }
 
+// ~ NodeExecScript
 type NodeExecScript struct {
 	common.KubeAction
 }
 
+func (n *NodeExecScript) GetName() string {
+	return "NodeExecScript"
+}
+
 func (n *NodeExecScript) Execute(runtime connector.Runtime) error {
-	fmt.Println("[action] NodeExecScript")
+	fmt.Println("[A] NodeExecScript")
 	if _, err := runtime.GetRunner().SudoCmd(fmt.Sprintf("chmod +x %s/initOS.sh", common.KubeScriptDir), false); err != nil {
 		return errors.Wrap(errors.WithStack(err), "Failed to chmod +x init os script")
 	}
@@ -174,8 +184,13 @@ var (
 	}
 )
 
+// ~ ResetNetworkConfig
 type ResetNetworkConfig struct {
 	common.KubeAction
+}
+
+func (r *ResetNetworkConfig) GetName() string {
+	return "ResetNetworkConfig"
 }
 
 func (r *ResetNetworkConfig) Execute(runtime connector.Runtime) error {
@@ -185,8 +200,13 @@ func (r *ResetNetworkConfig) Execute(runtime connector.Runtime) error {
 	return nil
 }
 
+// ~ UninstallETCD
 type UninstallETCD struct {
 	common.KubeAction
+}
+
+func (s *UninstallETCD) GetName() string {
+	return "UninstallETCD"
 }
 
 func (s *UninstallETCD) Execute(runtime connector.Runtime) error {
@@ -197,8 +217,13 @@ func (s *UninstallETCD) Execute(runtime connector.Runtime) error {
 	return nil
 }
 
+// ~ RemoveNodeFiles
 type RemoveNodeFiles struct {
 	common.KubeAction
+}
+
+func (r *RemoveNodeFiles) GetName() string {
+	return "RemoveNodeFiles"
 }
 
 func (r *RemoveNodeFiles) Execute(runtime connector.Runtime) error {
@@ -230,8 +255,13 @@ func (r *RemoveNodeFiles) Execute(runtime connector.Runtime) error {
 	return nil
 }
 
+// ~ RemoveFiles
 type RemoveFiles struct {
 	common.KubeAction
+}
+
+func (r *RemoveFiles) GetName() string {
+	return "RemoveFiles"
 }
 
 func (r *RemoveFiles) Execute(runtime connector.Runtime) error {
@@ -241,8 +271,13 @@ func (r *RemoveFiles) Execute(runtime connector.Runtime) error {
 	return nil
 }
 
+// ~ DaemonReload
 type DaemonReload struct {
 	common.KubeAction
+}
+
+func (d *DaemonReload) GetName() string {
+	return "DaemonReload"
 }
 
 func (d *DaemonReload) Execute(runtime connector.Runtime) error {
@@ -255,12 +290,17 @@ func (d *DaemonReload) Execute(runtime connector.Runtime) error {
 	return nil
 }
 
+// ~ GetOSData
 type GetOSData struct {
 	common.KubeAction
 }
 
+func (g *GetOSData) GetName() string {
+	return "GetOSData"
+}
+
 func (g *GetOSData) Execute(runtime connector.Runtime) error {
-	fmt.Println("[action] GetOSData")
+	fmt.Println("[A] GetOSData")
 	osReleaseStr, err := runtime.GetRunner().SudoCmd("cat /etc/os-release", false)
 	if err != nil {
 		return err
@@ -273,12 +313,16 @@ func (g *GetOSData) Execute(runtime connector.Runtime) error {
 	return nil
 }
 
+// ~ SyncRepositoryFile
 type SyncRepositoryFile struct {
 	common.KubeAction
 }
 
+func (s *SyncRepositoryFile) GetName() string {
+	return "SyncRepositoryFile"
+}
+
 func (s *SyncRepositoryFile) Execute(runtime connector.Runtime) error {
-	fmt.Println("[action] SyncRepositoryFile")
 	if err := utils.ResetTmpDir(runtime); err != nil {
 		return errors.Wrap(err, "reset tmp dir failed")
 	}
@@ -301,12 +345,16 @@ func (s *SyncRepositoryFile) Execute(runtime connector.Runtime) error {
 	return nil
 }
 
+// ~ MountISO
 type MountISO struct {
 	common.KubeAction
 }
 
+func (m *MountISO) GetName() string {
+	return "MountISO"
+}
+
 func (m *MountISO) Execute(runtime connector.Runtime) error {
-	fmt.Println("[action] MountISO")
 	mountPath := filepath.Join(common.TmpDir, "iso")
 	if err := runtime.GetRunner().MkDir(mountPath); err != nil {
 		return errors.Wrapf(errors.WithStack(err), "create mount dir failed")
@@ -322,12 +370,16 @@ func (m *MountISO) Execute(runtime connector.Runtime) error {
 	return nil
 }
 
+// ~ NewRepoClient
 type NewRepoClient struct {
 	common.KubeAction
 }
 
+func (n *NewRepoClient) GetName() string {
+	return "NewRepoClient"
+}
+
 func (n *NewRepoClient) Execute(runtime connector.Runtime) error {
-	fmt.Println("[action] NewRepoClient")
 	host := runtime.RemoteHost()
 	release, ok := host.GetCache().Get(Release)
 	if !ok {
@@ -357,12 +409,16 @@ func (n *NewRepoClient) Execute(runtime connector.Runtime) error {
 	return nil
 }
 
+// ~ BackupOriginalRepository
 type BackupOriginalRepository struct {
 	common.KubeAction
 }
 
+func (b *BackupOriginalRepository) GetName() string {
+	return "BackupOriginalRepository"
+}
+
 func (b *BackupOriginalRepository) Execute(runtime connector.Runtime) error {
-	fmt.Println("[action] BackupOriginalRepository")
 	host := runtime.RemoteHost()
 	r, ok := host.GetCache().Get("repo")
 	if !ok {
@@ -377,12 +433,16 @@ func (b *BackupOriginalRepository) Execute(runtime connector.Runtime) error {
 	return nil
 }
 
+// ~ AddLocalRepository
 type AddLocalRepository struct {
 	common.KubeAction
 }
 
+func (a *AddLocalRepository) GetName() string {
+	return "AddLocalRepository"
+}
+
 func (a *AddLocalRepository) Execute(runtime connector.Runtime) error {
-	fmt.Println("[action] AddLocalRepository")
 	host := runtime.RemoteHost()
 	r, ok := host.GetCache().Get("repo")
 	if !ok {
@@ -400,12 +460,16 @@ func (a *AddLocalRepository) Execute(runtime connector.Runtime) error {
 	return nil
 }
 
+// ~ InstallPackage
 type InstallPackage struct {
 	common.KubeAction
 }
 
+func (i *InstallPackage) GetName() string {
+	return "InstallPackage"
+}
+
 func (i *InstallPackage) Execute(runtime connector.Runtime) error {
-	fmt.Println("[action] InstallPackage")
 	host := runtime.RemoteHost()
 	repo, ok := host.GetCache().Get("repo")
 	if !ok {
@@ -426,12 +490,16 @@ func (i *InstallPackage) Execute(runtime connector.Runtime) error {
 	return nil
 }
 
+// ~ ResetRepository
 type ResetRepository struct {
 	common.KubeAction
 }
 
+func (r *ResetRepository) GetName() string {
+	return "ResetRepository"
+}
+
 func (r *ResetRepository) Execute(runtime connector.Runtime) error {
-	fmt.Println("[action] ResetRepository")
 	host := runtime.RemoteHost()
 	repo, ok := host.GetCache().Get("repo")
 	if !ok {
@@ -455,12 +523,16 @@ func (r *ResetRepository) Execute(runtime connector.Runtime) error {
 	return nil
 }
 
+// ~ UmountISO
 type UmountISO struct {
 	common.KubeAction
 }
 
+func (u *UmountISO) GetName() string {
+	return "UmountISO"
+}
+
 func (u *UmountISO) Execute(runtime connector.Runtime) error {
-	fmt.Println("[action] UmountISO")
 	mountPath := filepath.Join(common.TmpDir, "iso")
 	umountCmd := fmt.Sprintf("umount %s", mountPath)
 	if _, err := runtime.GetRunner().SudoCmd(umountCmd, false); err != nil {
@@ -469,12 +541,16 @@ func (u *UmountISO) Execute(runtime connector.Runtime) error {
 	return nil
 }
 
+// ~ NodeConfigureNtpServer
 type NodeConfigureNtpServer struct {
 	common.KubeAction
 }
 
+func (n *NodeConfigureNtpServer) GetName() string {
+	return "NodeConfigureNtpServer"
+}
+
 func (n *NodeConfigureNtpServer) Execute(runtime connector.Runtime) error {
-	fmt.Println("[action] NodeConfigureNtpServer")
 	currentHost := runtime.RemoteHost()
 	release, ok := currentHost.GetCache().Get(Release)
 	if !ok {

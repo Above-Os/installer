@@ -69,8 +69,13 @@ var (
 	}
 )
 
+// ~ ListClusterCerts
 type ListClusterCerts struct {
 	common.KubeAction
+}
+
+func (l *ListClusterCerts) GetName() string {
+	return "ListClusterCerts"
 }
 
 func (l *ListClusterCerts) Execute(runtime connector.Runtime) error {
@@ -191,8 +196,13 @@ func ResidualTime(t time.Time) string {
 	return fmt.Sprintf("%dy", int(d.Hours()/24/365))
 }
 
+// ~ DisplayForm
 type DisplayForm struct {
 	common.KubeAction
+}
+
+func (d *DisplayForm) GetName() string {
+	return "DisplayForm"
 }
 
 func (d *DisplayForm) Execute(runtime connector.Runtime) error {
@@ -246,8 +256,13 @@ func (d *DisplayForm) Execute(runtime connector.Runtime) error {
 	return nil
 }
 
+// ~ RenewCerts
 type RenewCerts struct {
 	common.KubeAction
+}
+
+func (d *RenewCerts) GetName() string {
+	return "RenewCerts"
 }
 
 func (r *RenewCerts) Execute(runtime connector.Runtime) error {
@@ -303,8 +318,13 @@ func (r *RenewCerts) Execute(runtime connector.Runtime) error {
 	return nil
 }
 
+// ~ FetchKubeConfig
 type FetchKubeConfig struct {
 	common.KubeAction
+}
+
+func (f *FetchKubeConfig) GetName() string {
+	return "FetchKubeConfig"
 }
 
 func (f *FetchKubeConfig) Execute(runtime connector.Runtime) error {
@@ -324,8 +344,13 @@ func (f *FetchKubeConfig) Execute(runtime connector.Runtime) error {
 	return nil
 }
 
+// ~ SyneKubeConfigToWorker
 type SyneKubeConfigToWorker struct {
 	common.KubeAction
+}
+
+func (s *SyneKubeConfigToWorker) GetName() string {
+	return "SyneKubeConfigToWorker"
 }
 
 func (s *SyneKubeConfigToWorker) Execute(runtime connector.Runtime) error {
@@ -374,12 +399,16 @@ func (s *SyneKubeConfigToWorker) Execute(runtime connector.Runtime) error {
 	return nil
 }
 
+// ~ EnableRenewService
 type EnableRenewService struct {
 	common.KubeAction
 }
 
+func (e *EnableRenewService) GetName() string {
+	return "EnableRenewService"
+}
+
 func (e *EnableRenewService) Execute(runtime connector.Runtime) error {
-	fmt.Println("[action] EnableRenewService")
 	if _, err := runtime.GetRunner().SudoCmd(
 		"chmod +x /usr/local/bin/kube-scripts/k8s-certs-renew.sh && systemctl enable --now k8s-certs-renew.timer",
 		false); err != nil {
@@ -388,8 +417,13 @@ func (e *EnableRenewService) Execute(runtime connector.Runtime) error {
 	return nil
 }
 
+// ~ UninstallAutoRenewCerts
 type UninstallAutoRenewCerts struct {
 	common.KubeAction
+}
+
+func (u *UninstallAutoRenewCerts) GetName() string {
+	return "UninstallAutoRenewCerts"
 }
 
 func (u *UninstallAutoRenewCerts) Execute(runtime connector.Runtime) error {

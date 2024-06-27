@@ -53,8 +53,13 @@ import (
 	"bytetrade.io/web3os/installer/pkg/utils"
 )
 
+// ~ GetClusterStatus
 type GetClusterStatus struct {
 	common.KubeAction
+}
+
+func (g *GetClusterStatus) GetName() string {
+	return "GetClusterStatus"
 }
 
 func (g *GetClusterStatus) Execute(runtime connector.Runtime) error {
@@ -98,8 +103,13 @@ func (g *GetClusterStatus) Execute(runtime connector.Runtime) error {
 	return nil
 }
 
+// ~ SyncKubeBinary
 type SyncKubeBinary struct {
 	common.KubeAction
+}
+
+func (i *SyncKubeBinary) GetName() string {
+	return "SyncKubeBinary"
 }
 
 func (i *SyncKubeBinary) Execute(runtime connector.Runtime) error {
@@ -155,8 +165,13 @@ func SyncKubeBinaries(runtime connector.Runtime, binariesMap map[string]*files.K
 	return nil
 }
 
+// ~ SyncKubelet
 type SyncKubelet struct {
 	common.KubeAction
+}
+
+func (i *SyncKubelet) GetName() string {
+	return "SyncKubelet"
 }
 
 func (s *SyncKubelet) Execute(runtime connector.Runtime) error {
@@ -166,8 +181,13 @@ func (s *SyncKubelet) Execute(runtime connector.Runtime) error {
 	return nil
 }
 
+// ~ EnableKubelet
 type EnableKubelet struct {
 	common.KubeAction
+}
+
+func (i *EnableKubelet) GetName() string {
+	return "EnableKubelet"
 }
 
 func (e *EnableKubelet) Execute(runtime connector.Runtime) error {
@@ -179,8 +199,13 @@ func (e *EnableKubelet) Execute(runtime connector.Runtime) error {
 	return nil
 }
 
+// ~ GenerateKubeletEnv
 type GenerateKubeletEnv struct {
 	common.KubeAction
+}
+
+func (i *GenerateKubeletEnv) GetName() string {
+	return "GenerateKubeletEnv"
 }
 
 func (g *GenerateKubeletEnv) Execute(runtime connector.Runtime) error {
@@ -203,10 +228,15 @@ func (g *GenerateKubeletEnv) Execute(runtime connector.Runtime) error {
 	return nil
 }
 
+// ~ GenerateKubeadmConfig
 type GenerateKubeadmConfig struct {
 	common.KubeAction
 	IsInitConfiguration     bool
 	WithSecurityEnhancement bool
+}
+
+func (i *GenerateKubeadmConfig) GetName() string {
+	return "GenerateKubeadmConfig"
 }
 
 func (g *GenerateKubeadmConfig) Execute(runtime connector.Runtime) error {
@@ -318,8 +348,13 @@ func (g *GenerateKubeadmConfig) Execute(runtime connector.Runtime) error {
 	return nil
 }
 
+// ~ KubeadmInit
 type KubeadmInit struct {
 	common.KubeAction
+}
+
+func (k *KubeadmInit) GetName() string {
+	return "KubeadmInit"
 }
 
 func (k *KubeadmInit) Execute(runtime connector.Runtime) error {
@@ -341,8 +376,13 @@ func (k *KubeadmInit) Execute(runtime connector.Runtime) error {
 	return nil
 }
 
+// ~ CopyKubeConfigForControlPlane
 type CopyKubeConfigForControlPlane struct {
 	common.KubeAction
+}
+
+func (c *CopyKubeConfigForControlPlane) GetName() string {
+	return "CopyKubeConfigForControlPlane"
 }
 
 func (c *CopyKubeConfigForControlPlane) Execute(runtime connector.Runtime) error {
@@ -380,8 +420,13 @@ func (c *CopyKubeConfigForControlPlane) Execute(runtime connector.Runtime) error
 	return nil
 }
 
+// ~ RemoveMasterTaint
 type RemoveMasterTaint struct {
 	common.KubeAction
+}
+
+func (r *RemoveMasterTaint) GetName() string {
+	return "RemoveMasterTaint"
 }
 
 func (r *RemoveMasterTaint) Execute(runtime connector.Runtime) error {
@@ -398,8 +443,13 @@ func (r *RemoveMasterTaint) Execute(runtime connector.Runtime) error {
 	return nil
 }
 
+// ~ AddWorkerLabel
 type AddWorkerLabel struct {
 	common.KubeAction
+}
+
+func (a *AddWorkerLabel) GetName() string {
+	return "AddWorkerLabel"
 }
 
 func (a *AddWorkerLabel) Execute(runtime connector.Runtime) error {
@@ -411,12 +461,16 @@ func (a *AddWorkerLabel) Execute(runtime connector.Runtime) error {
 	return nil
 }
 
+// ~ JoinNode
 type JoinNode struct {
 	common.KubeAction
 }
 
+func (j *JoinNode) GetName() string {
+	return "JoinNode(k8s)"
+}
+
 func (j *JoinNode) Execute(runtime connector.Runtime) error {
-	fmt.Println("[action] JoinNode(k8s)")
 	if _, err := runtime.GetRunner().SudoCmd("/usr/local/bin/kubeadm join --config=/etc/kubernetes/kubeadm-config.yaml --ignore-preflight-errors=FileExisting-crictl,ImagePull",
 		true); err != nil {
 		resetCmd := "/usr/local/bin/kubeadm reset -f"
@@ -429,12 +483,16 @@ func (j *JoinNode) Execute(runtime connector.Runtime) error {
 	return nil
 }
 
+// ~ SyncKubeConfigToWorker
 type SyncKubeConfigToWorker struct {
 	common.KubeAction
 }
 
+func (s *SyncKubeConfigToWorker) GetName() string {
+	return "SyncKubeConfigToWorker(k8s)"
+}
+
 func (s *SyncKubeConfigToWorker) Execute(runtime connector.Runtime) error {
-	fmt.Println("[action] SyncKubeConfigToWorker(k8s)")
 	if v, ok := s.PipelineCache.Get(common.ClusterStatus); ok {
 		cluster := v.(*KubernetesStatus)
 
@@ -476,12 +534,16 @@ func (s *SyncKubeConfigToWorker) Execute(runtime connector.Runtime) error {
 	return nil
 }
 
+// ~ KubeadmReset
 type KubeadmReset struct {
 	common.KubeAction
 }
 
+func (k *KubeadmReset) GetName() string {
+	return "KubeadmReset(k8s)"
+}
+
 func (k *KubeadmReset) Execute(runtime connector.Runtime) error {
-	fmt.Println("[action] KubeadmReset(k8s)")
 	resetCmd := "/usr/local/bin/kubeadm reset -f"
 	if k.KubeConf.Cluster.Kubernetes.ContainerRuntimeEndpoint != "" {
 		resetCmd = resetCmd + " --cri-socket " + k.KubeConf.Cluster.Kubernetes.ContainerRuntimeEndpoint
@@ -490,12 +552,16 @@ func (k *KubeadmReset) Execute(runtime connector.Runtime) error {
 	return nil
 }
 
+// ~ FindNode
 type FindNode struct {
 	common.KubeAction
 }
 
+func (f *FindNode) GetName() string {
+	return "FindNode(k8s)"
+}
+
 func (f *FindNode) Execute(runtime connector.Runtime) error {
-	fmt.Println("[action] FindNode(k8s)")
 	var resArr []string
 	res, err := runtime.GetRunner().Cmd(
 		"sudo -E /usr/local/bin/kubectl get nodes | grep -v NAME | grep -v 'master\\|control-plane' | awk '{print $1}'",
@@ -534,12 +600,16 @@ func (f *FindNode) Execute(runtime connector.Runtime) error {
 	return nil
 }
 
+// ~ DrainNode
 type DrainNode struct {
 	common.KubeAction
 }
 
+func (d *DrainNode) GetName() string {
+	return "DrainNode(k8s)"
+}
+
 func (d *DrainNode) Execute(runtime connector.Runtime) error {
-	fmt.Println("[action] DrainNode(k8s)")
 	nodeName, ok := d.PipelineCache.Get("dstNode")
 	if !ok {
 		return errors.New("get dstNode failed by pipeline cache")
@@ -552,12 +622,16 @@ func (d *DrainNode) Execute(runtime connector.Runtime) error {
 	return nil
 }
 
+// ~ KubectlDeleteNode
 type KubectlDeleteNode struct {
 	common.KubeAction
 }
 
+func (k *KubectlDeleteNode) GetName() string {
+	return "KubectlDeleteNode(k8s)"
+}
+
 func (k *KubectlDeleteNode) Execute(runtime connector.Runtime) error {
-	fmt.Println("[action] KubectlDeleteNode(k8s)")
 	nodeName, ok := k.PipelineCache.Get("dstNode")
 	if !ok {
 		return errors.New("get dstNode failed by pipeline cache")
@@ -570,13 +644,17 @@ func (k *KubectlDeleteNode) Execute(runtime connector.Runtime) error {
 	return nil
 }
 
+// ~ SetUpgradePlan
 type SetUpgradePlan struct {
 	common.KubeAction
 	Step UpgradeStep
 }
 
+func (s *SetUpgradePlan) GetName() string {
+	return "SetUpgradePlan(k8s)"
+}
+
 func (s *SetUpgradePlan) Execute(_ connector.Runtime) error {
-	fmt.Println("[action] SetUpgradePlan(k8s)")
 	currentVersion, ok := s.PipelineCache.GetMustString(common.K8sVersion)
 	if !ok {
 		return errors.New("get current Kubernetes version failed by pipeline cache")
@@ -611,12 +689,16 @@ func (s *SetUpgradePlan) Execute(_ connector.Runtime) error {
 	return nil
 }
 
+// ~ CalculateNextVersion
 type CalculateNextVersion struct {
 	common.KubeAction
 }
 
+func (c *CalculateNextVersion) GetName() string {
+	return "CalculateNextVersion(k8s)"
+}
+
 func (c *CalculateNextVersion) Execute(_ connector.Runtime) error {
-	fmt.Println("[action] CalculateNextVersion(k8s)")
 	currentVersion, ok := c.PipelineCache.GetMustString(common.K8sVersion)
 	if !ok {
 		return errors.New("get current Kubernetes version failed by pipeline cache")
@@ -659,13 +741,17 @@ func calculateNextStr(currentVersion, desiredVersion string) string {
 	}
 }
 
+// ~ UpgradeKubeMaster
 type UpgradeKubeMaster struct {
 	common.KubeAction
 	ModuleName string
 }
 
+func (u *UpgradeKubeMaster) GetName() string {
+	return "UpgradeKubeMaster(k8s)"
+}
+
 func (u *UpgradeKubeMaster) Execute(runtime connector.Runtime) error {
-	fmt.Println("[action] UpgradeKubeMaster(k8s)")
 	host := runtime.RemoteHost()
 	if err := KubeadmUpgradeTasks(runtime, u); err != nil {
 		return errors.Wrap(errors.WithStack(err), fmt.Sprintf("upgrade cluster using kubeadm failed: %s", host.GetName()))
@@ -686,13 +772,18 @@ func (u *UpgradeKubeMaster) Execute(runtime connector.Runtime) error {
 	return nil
 }
 
+// ~ UpgradeKubeWorker
 type UpgradeKubeWorker struct {
 	common.KubeAction
 	ModuleName string
 }
 
+func (u *UpgradeKubeWorker) GetName() string {
+	return "UpgradeKubeWorker(k8s)"
+}
+
 func (u *UpgradeKubeWorker) Execute(runtime connector.Runtime) error {
-	fmt.Println("[action] UpgradeKubeWorker(k8s)")
+
 	host := runtime.RemoteHost()
 
 	if _, err := runtime.GetRunner().SudoCmd("/usr/local/bin/kubeadm upgrade node", true); err != nil {
@@ -753,12 +844,17 @@ func KubeadmUpgradeTasks(runtime connector.Runtime, u *UpgradeKubeMaster) error 
 	return nil
 }
 
+// ~ KubeadmUpgrade
 type KubeadmUpgrade struct {
 	common.KubeAction
 }
 
+func (k *KubeadmUpgrade) GetName() string {
+	return "KubeadmUpgrade(k8s)"
+}
+
 func (k *KubeadmUpgrade) Execute(runtime connector.Runtime) error {
-	fmt.Println("[action] KubeadmUpgrade(k8s)")
+
 	host := runtime.RemoteHost()
 	if _, err := runtime.GetRunner().SudoCmd(fmt.Sprintf(
 		"timeout -k 600s 600s /usr/local/bin/kubeadm upgrade apply %s -y "+
@@ -839,13 +935,17 @@ func SyncKubeConfigTask(runtime connector.Runtime, kubeAction common.KubeAction)
 	return nil
 }
 
+// ~ ReconfigureDNS
 type ReconfigureDNS struct {
 	common.KubeAction
 	ModuleName string
 }
 
+func (r *ReconfigureDNS) GetName() string {
+	return "ReconfigureDNS(k8s)"
+}
+
 func (r *ReconfigureDNS) Execute(runtime connector.Runtime) error {
-	fmt.Println("[action] ReconfigureDNS(k8s)")
 	patchCorednsCmd := `/usr/local/bin/kubectl patch deploy -n kube-system coredns -p \" 
 spec:
     template:
@@ -975,22 +1075,30 @@ func OverrideCoreDNSService(runtime connector.Runtime, kubeAction common.KubeAct
 	return nil
 }
 
+// ~ SetCurrentK8sVersion
 type SetCurrentK8sVersion struct {
 	common.KubeAction
 }
 
+func (s *SetCurrentK8sVersion) GetName() string {
+	return "SetCurrentK8sVersion"
+}
+
 func (s *SetCurrentK8sVersion) Execute(_ connector.Runtime) error {
-	fmt.Println("[action] SetCurrentK8sVersion")
 	s.PipelineCache.Set(common.K8sVersion, s.KubeConf.Cluster.Kubernetes.Version)
 	return nil
 }
 
+// ~ SaveKubeConfig
 type SaveKubeConfig struct {
 	common.KubeAction
 }
 
+func (s *SaveKubeConfig) GetName() string {
+	return "SaveKubeConfig(k8s)"
+}
+
 func (s *SaveKubeConfig) Execute(runtime connector.Runtime) error {
-	fmt.Println("[action] SaveKubeConfig(k8s)")
 	status, ok := s.PipelineCache.Get(common.ClusterStatus)
 	if !ok {
 		return errors.New("get kubernetes status failed by pipeline cache")
@@ -1071,12 +1179,16 @@ func (s *SaveKubeConfig) Execute(runtime connector.Runtime) error {
 	return nil
 }
 
+// ~ ConfigureKubernetes
 type ConfigureKubernetes struct {
 	common.KubeAction
 }
 
+func (c *ConfigureKubernetes) GetName() string {
+	return "ConfigureKubernetes"
+}
+
 func (c *ConfigureKubernetes) Execute(runtime connector.Runtime) error {
-	fmt.Println("[action] ConfigureKubernetes")
 	host := runtime.RemoteHost()
 	kubeHost := host.(*kubekeyv1alpha2.KubeHost)
 	for k, v := range kubeHost.Labels {
@@ -1089,13 +1201,17 @@ func (c *ConfigureKubernetes) Execute(runtime connector.Runtime) error {
 	return nil
 }
 
+// ~ EtcdSecurityEnhancemenAction
 type EtcdSecurityEnhancemenAction struct {
 	common.KubeAction
 	ModuleName string
 }
 
+func (s *EtcdSecurityEnhancemenAction) GetName() string {
+	return "EtcdSecurityEnhancemenAction(k8s)"
+}
+
 func (s *EtcdSecurityEnhancemenAction) Execute(runtime connector.Runtime) error {
-	fmt.Println("[action] EtcdSecurityEnhancemenAction(k8s)")
 	chmodEtcdCertsDirCmd := "chmod 700 /etc/ssl/etcd/ssl"
 	chmodEtcdCertsCmd := "chmod 600 /etc/ssl/etcd/ssl/*"
 	chmodEtcdDataDirCmd := "chmod 700 /var/lib/etcd"
@@ -1115,13 +1231,17 @@ func (s *EtcdSecurityEnhancemenAction) Execute(runtime connector.Runtime) error 
 	return nil
 }
 
+// ~ MasterSecurityEnhancemenAction
 type MasterSecurityEnhancemenAction struct {
 	common.KubeAction
 	ModuleName string
 }
 
+func (s *MasterSecurityEnhancemenAction) GetName() string {
+	return "MasterSecurityEnhancemenAction(k8s)"
+}
+
 func (k *MasterSecurityEnhancemenAction) Execute(runtime connector.Runtime) error {
-	fmt.Println("[action] MasterSecurityEnhancemenAction(k8s)")
 	// Control-plane Security Enhancemen
 	chmodKubernetesDirCmd := "chmod 644 /etc/kubernetes"
 	chownKubernetesDirCmd := "chown root:root /etc/kubernetes"
@@ -1178,13 +1298,17 @@ func (k *MasterSecurityEnhancemenAction) Execute(runtime connector.Runtime) erro
 	return nil
 }
 
+// ~ NodesSecurityEnhancemenAction
 type NodesSecurityEnhancemenAction struct {
 	common.KubeAction
 	ModuleName string
 }
 
+func (n *NodesSecurityEnhancemenAction) GetName() string {
+	return "NodesSecurityEnhancemenAction(k8s)"
+}
+
 func (n *NodesSecurityEnhancemenAction) Execute(runtime connector.Runtime) error {
-	fmt.Println("[action] NodesSecurityEnhancemenAction(k8s)")
 	// Control-plane Security Enhancemen
 	chmodKubernetesDirCmd := "chmod 644 /etc/kubernetes"
 	chownKubernetesDirCmd := "chown root:root /etc/kubernetes"

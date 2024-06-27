@@ -29,8 +29,11 @@ type Install struct {
 	common.KubeAction
 }
 
+func (i *Install) GetName() string {
+	return "Install"
+}
+
 func (i *Install) Execute(runtime connector.Runtime) error {
-	fmt.Println("[action] Install")
 	nums := len(i.KubeConf.Cluster.Addons)
 	for index, addon := range i.KubeConf.Cluster.Addons {
 		logger.Infof("%s Install addon [%v-%v]: %s", runtime.RemoteHost().GetName(), nums, index, addon.Name)

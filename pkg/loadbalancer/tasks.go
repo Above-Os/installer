@@ -31,12 +31,16 @@ import (
 	"github.com/pkg/errors"
 )
 
+// ~ GetChecksum
 type GetChecksum struct {
 	common.KubeAction
 }
 
+func (g *GetChecksum) GetName() string {
+	return "GetChecksum"
+}
+
 func (g *GetChecksum) Execute(runtime connector.Runtime) error {
-	fmt.Println("[action] GetChecksum")
 	md5Str, err := runtime.GetRunner().FileMd5(filepath.Join(common.HaproxyDir, "haproxy.cfg"))
 	if err != nil {
 		return err
@@ -76,12 +80,16 @@ func (g *GenerateHaproxyManifest) Execute(runtime connector.Runtime) error {
 	return nil
 }
 
+// ~ UpdateK3s
 type UpdateK3s struct {
 	common.KubeAction
 }
 
+func (u *UpdateK3s) GetName() string {
+	return "UpdateK3s"
+}
+
 func (u *UpdateK3s) Execute(runtime connector.Runtime) error {
-	fmt.Println("[action] UpdateK3s")
 	if _, err := runtime.GetRunner().SudoCmd("sed -i 's#--server=.*\"#--server=https://127.0.0.1:%s\"#g' /etc/systemd/system/k3s.service", false); err != nil {
 		return err
 	}
@@ -91,8 +99,13 @@ func (u *UpdateK3s) Execute(runtime connector.Runtime) error {
 	return nil
 }
 
+// ~ UpdateKubelet
 type UpdateKubelet struct {
 	common.KubeAction
+}
+
+func (u *UpdateKubelet) GetName() string {
+	return "UpdateKubelet"
 }
 
 func (u *UpdateKubelet) Execute(runtime connector.Runtime) error {
@@ -107,8 +120,13 @@ func (u *UpdateKubelet) Execute(runtime connector.Runtime) error {
 	return nil
 }
 
+// ~ UpdateKubeProxy
 type UpdateKubeProxy struct {
 	common.KubeAction
+}
+
+func (u *UpdateKubeProxy) GetName() string {
+	return "UpdateKubeProxy"
 }
 
 func (u *UpdateKubeProxy) Execute(runtime connector.Runtime) error {
@@ -131,12 +149,16 @@ func (u *UpdateKubeProxy) Execute(runtime connector.Runtime) error {
 	return nil
 }
 
+// ~ UpdateHosts
 type UpdateHosts struct {
 	common.KubeAction
 }
 
+func (u *UpdateHosts) GetName() string {
+	return "UpdateHosts"
+}
+
 func (u *UpdateHosts) Execute(runtime connector.Runtime) error {
-	fmt.Println("[action] UpdateHosts")
 	if _, err := runtime.GetRunner().SudoCmd(fmt.Sprintf("sed -i 's#.* %s#127.0.0.1 %s#g' /etc/hosts",
 		u.KubeConf.Cluster.ControlPlaneEndpoint.Domain, u.KubeConf.Cluster.ControlPlaneEndpoint.Domain), false); err != nil {
 		return err
@@ -144,12 +166,16 @@ func (u *UpdateHosts) Execute(runtime connector.Runtime) error {
 	return nil
 }
 
+// ~ CheckVIPAddress
 type CheckVIPAddress struct {
 	common.KubeAction
 }
 
+func (c *CheckVIPAddress) GetName() string {
+	return "CheckVIPAddress"
+}
+
 func (c *CheckVIPAddress) Execute(runtime connector.Runtime) error {
-	fmt.Println("[action] CheckVIPAddress")
 	if c.KubeConf.Cluster.ControlPlaneEndpoint.Address == "" {
 		return errors.New("VIP address is empty")
 	} else {
@@ -157,12 +183,16 @@ func (c *CheckVIPAddress) Execute(runtime connector.Runtime) error {
 	}
 }
 
+// ~ GetInterfaceName
 type GetInterfaceName struct {
 	common.KubeAction
 }
 
+func (g *GetInterfaceName) GetName() string {
+	return "GetInterfaceName"
+}
+
 func (g *GetInterfaceName) Execute(runtime connector.Runtime) error {
-	fmt.Println("[action] GetInterfaceName")
 	host := runtime.RemoteHost()
 	if g.KubeConf.Cluster.ControlPlaneEndpoint.KubeVip.Mode == "BGP" {
 		host.GetCache().Set("interface", "lo")
@@ -183,8 +213,13 @@ func (g *GetInterfaceName) Execute(runtime connector.Runtime) error {
 	return nil
 }
 
+// ~ GenerateKubevipManifest
 type GenerateKubevipManifest struct {
 	common.KubeAction
+}
+
+func (g *GenerateKubevipManifest) GetName() string {
+	return "GenerateKubevipManifest"
 }
 
 func (g *GenerateKubevipManifest) Execute(runtime connector.Runtime) error {
@@ -224,12 +259,16 @@ func (g *GenerateKubevipManifest) Execute(runtime connector.Runtime) error {
 	return nil
 }
 
+// ~ GenerateK3sHaproxyManifest
 type GenerateK3sHaproxyManifest struct {
 	common.KubeAction
 }
 
+func (g *GenerateK3sHaproxyManifest) GetName() string {
+	return "GenerateK3sHaproxyManifest"
+}
+
 func (g *GenerateK3sHaproxyManifest) Execute(runtime connector.Runtime) error {
-	fmt.Println("[action] GenerateK3sHaproxyManifest")
 	host := runtime.RemoteHost()
 	md5Str, ok := host.GetCache().GetMustString("md5")
 	if !ok {
@@ -254,12 +293,16 @@ func (g *GenerateK3sHaproxyManifest) Execute(runtime connector.Runtime) error {
 	return nil
 }
 
+// ~ CreateManifestsFolder
 type CreateManifestsFolder struct {
 	action.BaseAction
 }
 
+func (g *CreateManifestsFolder) GetName() string {
+	return "CreateManifestsFolder"
+}
+
 func (h *CreateManifestsFolder) Execute(runtime connector.Runtime) error {
-	fmt.Println("[action] CreateManifestsFolder")
 	_, err := runtime.GetRunner().SudoCmd("mkdir -p /var/lib/rancher/k3s/server/manifests/", false)
 	if err != nil {
 		return err
@@ -267,12 +310,16 @@ func (h *CreateManifestsFolder) Execute(runtime connector.Runtime) error {
 	return nil
 }
 
+// ~ GenerateK3sKubevipDaemonset
 type GenerateK3sKubevipDaemonset struct {
 	common.KubeAction
 }
 
+func (g *GenerateK3sKubevipDaemonset) GetName() string {
+	return "GenerateK3sKubevipDaemonset"
+}
+
 func (g *GenerateK3sKubevipDaemonset) Execute(runtime connector.Runtime) error {
-	fmt.Println("[action] GenerateK3sKubevipDaemonset")
 	host := runtime.RemoteHost()
 	interfaceName, ok := host.GetCache().GetMustString("interface")
 	if !ok {
@@ -310,8 +357,13 @@ func (g *GenerateK3sKubevipDaemonset) Execute(runtime connector.Runtime) error {
 	return nil
 }
 
+// ~ DeleteVIP
 type DeleteVIP struct {
 	common.KubeAction
+}
+
+func (g *DeleteVIP) GetName() string {
+	return "DeleteVIP"
 }
 
 func (g *DeleteVIP) Execute(runtime connector.Runtime) error {

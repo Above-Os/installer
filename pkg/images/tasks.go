@@ -36,8 +36,13 @@ import (
 	versionutil "k8s.io/apimachinery/pkg/util/version"
 )
 
+// ~ PullImage
 type PullImage struct {
 	common.KubeAction
+}
+
+func (p *PullImage) GetName() string {
+	return "PullImage"
 }
 
 func (p *PullImage) Execute(runtime connector.Runtime) error {
@@ -140,8 +145,13 @@ func GetImage(runtime connector.ModuleRuntime, kubeConf *common.KubeConf, name s
 	return image
 }
 
+// ~ SaveImages
 type SaveImages struct {
 	common.ArtifactAction
+}
+
+func (s *SaveImages) GetName() string {
+	return "SaveImages"
 }
 
 func (s *SaveImages) Execute(runtime connector.Runtime) error {
@@ -205,13 +215,17 @@ func (s *SaveImages) Execute(runtime connector.Runtime) error {
 	return nil
 }
 
+// ~ CopyImagesToRegistry
 type CopyImagesToRegistry struct {
 	common.KubeAction
 	ImagesPath string
 }
 
+func (c *CopyImagesToRegistry) GetName() string {
+	return "CopyImagesToRegistry"
+}
+
 func (c *CopyImagesToRegistry) Execute(runtime connector.Runtime) error {
-	fmt.Println("[action] CopyImagesToRegistry")
 	var imagesPath string
 	if c.ImagesPath != "" {
 		imagesPath = c.ImagesPath
@@ -306,15 +320,18 @@ func (c *CopyImagesToRegistry) Execute(runtime connector.Runtime) error {
 	return nil
 }
 
+// ~ PushManifest
 type PushManifest struct {
 	common.KubeAction
+}
+
+func (p *PushManifest) GetName() string {
+	return "PushManifest"
 }
 
 func (p *PushManifest) Execute(_ connector.Runtime) error {
 	// make a multi-arch image
 	// push a manifest list to the private registry.
-	fmt.Println("[action] PushManifest")
-
 	v, ok := p.ModuleCache.Get("manifestList")
 	if !ok {
 		return errors.New("get manifest list failed by module cache")

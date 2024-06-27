@@ -24,7 +24,7 @@ func InstallTerminusPipeline(args common.Argument, reqArgs model.InstallModelReq
 	}
 
 	p := pipeline.Pipeline{
-		Name:    "InstallTerminusPipeline",
+		Name:    "Install Terminus",
 		Modules: m,
 		Runtime: runtime,
 	}

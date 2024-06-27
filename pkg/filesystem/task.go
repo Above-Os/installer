@@ -26,13 +26,17 @@ import (
 	"github.com/pkg/errors"
 )
 
+// ~ ChownFileAndDir
 type ChownFileAndDir struct {
 	action.BaseAction
 	Path string
 }
 
+func (c *ChownFileAndDir) GetName() string {
+	return "ChownFileAndDir"
+}
+
 func (c *ChownFileAndDir) Execute(runtime connector.Runtime) error {
-	fmt.Println("[action] ChownFileAndDir")
 	exist, err := runtime.GetRunner().FileExist(c.Path)
 	if err != nil {
 		return errors.Wrapf(errors.WithStack(err), "get user %s failed", c.Path)
@@ -57,9 +61,14 @@ func (c *ChownFileAndDir) Execute(runtime connector.Runtime) error {
 	return nil
 }
 
+// ~ LocalTaskChown
 type LocalTaskChown struct {
 	action.BaseAction
 	Path string
+}
+
+func (l *LocalTaskChown) GetName() string {
+	return "LocalTaskChown"
 }
 
 func (l *LocalTaskChown) Execute(runtime connector.Runtime) error {

@@ -31,8 +31,13 @@ func (m *InstallModule) Init() {
 }
 
 // + 安装 full 包
+// ~ InstallTerminusModule
 type InstallTerminusModule struct {
 	common.KubeModule
+}
+
+func (m *InstallTerminusModule) GetName() string {
+	return "InstallTerminusModule"
 }
 
 func (m *InstallTerminusModule) Init() {

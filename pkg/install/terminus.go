@@ -23,6 +23,7 @@ func (a *Terminus) GetName() string {
 
 func (a *Terminus) Execute(runtime connector.Runtime) error {
 	var installReq model.InstallModelReq
+	var err error
 	var ok bool
 	if installReq, ok = any(a.KubeConf.Arg.Request).(model.InstallModelReq); !ok {
 		logger.Errorf("invalid install model req %+v", a.KubeConf.Arg.Request)
@@ -35,10 +36,9 @@ func (a *Terminus) Execute(runtime connector.Runtime) error {
 		var d = path.Join(runtime.GetPackageDir(), common.DefaultInstallDir)
 		var installCommand = fmt.Sprintf("export TERMINUS_OS_DOMAINNAME=%s;export TERMINUS_OS_USERNAME=%s;export KUBE_TYPE=%s;bash %s/install_cmd.sh", domainName, userName, kubeType, d)
 
-		var err error
 		var out chan string = make(chan string)
 		go func() {
-			_, _, err = util.ExecWithChannel(installCommand, true, out)
+			_, _, err = util.ExecWithChannel(installCommand, false, true, out)
 			if err != nil {
 				return
 			}
@@ -46,11 +46,10 @@ func (a *Terminus) Execute(runtime connector.Runtime) error {
 
 		for {
 			select {
-			case s, ok := <-out:
+			case _, ok := <-out:
 				if !ok {
 					break
 				}
-				fmt.Println("---b---", s)
 			}
 		}
 
@@ -60,5 +59,5 @@ func (a *Terminus) Execute(runtime connector.Runtime) error {
 		// }
 	}
 
-	return nil
+	return err
 }

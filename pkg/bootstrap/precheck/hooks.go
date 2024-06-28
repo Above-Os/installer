@@ -90,7 +90,7 @@ func (h *GetLocalIpHook) Init(module module.Module, result *ending.ModuleResult)
 
 func (h *GetLocalIpHook) Try() error {
 	pingCmd := fmt.Sprintf("ping -c 1 %s", constants.HostName)
-	pingCmdRes, _, err := util.Exec(pingCmd, true)
+	pingCmdRes, _, err := util.Exec(pingCmd, true, false)
 	if err != nil {
 		return err
 	}

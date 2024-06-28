@@ -155,7 +155,7 @@ func (t *GetLocalIpTask) GetName() string {
 
 func (t *GetLocalIpTask) Execute(runtime connector.Runtime) error {
 	pingCmd := fmt.Sprintf("ping -c 1 %s", constants.HostName)
-	pingCmdRes, _, err := util.Exec(pingCmd, false)
+	pingCmdRes, _, err := util.Exec(pingCmd, false, false)
 	if err != nil {
 		return err
 	}
@@ -181,7 +181,7 @@ func (t *TerminusGreetingsTask) GetName() string {
 }
 
 func (h *TerminusGreetingsTask) Execute(runtime connector.Runtime) error {
-	stdout, _, err := util.Exec("echo 'Greetings, Terminus!!!!!' ", false)
+	stdout, _, err := util.Exec("echo 'Greetings, Terminus!!!!!' ", false, false)
 	if err != nil {
 		return err
 	}

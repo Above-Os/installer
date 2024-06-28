@@ -11,7 +11,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-func Exec(name string, printOutput bool) (stdout string, code int, err error) {
+func Exec(name string, printOutput bool, printLine bool) (stdout string, code int, err error) {
 	exitCode := 0
 
 	cmd := exec.Command("/bin/sh", "-c", name)
@@ -65,7 +65,7 @@ func Exec(name string, printOutput bool) (stdout string, code int, err error) {
 }
 
 // 用于全量包安装测试
-func ExecWithChannel(name string, printOutput bool, output chan string) (stdout string, code int, err error) {
+func ExecWithChannel(name string, printOutput bool, printLine bool, output chan string) (stdout string, code int, err error) {
 	defer close(output)
 	exitCode := 0
 
@@ -96,6 +96,13 @@ func ExecWithChannel(name string, printOutput bool, output chan string) (stdout 
 				fmt.Println("read error:", err)
 			}
 			break
+		}
+
+		if strings.Contains(line, "[INFO]") {
+			output <- line
+		}
+		if printLine {
+			fmt.Println(line)
 		}
 
 		outputBuffer.WriteString(line)

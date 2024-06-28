@@ -38,7 +38,7 @@ func (s *Script) Execute(runtime connector.Runtime) error {
 		return errors.New(fmt.Sprintf("script file %s not exist", s.File))
 	}
 	var cmd = fmt.Sprintf("bash %s %s", scriptFileName, strings.Join(s.Args, " "))
-	_, _, err := util.Exec(cmd, s.PrintOutput)
+	_, _, err := util.Exec(cmd, s.PrintOutput, false)
 	if err != nil {
 		return errors.Wrap(errors.WithStack(err), fmt.Sprintf("exec script %s failed, args: %v", s.File, s.Args))
 	}

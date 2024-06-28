@@ -27,7 +27,7 @@ func (t *Greeting) GetName() string {
 func (t *Greeting) Execute(runtime connector.Runtime) error {
 	p := fmt.Sprintf("%s/%s/%s", constants.WorkDir, common.Scripts, common.GreetingShell)
 	if ok := util.IsExist(p); ok {
-		outstd, _, err := util.Exec(p, false)
+		outstd, _, err := util.Exec(p, false, false)
 		if err != nil {
 			return err
 		}

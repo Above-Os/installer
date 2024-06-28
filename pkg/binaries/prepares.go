@@ -24,7 +24,7 @@ func (p *Ubuntu24AppArmorCheck) PreCheck(runtime connector.Runtime) (bool, error
 	}
 
 	cmd := "apparmor_parser --version"
-	stdout, _, err := util.Exec(cmd, true)
+	stdout, _, err := util.Exec(cmd, true, false)
 	if err != nil {
 		return true, err
 	}

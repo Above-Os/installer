@@ -74,10 +74,6 @@ type ListClusterCerts struct {
 	common.KubeAction
 }
 
-func (l *ListClusterCerts) GetName() string {
-	return "ListClusterCerts"
-}
-
 func (l *ListClusterCerts) Execute(runtime connector.Runtime) error {
 	host := runtime.RemoteHost()
 
@@ -201,10 +197,6 @@ type DisplayForm struct {
 	common.KubeAction
 }
 
-func (d *DisplayForm) GetName() string {
-	return "DisplayForm"
-}
-
 func (d *DisplayForm) Execute(runtime connector.Runtime) error {
 	certificates := make([]*Certificate, 0)
 	caCertificates := make([]*CaCertificate, 0)
@@ -259,10 +251,6 @@ func (d *DisplayForm) Execute(runtime connector.Runtime) error {
 // ~ RenewCerts
 type RenewCerts struct {
 	common.KubeAction
-}
-
-func (d *RenewCerts) GetName() string {
-	return "RenewCerts"
 }
 
 func (r *RenewCerts) Execute(runtime connector.Runtime) error {
@@ -323,10 +311,6 @@ type FetchKubeConfig struct {
 	common.KubeAction
 }
 
-func (f *FetchKubeConfig) GetName() string {
-	return "FetchKubeConfig"
-}
-
 func (f *FetchKubeConfig) Execute(runtime connector.Runtime) error {
 	if err := utils.ResetTmpDir(runtime); err != nil {
 		return err
@@ -347,10 +331,6 @@ func (f *FetchKubeConfig) Execute(runtime connector.Runtime) error {
 // ~ SyneKubeConfigToWorker
 type SyneKubeConfigToWorker struct {
 	common.KubeAction
-}
-
-func (s *SyneKubeConfigToWorker) GetName() string {
-	return "SyneKubeConfigToWorker"
 }
 
 func (s *SyneKubeConfigToWorker) Execute(runtime connector.Runtime) error {
@@ -404,10 +384,6 @@ type EnableRenewService struct {
 	common.KubeAction
 }
 
-func (e *EnableRenewService) GetName() string {
-	return "EnableRenewService"
-}
-
 func (e *EnableRenewService) Execute(runtime connector.Runtime) error {
 	if _, err := runtime.GetRunner().SudoCmd(
 		"chmod +x /usr/local/bin/kube-scripts/k8s-certs-renew.sh && systemctl enable --now k8s-certs-renew.timer",
@@ -420,10 +396,6 @@ func (e *EnableRenewService) Execute(runtime connector.Runtime) error {
 // ~ UninstallAutoRenewCerts
 type UninstallAutoRenewCerts struct {
 	common.KubeAction
-}
-
-func (u *UninstallAutoRenewCerts) GetName() string {
-	return "UninstallAutoRenewCerts"
 }
 
 func (u *UninstallAutoRenewCerts) Execute(runtime connector.Runtime) error {

@@ -12,10 +12,6 @@ type CopyUninstallScriptModule struct {
 	module.BaseTaskModule
 }
 
-func (m *CopyUninstallScriptModule) GetName() string {
-	return "CopyUninstallScript"
-}
-
 func (m *CopyUninstallScriptModule) Init() {
 	m.Name = "CopyUninstallScript"
 	m.Desc = "copy uninstall script"
@@ -36,12 +32,8 @@ type CopyScriptsModule struct {
 	module.BaseTaskModule
 }
 
-func (m *CopyScriptsModule) GetName() string {
-	return "CopyScriptsModule"
-}
-
 func (m *CopyScriptsModule) Init() {
-	m.Name = "CopyScriptsModule"
+	m.Name = "CopyScripts"
 	m.Desc = "Copy scripts"
 
 	copyScripts := &task.LocalTask{

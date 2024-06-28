@@ -28,10 +28,6 @@ type NodeBinariesModule struct {
 	common.KubeModule
 }
 
-func (n *NodeBinariesModule) GetName() string {
-	return "NodeBinariesModule"
-}
-
 func (n *NodeBinariesModule) Init() {
 	n.Name = "NodeBinariesModule"
 	n.Desc = "Download installation binaries"
@@ -47,12 +43,9 @@ func (n *NodeBinariesModule) Init() {
 	}
 }
 
+// ~ K3sNodeBinariesModule
 type K3sNodeBinariesModule struct {
 	common.KubeModule
-}
-
-func (k *K3sNodeBinariesModule) GetName() string {
-	return "K3sNodeBinariesModule"
 }
 
 func (k *K3sNodeBinariesModule) Init() {
@@ -70,12 +63,9 @@ func (k *K3sNodeBinariesModule) Init() {
 	}
 }
 
+// ~ ArtifactBinariesModule
 type ArtifactBinariesModule struct {
 	common.ArtifactModule
-}
-
-func (a *ArtifactBinariesModule) GetName() string {
-	return "ArtifactBinariesModule"
 }
 
 func (a *ArtifactBinariesModule) Init() {
@@ -93,6 +83,7 @@ func (a *ArtifactBinariesModule) Init() {
 	}
 }
 
+// ~ K3sArtifactBinariesModule
 type K3sArtifactBinariesModule struct {
 	common.ArtifactModule
 }
@@ -112,12 +103,9 @@ func (a *K3sArtifactBinariesModule) Init() {
 	}
 }
 
+// ~ RegistryPackageModule
 type RegistryPackageModule struct {
 	common.KubeModule
-}
-
-func (n *RegistryPackageModule) GetName() string {
-	return "RegistryPackageModule"
 }
 
 func (n *RegistryPackageModule) Init() {
@@ -139,12 +127,9 @@ func (n *RegistryPackageModule) Init() {
 	}
 }
 
+// ~ CriBinariesModule
 type CriBinariesModule struct {
 	common.KubeModule
-}
-
-func (i *CriBinariesModule) GetName() string {
-	return "CriBinariesModule"
 }
 
 func (i *CriBinariesModule) Init() {

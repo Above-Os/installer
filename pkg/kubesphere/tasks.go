@@ -42,10 +42,6 @@ type AddInstallerConfig struct {
 	common.KubeAction
 }
 
-func (a *AddInstallerConfig) GetName() string {
-	return "AddInstallerConfig"
-}
-
 func (a *AddInstallerConfig) Execute(runtime connector.Runtime) error {
 	configurationBase64 := base64.StdEncoding.EncodeToString([]byte(a.KubeConf.Cluster.KubeSphere.Configurations))
 	if _, err := runtime.GetRunner().SudoCmd(
@@ -59,10 +55,6 @@ func (a *AddInstallerConfig) Execute(runtime connector.Runtime) error {
 // ~ CreateNamespace
 type CreateNamespace struct {
 	common.KubeAction
-}
-
-func (c *CreateNamespace) GetName() string {
-	return "CreateNamespace"
 }
 
 func (c *CreateNamespace) Execute(runtime connector.Runtime) error {
@@ -87,10 +79,6 @@ EOF
 // ~ Setup
 type Setup struct {
 	common.KubeAction
-}
-
-func (s *Setup) GetName() string {
-	return "Setup"
 }
 
 func (s *Setup) Execute(runtime connector.Runtime) error {
@@ -249,10 +237,6 @@ type Apply struct {
 	common.KubeAction
 }
 
-func (a *Apply) GetName() string {
-	return "Apply"
-}
-
 func (a *Apply) Execute(runtime connector.Runtime) error {
 	filePath := filepath.Join(common.KubeAddonsDir, templates.KsInstaller.Name())
 
@@ -266,10 +250,6 @@ func (a *Apply) Execute(runtime connector.Runtime) error {
 // ~ Check
 type Check struct {
 	common.KubeAction
-}
-
-func (c *Check) GetName() string {
-	return "Check"
 }
 
 func (c *Check) Execute(runtime connector.Runtime) error {
@@ -407,10 +387,6 @@ type CleanCC struct {
 	common.KubeAction
 }
 
-func (c *CleanCC) GetName() string {
-	return "CleanCC"
-}
-
 func (c *CleanCC) Execute(runtime connector.Runtime) error {
 	c.KubeConf.Cluster.KubeSphere.Configurations = "\n"
 	return nil
@@ -419,10 +395,6 @@ func (c *CleanCC) Execute(runtime connector.Runtime) error {
 // ~ ConvertV2ToV3
 type ConvertV2ToV3 struct {
 	common.KubeAction
-}
-
-func (c *ConvertV2ToV3) GetName() string {
-	return "ConvertV2ToV3"
 }
 
 func (c *ConvertV2ToV3) Execute(runtime connector.Runtime) error {

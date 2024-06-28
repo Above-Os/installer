@@ -35,10 +35,6 @@ type NodeConfigureOS struct {
 	common.KubeAction
 }
 
-func (n *NodeConfigureOS) GetName() string {
-	return "NodeConfigureOS"
-}
-
 func (n *NodeConfigureOS) Execute(runtime connector.Runtime) error {
 	fmt.Println("[A] NodeConfigureOS")
 	host := runtime.RemoteHost()
@@ -127,10 +123,6 @@ type NodeExecScript struct {
 	common.KubeAction
 }
 
-func (n *NodeExecScript) GetName() string {
-	return "NodeExecScript"
-}
-
 func (n *NodeExecScript) Execute(runtime connector.Runtime) error {
 	fmt.Println("[A] NodeExecScript")
 	if _, err := runtime.GetRunner().SudoCmd(fmt.Sprintf("chmod +x %s/initOS.sh", common.KubeScriptDir), false); err != nil {
@@ -189,10 +181,6 @@ type ResetNetworkConfig struct {
 	common.KubeAction
 }
 
-func (r *ResetNetworkConfig) GetName() string {
-	return "ResetNetworkConfig"
-}
-
 func (r *ResetNetworkConfig) Execute(runtime connector.Runtime) error {
 	for _, cmd := range networkResetCmds {
 		_, _ = runtime.GetRunner().SudoCmd(cmd, true)
@@ -203,10 +191,6 @@ func (r *ResetNetworkConfig) Execute(runtime connector.Runtime) error {
 // ~ UninstallETCD
 type UninstallETCD struct {
 	common.KubeAction
-}
-
-func (s *UninstallETCD) GetName() string {
-	return "UninstallETCD"
 }
 
 func (s *UninstallETCD) Execute(runtime connector.Runtime) error {
@@ -220,10 +204,6 @@ func (s *UninstallETCD) Execute(runtime connector.Runtime) error {
 // ~ RemoveNodeFiles
 type RemoveNodeFiles struct {
 	common.KubeAction
-}
-
-func (r *RemoveNodeFiles) GetName() string {
-	return "RemoveNodeFiles"
 }
 
 func (r *RemoveNodeFiles) Execute(runtime connector.Runtime) error {
@@ -260,10 +240,6 @@ type RemoveFiles struct {
 	common.KubeAction
 }
 
-func (r *RemoveFiles) GetName() string {
-	return "RemoveFiles"
-}
-
 func (r *RemoveFiles) Execute(runtime connector.Runtime) error {
 	for _, file := range clusterFiles {
 		_, _ = runtime.GetRunner().SudoCmd(fmt.Sprintf("rm -rf %s", file), true)
@@ -274,10 +250,6 @@ func (r *RemoveFiles) Execute(runtime connector.Runtime) error {
 // ~ DaemonReload
 type DaemonReload struct {
 	common.KubeAction
-}
-
-func (d *DaemonReload) GetName() string {
-	return "DaemonReload"
 }
 
 func (d *DaemonReload) Execute(runtime connector.Runtime) error {
@@ -293,10 +265,6 @@ func (d *DaemonReload) Execute(runtime connector.Runtime) error {
 // ~ GetOSData
 type GetOSData struct {
 	common.KubeAction
-}
-
-func (g *GetOSData) GetName() string {
-	return "GetOSData"
 }
 
 func (g *GetOSData) Execute(runtime connector.Runtime) error {
@@ -316,10 +284,6 @@ func (g *GetOSData) Execute(runtime connector.Runtime) error {
 // ~ SyncRepositoryFile
 type SyncRepositoryFile struct {
 	common.KubeAction
-}
-
-func (s *SyncRepositoryFile) GetName() string {
-	return "SyncRepositoryFile"
 }
 
 func (s *SyncRepositoryFile) Execute(runtime connector.Runtime) error {
@@ -350,10 +314,6 @@ type MountISO struct {
 	common.KubeAction
 }
 
-func (m *MountISO) GetName() string {
-	return "MountISO"
-}
-
 func (m *MountISO) Execute(runtime connector.Runtime) error {
 	mountPath := filepath.Join(common.TmpDir, "iso")
 	if err := runtime.GetRunner().MkDir(mountPath); err != nil {
@@ -373,10 +333,6 @@ func (m *MountISO) Execute(runtime connector.Runtime) error {
 // ~ NewRepoClient
 type NewRepoClient struct {
 	common.KubeAction
-}
-
-func (n *NewRepoClient) GetName() string {
-	return "NewRepoClient"
 }
 
 func (n *NewRepoClient) Execute(runtime connector.Runtime) error {
@@ -414,10 +370,6 @@ type BackupOriginalRepository struct {
 	common.KubeAction
 }
 
-func (b *BackupOriginalRepository) GetName() string {
-	return "BackupOriginalRepository"
-}
-
 func (b *BackupOriginalRepository) Execute(runtime connector.Runtime) error {
 	host := runtime.RemoteHost()
 	r, ok := host.GetCache().Get("repo")
@@ -436,10 +388,6 @@ func (b *BackupOriginalRepository) Execute(runtime connector.Runtime) error {
 // ~ AddLocalRepository
 type AddLocalRepository struct {
 	common.KubeAction
-}
-
-func (a *AddLocalRepository) GetName() string {
-	return "AddLocalRepository"
 }
 
 func (a *AddLocalRepository) Execute(runtime connector.Runtime) error {
@@ -463,10 +411,6 @@ func (a *AddLocalRepository) Execute(runtime connector.Runtime) error {
 // ~ InstallPackage
 type InstallPackage struct {
 	common.KubeAction
-}
-
-func (i *InstallPackage) GetName() string {
-	return "InstallPackage"
 }
 
 func (i *InstallPackage) Execute(runtime connector.Runtime) error {
@@ -493,10 +437,6 @@ func (i *InstallPackage) Execute(runtime connector.Runtime) error {
 // ~ ResetRepository
 type ResetRepository struct {
 	common.KubeAction
-}
-
-func (r *ResetRepository) GetName() string {
-	return "ResetRepository"
 }
 
 func (r *ResetRepository) Execute(runtime connector.Runtime) error {
@@ -528,10 +468,6 @@ type UmountISO struct {
 	common.KubeAction
 }
 
-func (u *UmountISO) GetName() string {
-	return "UmountISO"
-}
-
 func (u *UmountISO) Execute(runtime connector.Runtime) error {
 	mountPath := filepath.Join(common.TmpDir, "iso")
 	umountCmd := fmt.Sprintf("umount %s", mountPath)
@@ -544,10 +480,6 @@ func (u *UmountISO) Execute(runtime connector.Runtime) error {
 // ~ NodeConfigureNtpServer
 type NodeConfigureNtpServer struct {
 	common.KubeAction
-}
-
-func (n *NodeConfigureNtpServer) GetName() string {
-	return "NodeConfigureNtpServer"
 }
 
 func (n *NodeConfigureNtpServer) Execute(runtime connector.Runtime) error {

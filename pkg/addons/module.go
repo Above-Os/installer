@@ -26,10 +26,6 @@ type AddonsModule struct {
 	Skip bool
 }
 
-func (a *AddonsModule) GetName() string {
-	return "AddonsModule"
-}
-
 func (a *AddonsModule) IsSkip() bool {
 	return a.Skip
 }

@@ -36,10 +36,6 @@ type GetChecksum struct {
 	common.KubeAction
 }
 
-func (g *GetChecksum) GetName() string {
-	return "GetChecksum"
-}
-
 func (g *GetChecksum) Execute(runtime connector.Runtime) error {
 	md5Str, err := runtime.GetRunner().FileMd5(filepath.Join(common.HaproxyDir, "haproxy.cfg"))
 	if err != nil {
@@ -85,10 +81,6 @@ type UpdateK3s struct {
 	common.KubeAction
 }
 
-func (u *UpdateK3s) GetName() string {
-	return "UpdateK3s"
-}
-
 func (u *UpdateK3s) Execute(runtime connector.Runtime) error {
 	if _, err := runtime.GetRunner().SudoCmd("sed -i 's#--server=.*\"#--server=https://127.0.0.1:%s\"#g' /etc/systemd/system/k3s.service", false); err != nil {
 		return err
@@ -102,10 +94,6 @@ func (u *UpdateK3s) Execute(runtime connector.Runtime) error {
 // ~ UpdateKubelet
 type UpdateKubelet struct {
 	common.KubeAction
-}
-
-func (u *UpdateKubelet) GetName() string {
-	return "UpdateKubelet"
 }
 
 func (u *UpdateKubelet) Execute(runtime connector.Runtime) error {
@@ -123,10 +111,6 @@ func (u *UpdateKubelet) Execute(runtime connector.Runtime) error {
 // ~ UpdateKubeProxy
 type UpdateKubeProxy struct {
 	common.KubeAction
-}
-
-func (u *UpdateKubeProxy) GetName() string {
-	return "UpdateKubeProxy"
 }
 
 func (u *UpdateKubeProxy) Execute(runtime connector.Runtime) error {
@@ -154,10 +138,6 @@ type UpdateHosts struct {
 	common.KubeAction
 }
 
-func (u *UpdateHosts) GetName() string {
-	return "UpdateHosts"
-}
-
 func (u *UpdateHosts) Execute(runtime connector.Runtime) error {
 	if _, err := runtime.GetRunner().SudoCmd(fmt.Sprintf("sed -i 's#.* %s#127.0.0.1 %s#g' /etc/hosts",
 		u.KubeConf.Cluster.ControlPlaneEndpoint.Domain, u.KubeConf.Cluster.ControlPlaneEndpoint.Domain), false); err != nil {
@@ -171,10 +151,6 @@ type CheckVIPAddress struct {
 	common.KubeAction
 }
 
-func (c *CheckVIPAddress) GetName() string {
-	return "CheckVIPAddress"
-}
-
 func (c *CheckVIPAddress) Execute(runtime connector.Runtime) error {
 	if c.KubeConf.Cluster.ControlPlaneEndpoint.Address == "" {
 		return errors.New("VIP address is empty")
@@ -186,10 +162,6 @@ func (c *CheckVIPAddress) Execute(runtime connector.Runtime) error {
 // ~ GetInterfaceName
 type GetInterfaceName struct {
 	common.KubeAction
-}
-
-func (g *GetInterfaceName) GetName() string {
-	return "GetInterfaceName"
 }
 
 func (g *GetInterfaceName) Execute(runtime connector.Runtime) error {
@@ -216,10 +188,6 @@ func (g *GetInterfaceName) Execute(runtime connector.Runtime) error {
 // ~ GenerateKubevipManifest
 type GenerateKubevipManifest struct {
 	common.KubeAction
-}
-
-func (g *GenerateKubevipManifest) GetName() string {
-	return "GenerateKubevipManifest"
 }
 
 func (g *GenerateKubevipManifest) Execute(runtime connector.Runtime) error {
@@ -264,10 +232,6 @@ type GenerateK3sHaproxyManifest struct {
 	common.KubeAction
 }
 
-func (g *GenerateK3sHaproxyManifest) GetName() string {
-	return "GenerateK3sHaproxyManifest"
-}
-
 func (g *GenerateK3sHaproxyManifest) Execute(runtime connector.Runtime) error {
 	host := runtime.RemoteHost()
 	md5Str, ok := host.GetCache().GetMustString("md5")
@@ -298,10 +262,6 @@ type CreateManifestsFolder struct {
 	action.BaseAction
 }
 
-func (g *CreateManifestsFolder) GetName() string {
-	return "CreateManifestsFolder"
-}
-
 func (h *CreateManifestsFolder) Execute(runtime connector.Runtime) error {
 	_, err := runtime.GetRunner().SudoCmd("mkdir -p /var/lib/rancher/k3s/server/manifests/", false)
 	if err != nil {
@@ -313,10 +273,6 @@ func (h *CreateManifestsFolder) Execute(runtime connector.Runtime) error {
 // ~ GenerateK3sKubevipDaemonset
 type GenerateK3sKubevipDaemonset struct {
 	common.KubeAction
-}
-
-func (g *GenerateK3sKubevipDaemonset) GetName() string {
-	return "GenerateK3sKubevipDaemonset"
 }
 
 func (g *GenerateK3sKubevipDaemonset) Execute(runtime connector.Runtime) error {
@@ -360,10 +316,6 @@ func (g *GenerateK3sKubevipDaemonset) Execute(runtime connector.Runtime) error {
 // ~ DeleteVIP
 type DeleteVIP struct {
 	common.KubeAction
-}
-
-func (g *DeleteVIP) GetName() string {
-	return "DeleteVIP"
 }
 
 func (g *DeleteVIP) Execute(runtime connector.Runtime) error {

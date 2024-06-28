@@ -33,10 +33,6 @@ type PackageDownload struct {
 	common.KubeAction
 }
 
-func (d *PackageDownload) GetName() string {
-	return "PackageDownload"
-}
-
 func (d *PackageDownload) Execute(runtime connector.Runtime) error {
 	var installReq model.InstallModelReq
 	var ok bool
@@ -58,10 +54,6 @@ func (d *PackageDownload) Execute(runtime connector.Runtime) error {
 // todo 这里是一个测试解压 full 包的 action
 type PackageUntar struct {
 	common.KubeAction
-}
-
-func (a *PackageUntar) GetName() string {
-	return "PackageDecompression"
 }
 
 func (a *PackageUntar) Execute(runtime connector.Runtime) error {

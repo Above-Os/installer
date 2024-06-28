@@ -36,10 +36,6 @@ type StatusModule struct {
 	common.KubeModule
 }
 
-func (k *StatusModule) GetName() string {
-	return "StatusModule"
-}
-
 func (k *StatusModule) Init() {
 	k.Name = "KubernetesStatusModule"
 	k.Desc = "Get kubernetes cluster status"
@@ -63,10 +59,6 @@ func (k *StatusModule) Init() {
 
 type InstallKubeBinariesModule struct {
 	common.KubeModule
-}
-
-func (i *InstallKubeBinariesModule) GetName() string {
-	return "InstallKubeBinariesModule"
 }
 
 func (i *InstallKubeBinariesModule) Init() {
@@ -138,10 +130,6 @@ func (i *InstallKubeBinariesModule) Init() {
 
 type InitKubernetesModule struct {
 	common.KubeModule
-}
-
-func (i *InitKubernetesModule) GetName() string {
-	return "InitKubernetesModule"
 }
 
 func (i *InitKubernetesModule) Init() {
@@ -229,10 +217,6 @@ type JoinNodesModule struct {
 	common.KubeModule
 }
 
-func (j *JoinNodesModule) GetName() string {
-	return "JoinNodesModule"
-}
-
 func (j *JoinNodesModule) Init() {
 	j.Name = "JoinNodesModule"
 	j.Desc = "Join kubernetes nodes"
@@ -254,7 +238,7 @@ func (j *JoinNodesModule) Init() {
 	}
 
 	joinMasterNode := &task.RemoteTask{
-		Name:  "JoinControlPlaneNode",
+		Name:  "JoinControlPlaneNode(k8s)",
 		Desc:  "Join control-plane node",
 		Hosts: j.Runtime.GetHostsByRole(common.Master),
 		Prepare: &prepare.PrepareCollection{
@@ -266,7 +250,7 @@ func (j *JoinNodesModule) Init() {
 	}
 
 	joinWorkerNode := &task.RemoteTask{
-		Name:  "JoinWorkerNode",
+		Name:  "JoinWorkerNode(k8s)",
 		Desc:  "Join worker node",
 		Hosts: j.Runtime.GetHostsByRole(common.Worker),
 		Prepare: &prepare.PrepareCollection{
@@ -317,7 +301,7 @@ func (j *JoinNodesModule) Init() {
 	}
 
 	syncKubeConfig := &task.RemoteTask{
-		Name:  "SyncKubeConfig",
+		Name:  "SyncKubeConfig(k8s)",
 		Desc:  "Synchronize kube config to worker",
 		Hosts: j.Runtime.GetHostsByRole(common.Worker),
 		Prepare: &prepare.PrepareCollection{
@@ -358,16 +342,12 @@ type ResetClusterModule struct {
 	common.KubeModule
 }
 
-func (r *ResetClusterModule) GetName() string {
-	return "ResetClusterModule"
-}
-
 func (r *ResetClusterModule) Init() {
 	r.Name = "ResetClusterModule"
 	r.Desc = "Reset kubernetes cluster"
 
 	kubeadmReset := &task.RemoteTask{
-		Name:     "KubeadmReset",
+		Name:     "KubeadmReset(k8s)",
 		Desc:     "Reset the cluster using kubeadm",
 		Hosts:    r.Runtime.GetHostsByRole(common.K8s),
 		Action:   new(KubeadmReset),
@@ -383,16 +363,12 @@ type CompareConfigAndClusterInfoModule struct {
 	common.KubeModule
 }
 
-func (c *CompareConfigAndClusterInfoModule) GetName() string {
-	return "CompareConfigAndClusterInfoModule"
-}
-
 func (c *CompareConfigAndClusterInfoModule) Init() {
 	c.Name = "CompareConfigAndClusterInfoModule"
 	c.Desc = "Compare config and cluster nodes info"
 
 	check := &task.RemoteTask{
-		Name:    "FindNode",
+		Name:    "FindNode(k8s)",
 		Desc:    "Find information about nodes that are expected to be deleted",
 		Hosts:   c.Runtime.GetHostsByRole(common.Master),
 		Prepare: new(common.OnlyFirstMaster),
@@ -408,16 +384,12 @@ type DeleteKubeNodeModule struct {
 	common.KubeModule
 }
 
-func (d *DeleteKubeNodeModule) GetName() string {
-	return "DeleteKubeNodeModule"
-}
-
 func (d *DeleteKubeNodeModule) Init() {
 	d.Name = "DeleteKubeNodeModule"
 	d.Desc = "Delete kubernetes node"
 
 	drain := &task.RemoteTask{
-		Name:    "DrainNode",
+		Name:    "DrainNode(k8s)",
 		Desc:    "Node safely evict all pods",
 		Hosts:   d.Runtime.GetHostsByRole(common.Master),
 		Prepare: new(common.OnlyFirstMaster),
@@ -426,7 +398,7 @@ func (d *DeleteKubeNodeModule) Init() {
 	}
 
 	deleteNode := &task.RemoteTask{
-		Name:    "DeleteNode",
+		Name:    "DeleteNode(k8s)",
 		Desc:    "Delete the node using kubectl",
 		Hosts:   d.Runtime.GetHostsByRole(common.Master),
 		Prepare: new(common.OnlyFirstMaster),
@@ -445,16 +417,12 @@ type SetUpgradePlanModule struct {
 	Step UpgradeStep
 }
 
-func (s *SetUpgradePlanModule) GetName() string {
-	return "SetUpgradePlanModule"
-}
-
 func (s *SetUpgradePlanModule) Init() {
 	s.Name = fmt.Sprintf("SetUpgradePlanModule %d/%d", s.Step, len(UpgradeStepList))
 	s.Desc = "Set upgrade plan"
 
 	plan := &task.LocalTask{
-		Name:   "SetUpgradePlan",
+		Name:   "SetUpgradePlan(k8s)",
 		Desc:   "Set upgrade plan",
 		Action: &SetUpgradePlan{Step: s.Step},
 	}
@@ -469,16 +437,12 @@ type ProgressiveUpgradeModule struct {
 	Step UpgradeStep
 }
 
-func (p *ProgressiveUpgradeModule) GetName() string {
-	return "ProgressiveUpgradeModule"
-}
-
 func (p *ProgressiveUpgradeModule) Init() {
 	p.Name = fmt.Sprintf("ProgressiveUpgradeModule %d/%d", p.Step, len(UpgradeStepList))
 	p.Desc = fmt.Sprintf("Progressive upgrade %d/%d", p.Step, len(UpgradeStepList))
 
 	nextVersion := &task.LocalTask{
-		Name:    "CalculateNextVersion",
+		Name:    "CalculateNextVersion(k8s)",
 		Desc:    "Calculate next upgrade version",
 		Prepare: new(NotEqualPlanVersion),
 		Action:  new(CalculateNextVersion),
@@ -511,7 +475,7 @@ func (p *ProgressiveUpgradeModule) Init() {
 	}
 
 	upgradeKubeMaster := &task.RemoteTask{
-		Name:     "UpgradeClusterOnMaster",
+		Name:     "UpgradeClusterOnMaster(k8s)",
 		Desc:     "Upgrade cluster on master",
 		Hosts:    p.Runtime.GetHostsByRole(common.Master),
 		Prepare:  new(NotEqualPlanVersion),
@@ -532,7 +496,7 @@ func (p *ProgressiveUpgradeModule) Init() {
 	}
 
 	upgradeKubeWorker := &task.RemoteTask{
-		Name:  "UpgradeClusterOnWorker",
+		Name:  "UpgradeClusterOnWorker(k8s)",
 		Desc:  "Upgrade cluster on worker",
 		Hosts: p.Runtime.GetHostsByRole(common.Worker),
 		Prepare: &prepare.PrepareCollection{
@@ -544,7 +508,7 @@ func (p *ProgressiveUpgradeModule) Init() {
 	}
 
 	reconfigureDNS := &task.RemoteTask{
-		Name:  "ReconfigureCoreDNS",
+		Name:  "ReconfigureCoreDNS(k8s)",
 		Desc:  "Reconfigure CoreDNS",
 		Hosts: p.Runtime.GetHostsByRole(common.Master),
 		Prepare: &prepare.PrepareCollection{
@@ -603,16 +567,12 @@ type SaveKubeConfigModule struct {
 	common.KubeModule
 }
 
-func (s *SaveKubeConfigModule) GetName() string {
-	return "SaveKubeConfigModule"
-}
-
 func (s *SaveKubeConfigModule) Init() {
 	s.Name = "SaveKubeConfigModule"
 	s.Desc = "Save kube config file as a configmap"
 
 	save := &task.LocalTask{
-		Name:   "SaveKubeConfig",
+		Name:   "SaveKubeConfig(k8s)",
 		Desc:   "Save kube config as a configmap",
 		Action: new(SaveKubeConfig),
 		Retry:  5,
@@ -625,10 +585,6 @@ func (s *SaveKubeConfigModule) Init() {
 
 type ConfigureKubernetesModule struct {
 	common.KubeModule
-}
-
-func (c *ConfigureKubernetesModule) GetName() string {
-	return "ConfigureKubernetesModule"
 }
 
 func (c *ConfigureKubernetesModule) Init() {
@@ -655,10 +611,6 @@ type SecurityEnhancementModule struct {
 	Skip bool
 }
 
-func (s *SecurityEnhancementModule) GetName() string {
-	return "SecurityEnhancementModule"
-}
-
 func (s *SecurityEnhancementModule) IsSkip() bool {
 	return s.Skip
 }
@@ -668,7 +620,7 @@ func (s *SecurityEnhancementModule) Init() {
 	s.Desc = "Security enhancement for the cluster"
 
 	etcdSecurityEnhancement := &task.RemoteTask{
-		Name:     "EtcdSecurityEnhancementTask",
+		Name:     "EtcdSecurityEnhancementTask(k8s)",
 		Desc:     "Security enhancement for etcd",
 		Hosts:    s.Runtime.GetHostsByRole(common.ETCD),
 		Action:   new(EtcdSecurityEnhancemenAction),
@@ -676,7 +628,7 @@ func (s *SecurityEnhancementModule) Init() {
 	}
 
 	masterSecurityEnhancement := &task.RemoteTask{
-		Name:     "K8sSecurityEnhancementTask",
+		Name:     "K8sSecurityEnhancementTask(k8s)",
 		Desc:     "Security enhancement for kubernetes",
 		Hosts:    s.Runtime.GetHostsByRole(common.Master),
 		Action:   new(MasterSecurityEnhancemenAction),
@@ -684,7 +636,7 @@ func (s *SecurityEnhancementModule) Init() {
 	}
 
 	nodesSecurityEnhancement := &task.RemoteTask{
-		Name:     "K8sSecurityEnhancementTask",
+		Name:     "K8sSecurityEnhancementTask(k8s)",
 		Desc:     "Security enhancement for kubernetes",
 		Hosts:    s.Runtime.GetHostsByRole(common.Worker),
 		Action:   new(NodesSecurityEnhancemenAction),

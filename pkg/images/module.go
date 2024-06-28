@@ -27,10 +27,6 @@ type PullModule struct {
 	Skip bool
 }
 
-func (p *PullModule) GetName() string {
-	return "PullModule"
-}
-
 func (p *PullModule) IsSkip() bool {
 	return p.Skip
 }
@@ -59,10 +55,6 @@ type CopyImagesToLocalModule struct {
 	common.ArtifactModule
 }
 
-func (c *CopyImagesToLocalModule) GetName() string {
-	return "CopyImagesToLocalModule"
-}
-
 func (c *CopyImagesToLocalModule) Init() {
 	c.Name = "CopyImagesToLocalModule"
 	c.Desc = "Copy images to a local OCI path from registries"
@@ -82,10 +74,6 @@ type CopyImagesToRegistryModule struct {
 	common.KubeModule
 	Skip      bool
 	ImagePath string
-}
-
-func (c *CopyImagesToRegistryModule) GetName() string {
-	return "CopyImagesToRegistryModule"
 }
 
 func (c *CopyImagesToRegistryModule) IsSkip() bool {

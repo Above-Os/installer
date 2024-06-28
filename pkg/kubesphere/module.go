@@ -35,10 +35,6 @@ type DeployModule struct {
 	Skip bool
 }
 
-func (d *DeployModule) GetName() string {
-	return "DeployModule"
-}
-
 func (d *DeployModule) IsSkip() bool {
 	return d.Skip
 }
@@ -173,10 +169,6 @@ type CheckResultModule struct {
 	Skip bool
 }
 
-func (c *CheckResultModule) GetName() string {
-	return "CheckResultModule"
-}
-
 func (c *CheckResultModule) IsSkip() bool {
 	return c.Skip
 }
@@ -207,10 +199,6 @@ type CleanClusterConfigurationModule struct {
 	Skip bool
 }
 
-func (c *CleanClusterConfigurationModule) GetName() string {
-	return "CleanClusterConfigurationModule"
-}
-
 func (c *CleanClusterConfigurationModule) IsSkip() bool {
 	return c.Skip
 }
@@ -234,10 +222,6 @@ func (c *CleanClusterConfigurationModule) Init() {
 type ConvertModule struct {
 	common.KubeModule
 	Skip bool
-}
-
-func (c *ConvertModule) GetName() string {
-	return "ConvertModule"
 }
 
 func (c *ConvertModule) IsSkip() bool {

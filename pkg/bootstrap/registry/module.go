@@ -35,10 +35,6 @@ type RegistryCertsModule struct {
 	Skip bool
 }
 
-func (p *RegistryCertsModule) GetName() string {
-	return "RegistryCertsModule"
-}
-
 func (p *RegistryCertsModule) IsSkip() bool {
 	return p.Skip
 }
@@ -89,12 +85,9 @@ func (i *RegistryCertsModule) Init() {
 
 }
 
+// ~ InstallRegistryModule
 type InstallRegistryModule struct {
 	common.KubeModule
-}
-
-func (i *InstallRegistryModule) GetName() string {
-	return "InstallRegistryModule"
 }
 
 func (i *InstallRegistryModule) Init() {

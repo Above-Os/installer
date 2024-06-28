@@ -15,10 +15,6 @@ type SaveInstallConfigTask struct {
 	common.KubeAction
 }
 
-func (t *SaveInstallConfigTask) GetName() string {
-	return "SaveInstallConfigTask"
-}
-
 func (t *SaveInstallConfigTask) Execute(runtime connector.Runtime) error {
 	var installReq model.InstallModelReq
 	var ok bool

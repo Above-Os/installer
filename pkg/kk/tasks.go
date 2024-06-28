@@ -11,10 +11,6 @@ type ChmodKk struct {
 	common.KubeAction
 }
 
-func (a *ChmodKk) GetName() string {
-	return "ChmodKk"
-}
-
 func (a *ChmodKk) Execute(runtime connector.Runtime) error {
 	if _, err := runtime.GetRunner().SudoCmd("chmod +x /tmp/install_log/kk", false); err != nil {
 		return errors.Wrapf(errors.WithStack(err), "chmod kk failed")
@@ -25,10 +21,6 @@ func (a *ChmodKk) Execute(runtime connector.Runtime) error {
 // ~ ExecuteKk
 type ExecuteKk struct {
 	common.KubeAction
-}
-
-func (a *ExecuteKk) GetName() string {
-	return "ExecuteKk"
 }
 
 func (a *ExecuteKk) Execute(runtime connector.Runtime) error {

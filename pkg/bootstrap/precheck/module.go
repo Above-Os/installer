@@ -29,28 +29,34 @@ import (
 	"bytetrade.io/web3os/installer/pkg/core/task"
 )
 
+// ~ CliUninstallOsModule
+type CliUninstallOsModule struct {
+	module.BaseTaskModule
+}
+
+func (m *CliUninstallOsModule) Init() {
+	m.Name = "UninstallOS"
+	m.Desc = "UninstallOS"
+}
+
 // ~ GetSysInfoModel
 type GetSysInfoModel struct {
 	module.BaseTaskModule
 }
 
-func (m *GetSysInfoModel) GetName() string {
-	return "GetSysInfoModel"
-}
-
 func (m *GetSysInfoModel) Init() {
-	m.Name = "GetSysInfoModel"
-	m.Desc = "GetSysInfoModel"
+	m.Name = "GetMachineInfo"
+	m.Desc = "GetMachineInfo"
 
 	getSysInfoTask := &task.LocalTask{
-		Name:   "GetSysInfoTask",
-		Desc:   "GetSysInfoTask",
+		Name:   "GetMachineInfo",
+		Desc:   "GetMachineInfo",
 		Action: new(GetSysInfoTask),
 	}
 
 	getLocalIpTask := &task.LocalTask{
-		Name:   "GetLocalIpTask",
-		Desc:   "GetLocalIpTask",
+		Name:   "GetLocalIp",
+		Desc:   "GetLocalIp",
 		Action: new(GetLocalIpTask),
 	}
 
@@ -68,10 +74,6 @@ func (m *GetSysInfoModel) Init() {
 // ~ PrecheckOs
 type PreCheckOsModule struct {
 	module.BaseTaskModule
-}
-
-func (m *PreCheckOsModule) GetName() string {
-	return "PreCheckOsModule"
 }
 
 func (m *PreCheckOsModule) Init() {
@@ -121,10 +123,6 @@ type TerminusGreetingsModule struct {
 	module.BaseTaskModule
 }
 
-func (h *TerminusGreetingsModule) GetName() string {
-	return "GreetingsModule"
-}
-
 func (h *TerminusGreetingsModule) Init() {
 	h.Name = "TerminusGreetingsModule"
 	h.Desc = "Greetings"
@@ -143,10 +141,6 @@ func (h *TerminusGreetingsModule) Init() {
 // ~ GreetingsModule
 type GreetingsModule struct {
 	module.BaseTaskModule
-}
-
-func (h *GreetingsModule) GetName() string {
-	return "GreetingsModule"
 }
 
 func (h *GreetingsModule) Init() {
@@ -175,10 +169,6 @@ func (h *GreetingsModule) Init() {
 type NodePreCheckModule struct {
 	common.KubeModule
 	Skip bool
-}
-
-func (n *NodePreCheckModule) GetName() string {
-	return "NodePreCheckModule"
 }
 
 func (n *NodePreCheckModule) IsSkip() bool {
@@ -213,10 +203,6 @@ func (n *NodePreCheckModule) Init() {
 // ~ ClusterPreCheckModule
 type ClusterPreCheckModule struct {
 	common.KubeModule
-}
-
-func (c *ClusterPreCheckModule) GetName() string {
-	return "ClusterPreCheckModule"
 }
 
 func (c *ClusterPreCheckModule) Init() {

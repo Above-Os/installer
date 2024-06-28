@@ -9,10 +9,6 @@ type InstallDeps struct {
 	action.BaseAction
 }
 
-func (i *InstallDeps) GetName() string {
-	return "InstallDeps"
-}
-
 func (i *InstallDeps) Execute(runtime connector.Runtime) error {
 	return nil
 }

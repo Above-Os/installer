@@ -33,13 +33,10 @@ import (
 	"bytetrade.io/web3os/installer/pkg/kubernetes"
 )
 
+// ~ InstallContainerModule
 type InstallContainerModule struct {
 	common.KubeModule
 	Skip bool
-}
-
-func (i *InstallContainerModule) GetName() string {
-	return "InstallContainerModule"
 }
 
 func (i *InstallContainerModule) IsSkip() bool {

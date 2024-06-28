@@ -49,10 +49,6 @@ type GetClusterStatus struct {
 	common.KubeAction
 }
 
-func (g *GetClusterStatus) GetName() string {
-	return "GetClusterStatus(k3s)"
-}
-
 func (g *GetClusterStatus) Execute(runtime connector.Runtime) error {
 	exist, err := runtime.GetRunner().FileExist("/etc/systemd/system/k3s.service")
 	if err != nil {
@@ -96,10 +92,6 @@ func (g *GetClusterStatus) Execute(runtime connector.Runtime) error {
 // ~ SyncKubeBinary
 type SyncKubeBinary struct {
 	common.KubeAction
-}
-
-func (s *SyncKubeBinary) GetName() string {
-	return "SyncKubeBinary(k3s)"
 }
 
 func (s *SyncKubeBinary) Execute(runtime connector.Runtime) error {
@@ -168,10 +160,6 @@ type ChmodScript struct {
 	common.KubeAction
 }
 
-func (c *ChmodScript) GetName() string {
-	return "ChmodScript(k3s)"
-}
-
 func (c *ChmodScript) Execute(runtime connector.Runtime) error {
 	killAllScript := filepath.Join("/usr/local/bin", templates.K3sKillallScript.Name())
 	uninstallScript := filepath.Join("/usr/local/bin", templates.K3sUninstallScript.Name())
@@ -190,10 +178,6 @@ func (c *ChmodScript) Execute(runtime connector.Runtime) error {
 // ~ GenerateK3sService
 type GenerateK3sService struct {
 	common.KubeAction
-}
-
-func (g *GenerateK3sService) GetName() string {
-	return "GenerateK3sService"
 }
 
 func (g *GenerateK3sService) Execute(runtime connector.Runtime) error {
@@ -274,10 +258,6 @@ type GenerateK3sServiceEnv struct {
 	common.KubeAction
 }
 
-func (g *GenerateK3sServiceEnv) GetName() string {
-	return "GenerateK3sServiceEnv"
-}
-
 func (g *GenerateK3sServiceEnv) Execute(runtime connector.Runtime) error {
 	host := runtime.RemoteHost()
 
@@ -350,10 +330,6 @@ type EnableK3sService struct {
 	common.KubeAction
 }
 
-func (e *EnableK3sService) GetName() string {
-	return "EnableK3sService"
-}
-
 func (e *EnableK3sService) Execute(runtime connector.Runtime) error {
 	if _, err := runtime.GetRunner().SudoCmd("systemctl daemon-reload && systemctl enable --now k3s",
 		false); err != nil {
@@ -365,10 +341,6 @@ func (e *EnableK3sService) Execute(runtime connector.Runtime) error {
 // ~ CopyK3sKubeConfig
 type CopyK3sKubeConfig struct {
 	common.KubeAction
-}
-
-func (c *CopyK3sKubeConfig) GetName() string {
-	return "CopyK3sKubeConfig"
 }
 
 func (c *CopyK3sKubeConfig) Execute(runtime connector.Runtime) error {
@@ -412,10 +384,6 @@ type AddMasterTaint struct {
 	common.KubeAction
 }
 
-func (a *AddMasterTaint) GetName() string {
-	return "AddMasterTaint(k3s)"
-}
-
 func (a *AddMasterTaint) Execute(runtime connector.Runtime) error {
 	host := runtime.RemoteHost()
 
@@ -432,10 +400,6 @@ func (a *AddMasterTaint) Execute(runtime connector.Runtime) error {
 // ~ AddWorkerLabel
 type AddWorkerLabel struct {
 	common.KubeAction
-}
-
-func (a *AddWorkerLabel) GetName() string {
-	return "AddWorkerLabel"
 }
 
 func (a *AddWorkerLabel) Execute(runtime connector.Runtime) error {
@@ -457,10 +421,6 @@ func (a *AddWorkerLabel) Execute(runtime connector.Runtime) error {
 // ~ SyncKubeConfigToWorker
 type SyncKubeConfigToWorker struct {
 	common.KubeAction
-}
-
-func (s *SyncKubeConfigToWorker) GetName() string {
-	return "SyncKubeConfigToWorker(k3s)"
 }
 
 func (s *SyncKubeConfigToWorker) Execute(runtime connector.Runtime) error {
@@ -516,10 +476,6 @@ type ExecUninstallScript struct {
 	common.KubeAction
 }
 
-func (e *ExecUninstallScript) GetName() string {
-	return "ExecUninstallScript(k3s)"
-}
-
 func (e *ExecUninstallScript) Execute(runtime connector.Runtime) error {
 	if _, err := runtime.GetRunner().SudoCmd("systemctl daemon-reload && /usr/local/bin/k3s-killall.sh",
 		true); err != nil {
@@ -535,10 +491,6 @@ func (e *ExecUninstallScript) Execute(runtime connector.Runtime) error {
 // ~ SaveKubeConfig
 type SaveKubeConfig struct {
 	common.KubeAction
-}
-
-func (s *SaveKubeConfig) GetName() string {
-	return "SaveKubeConfig(k3s)"
 }
 
 func (s *SaveKubeConfig) Execute(_ connector.Runtime) error {
@@ -599,10 +551,6 @@ func (s *SaveKubeConfig) Execute(_ connector.Runtime) error {
 // ~ GenerateK3sRegistryConfig
 type GenerateK3sRegistryConfig struct {
 	common.KubeAction
-}
-
-func (g *GenerateK3sRegistryConfig) GetName() string {
-	return "GenerateK3sRegistryConfig"
 }
 
 func (g *GenerateK3sRegistryConfig) Execute(runtime connector.Runtime) error {

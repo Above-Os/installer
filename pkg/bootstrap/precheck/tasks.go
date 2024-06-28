@@ -43,10 +43,6 @@ type PatchDeps struct {
 	action.BaseAction
 }
 
-func (t *PatchDeps) GetName() string {
-	return "PatchDeps"
-}
-
 func (t *PatchDeps) Execute(runtime connector.Runtime) error {
 	// 如果是特殊的系统，需要通过源代码来安装 socat 和 contrack
 	switch constants.OsPlatform {
@@ -89,10 +85,6 @@ func (t *PatchDeps) Execute(runtime connector.Runtime) error {
 // ~ GetSysInfoTask
 type GetSysInfoTask struct {
 	action.BaseAction
-}
-
-func (t *GetSysInfoTask) GetName() string {
-	return "GetSysInfo"
 }
 
 func (t *GetSysInfoTask) Execute(runtime connector.Runtime) error {
@@ -149,10 +141,6 @@ type GetLocalIpTask struct {
 	action.BaseAction
 }
 
-func (t *GetLocalIpTask) GetName() string {
-	return "GetLocalIpTask"
-}
-
 func (t *GetLocalIpTask) Execute(runtime connector.Runtime) error {
 	pingCmd := fmt.Sprintf("ping -c 1 %s", constants.HostName)
 	pingCmdRes, _, err := util.Exec(pingCmd, false, false)
@@ -176,10 +164,6 @@ type TerminusGreetingsTask struct {
 	action.BaseAction
 }
 
-func (t *TerminusGreetingsTask) GetName() string {
-	return "TerminusGreetingsTask"
-}
-
 func (h *TerminusGreetingsTask) Execute(runtime connector.Runtime) error {
 	stdout, _, err := util.Exec("echo 'Greetings, Terminus!!!!!' ", false, false)
 	if err != nil {
@@ -194,10 +178,6 @@ type GreetingsTask struct {
 	action.BaseAction
 }
 
-func (t *GreetingsTask) GetName() string {
-	return "GreetingsTask"
-}
-
 func (h *GreetingsTask) Execute(runtime connector.Runtime) error {
 	hello, err := runtime.GetRunner().SudoCmd("echo 'Greetings, KubeKey!!!!! hahahaha!!!!'", false)
 	if err != nil {
@@ -210,10 +190,6 @@ func (h *GreetingsTask) Execute(runtime connector.Runtime) error {
 // ~ NodePreCheck
 type NodePreCheck struct {
 	common.KubeAction
-}
-
-func (t *NodePreCheck) GetName() string {
-	return "NodePreCheck"
 }
 
 func (n *NodePreCheck) Execute(runtime connector.Runtime) error {
@@ -285,10 +261,6 @@ type GetKubeConfig struct {
 	common.KubeAction
 }
 
-func (t *GetKubeConfig) GetName() string {
-	return "GetKubeConfig"
-}
-
 func (g *GetKubeConfig) Execute(runtime connector.Runtime) error {
 	if exist, err := runtime.GetRunner().FileExist("$HOME/.kube/config"); err != nil {
 		return err
@@ -332,10 +304,6 @@ type GetAllNodesK8sVersion struct {
 	common.KubeAction
 }
 
-func (t *GetAllNodesK8sVersion) GetName() string {
-	return "GetAllNodesK8sVersion"
-}
-
 func (g *GetAllNodesK8sVersion) Execute(runtime connector.Runtime) error {
 	var nodeK8sVersion string
 	kubeletVersionInfo, err := runtime.GetRunner().SudoCmd("/usr/local/bin/kubelet --version", false)
@@ -361,10 +329,6 @@ func (g *GetAllNodesK8sVersion) Execute(runtime connector.Runtime) error {
 // ~ CalculateMinK8sVersion
 type CalculateMinK8sVersion struct {
 	common.KubeAction
-}
-
-func (g *CalculateMinK8sVersion) GetName() string {
-	return "CalculateMinK8sVersion"
 }
 
 func (g *CalculateMinK8sVersion) Execute(runtime connector.Runtime) error {
@@ -396,10 +360,6 @@ type CheckDesiredK8sVersion struct {
 	common.KubeAction
 }
 
-func (k *CheckDesiredK8sVersion) GetName() string {
-	return "CheckDesiredK8sVersion"
-}
-
 func (k *CheckDesiredK8sVersion) Execute(_ connector.Runtime) error {
 	if ok := kubernetes.VersionSupport(k.KubeConf.Cluster.Kubernetes.Version); !ok {
 		return errors.New(fmt.Sprintf("does not support upgrade to Kubernetes %s",
@@ -412,10 +372,6 @@ func (k *CheckDesiredK8sVersion) Execute(_ connector.Runtime) error {
 // ~ KsVersionCheck
 type KsVersionCheck struct {
 	common.KubeAction
-}
-
-func (k *KsVersionCheck) GetName() string {
-	return "KsVersionCheck"
 }
 
 func (k *KsVersionCheck) Execute(runtime connector.Runtime) error {
@@ -443,10 +399,6 @@ func (k *KsVersionCheck) Execute(runtime connector.Runtime) error {
 // ~ DependencyCheck
 type DependencyCheck struct {
 	common.KubeAction
-}
-
-func (d *DependencyCheck) GetName() string {
-	return "DependencyCheck"
 }
 
 func (d *DependencyCheck) Execute(_ connector.Runtime) error {
@@ -499,10 +451,6 @@ func (d *DependencyCheck) Execute(_ connector.Runtime) error {
 // ~ GetKubernetesNodesStatus
 type GetKubernetesNodesStatus struct {
 	common.KubeAction
-}
-
-func (g *GetKubernetesNodesStatus) GetName() string {
-	return "GetKubernetesNodesStatus"
 }
 
 func (g *GetKubernetesNodesStatus) Execute(runtime connector.Runtime) error {

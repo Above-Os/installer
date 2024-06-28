@@ -35,7 +35,7 @@ type BaseModule struct {
 }
 
 func (b *BaseModule) GetName() string {
-	return "BaseModule"
+	return b.Name
 }
 
 func (b *BaseModule) IsSkip() bool {

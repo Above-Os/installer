@@ -33,10 +33,6 @@ type OverrideCoreDNS struct {
 	common.KubeAction
 }
 
-func (o *OverrideCoreDNS) GetName() string {
-	return "OverrideCoreDNS"
-}
-
 func (o *OverrideCoreDNS) Execute(runtime connector.Runtime) error {
 	if _, err := runtime.GetRunner().SudoCmd("/usr/local/bin/kubectl delete -n kube-system svc kube-dns", true); err != nil {
 		if !strings.Contains(err.Error(), "NotFound") {
@@ -55,10 +51,6 @@ type DeployNodeLocalDNS struct {
 	common.KubeAction
 }
 
-func (d *DeployNodeLocalDNS) GetName() string {
-	return "DeployNodeLocalDNS"
-}
-
 func (d *DeployNodeLocalDNS) Execute(runtime connector.Runtime) error {
 	if _, err := runtime.GetRunner().SudoCmd("/usr/local/bin/kubectl apply -f /etc/kubernetes/nodelocaldns.yaml", true); err != nil {
 		return errors.Wrap(errors.WithStack(err), "deploy nodelocaldns failed")
@@ -69,10 +61,6 @@ func (d *DeployNodeLocalDNS) Execute(runtime connector.Runtime) error {
 // ~ GenerateNodeLocalDNSConfigMap
 type GenerateNodeLocalDNSConfigMap struct {
 	common.KubeAction
-}
-
-func (g *GenerateNodeLocalDNSConfigMap) GetName() string {
-	return "GenerateNodeLocalDNSConfigMap"
 }
 
 func (g *GenerateNodeLocalDNSConfigMap) Execute(runtime connector.Runtime) error {
@@ -105,10 +93,6 @@ func (g *GenerateNodeLocalDNSConfigMap) Execute(runtime connector.Runtime) error
 // ~ ApplyNodeLocalDNSConfigMap
 type ApplyNodeLocalDNSConfigMap struct {
 	common.KubeAction
-}
-
-func (a *ApplyNodeLocalDNSConfigMap) GetName() string {
-	return "ApplyNodeLocalDNSConfigMap"
 }
 
 func (a *ApplyNodeLocalDNSConfigMap) Execute(runtime connector.Runtime) error {

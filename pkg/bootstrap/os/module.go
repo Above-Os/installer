@@ -27,12 +27,9 @@ import (
 	"bytetrade.io/web3os/installer/pkg/core/util"
 )
 
+// ~ ConfigureOSModule
 type ConfigureOSModule struct {
 	common.KubeModule
-}
-
-func (c *ConfigureOSModule) GetName() string {
-	return "ConfigureOSModule"
 }
 
 func (c *ConfigureOSModule) Init() {
@@ -96,12 +93,9 @@ func (c *ConfigureOSModule) Init() {
 	}
 }
 
+// ~ ClearNodeOSModule
 type ClearNodeOSModule struct {
 	common.KubeModule
-}
-
-func (c *ClearNodeOSModule) GetName() string {
-	return "ClearNodeOSModule"
 }
 
 func (c *ClearNodeOSModule) Init() {
@@ -141,12 +135,9 @@ func (c *ClearNodeOSModule) Init() {
 	}
 }
 
+// ~ ClearOSEnvironmentModule
 type ClearOSEnvironmentModule struct {
 	common.KubeModule
-}
-
-func (c *ClearOSEnvironmentModule) GetName() string {
-	return "ClearOSEnvironmentModule"
 }
 
 func (c *ClearOSEnvironmentModule) Init() {
@@ -195,13 +186,10 @@ func (c *ClearOSEnvironmentModule) Init() {
 	}
 }
 
+// ~ RepositoryOnlineModule
 type RepositoryOnlineModule struct {
 	common.KubeModule
 	Skip bool
-}
-
-func (r *RepositoryOnlineModule) GetName() string {
-	return "RepositoryOnlineModule"
 }
 
 func (r *RepositoryOnlineModule) IsSkip() bool {
@@ -244,13 +232,10 @@ func (r *RepositoryOnlineModule) Init() {
 	}
 }
 
+// ~ RepositoryModule
 type RepositoryModule struct {
 	common.KubeModule
 	Skip bool
-}
-
-func (r *RepositoryModule) GetName() string {
-	return "RepositoryModule"
 }
 
 func (r *RepositoryModule) IsSkip() bool {

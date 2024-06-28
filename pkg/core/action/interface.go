@@ -23,7 +23,6 @@ import (
 
 type Action interface {
 	Init(cache *cache.Cache, rootCache *cache.Cache)
-	GetName() string
 	Execute(runtime connector.Runtime) (err error)
 	AutoAssert(runtime connector.Runtime)
 }

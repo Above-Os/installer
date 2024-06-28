@@ -38,10 +38,6 @@ type DownloadISOFile struct {
 	common.ArtifactAction
 }
 
-func (d *DownloadISOFile) GetName() string {
-	return "DownloadISOFile"
-}
-
 func (d *DownloadISOFile) Execute(runtime connector.Runtime) error {
 	for i, sys := range d.Manifest.Spec.OperatingSystems {
 		if sys.Repository.Iso.Url == "" {
@@ -86,10 +82,6 @@ type LocalCopy struct {
 	common.ArtifactAction
 }
 
-func (l *LocalCopy) GetName() string {
-	return "LocalCopy"
-}
-
 func (l *LocalCopy) Execute(runtime connector.Runtime) error {
 	for _, sys := range l.Manifest.Spec.OperatingSystems {
 		if sys.Repository.Iso.LocalPath == "" {
@@ -115,10 +107,6 @@ type ArchiveDependencies struct {
 	common.ArtifactAction
 }
 
-func (a *ArchiveDependencies) GetName() string {
-	return "ArchiveDependencies"
-}
-
 func (a *ArchiveDependencies) Execute(runtime connector.Runtime) error {
 	src := filepath.Join(runtime.GetWorkDir(), common.Artifact)
 	if err := coreutil.Tar(src, a.Manifest.Arg.Output, src); err != nil {
@@ -137,10 +125,6 @@ type UnArchive struct {
 	common.KubeAction
 }
 
-func (u *UnArchive) GetName() string {
-	return "UnArchive"
-}
-
 func (u *UnArchive) Execute(runtime connector.Runtime) error {
 	fmt.Println("[A] UnArchive")
 	if err := coreutil.Untar(u.KubeConf.Arg.Artifact, runtime.GetWorkDir()); err != nil {
@@ -152,10 +136,6 @@ func (u *UnArchive) Execute(runtime connector.Runtime) error {
 // ~ Md5Check
 type Md5Check struct {
 	common.KubeAction
-}
-
-func (m *Md5Check) GetName() string {
-	return "Md5Check"
 }
 
 func (m *Md5Check) Execute(runtime connector.Runtime) error {
@@ -184,10 +164,6 @@ func (m *Md5Check) Execute(runtime connector.Runtime) error {
 // ~ CreateMd5File
 type CreateMd5File struct {
 	common.KubeAction
-}
-
-func (c *CreateMd5File) GetName() string {
-	return "CreateMd5File"
 }
 
 func (c *CreateMd5File) Execute(runtime connector.Runtime) error {

@@ -73,6 +73,10 @@ type FetchCerts struct {
 	common.KubeAction
 }
 
+func (f *FetchCerts) GetName() string {
+	return "FetchCerts"
+}
+
 func (f *FetchCerts) Execute(runtime connector.Runtime) error {
 	src := "/etc/ssl/registry/ssl"
 	dst := fmt.Sprintf("%s/pki/registry", runtime.GetWorkDir())
@@ -96,6 +100,10 @@ func (f *FetchCerts) Execute(runtime connector.Runtime) error {
 
 type GenerateCerts struct {
 	common.KubeAction
+}
+
+func (g *GenerateCerts) GetName() string {
+	return "GenerateCerts"
 }
 
 func (g *GenerateCerts) Execute(runtime connector.Runtime) error {

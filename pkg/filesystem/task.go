@@ -32,10 +32,6 @@ type ChownFileAndDir struct {
 	Path string
 }
 
-func (c *ChownFileAndDir) GetName() string {
-	return "ChownFileAndDir"
-}
-
 func (c *ChownFileAndDir) Execute(runtime connector.Runtime) error {
 	exist, err := runtime.GetRunner().FileExist(c.Path)
 	if err != nil {
@@ -65,10 +61,6 @@ func (c *ChownFileAndDir) Execute(runtime connector.Runtime) error {
 type LocalTaskChown struct {
 	action.BaseAction
 	Path string
-}
-
-func (l *LocalTaskChown) GetName() string {
-	return "LocalTaskChown"
 }
 
 func (l *LocalTaskChown) Execute(runtime connector.Runtime) error {

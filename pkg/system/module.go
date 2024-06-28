@@ -13,10 +13,6 @@ type InstallDepsModule struct {
 	module.BaseTaskModule
 }
 
-func (m *InstallDepsModule) GetName() string {
-	return "InstallDepsModule"
-}
-
 func (m *InstallDepsModule) Init() {
 	m.Name = "InstallDepsModule"
 	m.Desc = "Install dependencies"

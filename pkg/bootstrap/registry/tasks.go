@@ -33,10 +33,6 @@ type SyncCertsFile struct {
 	common.KubeAction
 }
 
-func (s *SyncCertsFile) GetName() string {
-	return "SyncCertsFile"
-}
-
 func (s *SyncCertsFile) Execute(runtime connector.Runtime) error {
 	localCertsDir, ok := s.ModuleCache.Get(LocalCertsDir)
 	if !ok {
@@ -61,10 +57,6 @@ func (s *SyncCertsFile) Execute(runtime connector.Runtime) error {
 // ~ SyncCertsToAllNodes
 type SyncCertsToAllNodes struct {
 	common.KubeAction
-}
-
-func (s *SyncCertsToAllNodes) GetName() string {
-	return "SyncCertsToAllNodes"
 }
 
 func (s *SyncCertsToAllNodes) Execute(runtime connector.Runtime) error {
@@ -111,10 +103,6 @@ type InstallRegistryBinary struct {
 	common.KubeAction
 }
 
-func (g *InstallRegistryBinary) GetName() string {
-	return "InstallRegistryBinary"
-}
-
 func (g *InstallRegistryBinary) Execute(runtime connector.Runtime) error {
 	if err := utils.ResetTmpDir(runtime); err != nil {
 		return err
@@ -148,10 +136,6 @@ type StartRegistryService struct {
 	common.KubeAction
 }
 
-func (g *StartRegistryService) GetName() string {
-	return "StartRegistryService"
-}
-
 func (g *StartRegistryService) Execute(runtime connector.Runtime) error {
 	installCmd := "systemctl daemon-reload && systemctl enable registry && systemctl restart registry"
 	if _, err := runtime.GetRunner().SudoCmd(installCmd, false); err != nil {
@@ -168,10 +152,6 @@ func (g *StartRegistryService) Execute(runtime connector.Runtime) error {
 // ~ InstallDockerCompose
 type InstallDockerCompose struct {
 	common.KubeAction
-}
-
-func (g *InstallDockerCompose) GetName() string {
-	return "InstallDockerCompose"
 }
 
 func (g *InstallDockerCompose) Execute(runtime connector.Runtime) error {
@@ -208,10 +188,6 @@ type SyncHarborPackage struct {
 	common.KubeAction
 }
 
-func (g *SyncHarborPackage) GetName() string {
-	return "SyncHarborPackage"
-}
-
 func (g *SyncHarborPackage) Execute(runtime connector.Runtime) error {
 	if err := utils.ResetTmpDir(runtime); err != nil {
 		return err
@@ -244,10 +220,6 @@ func (g *SyncHarborPackage) Execute(runtime connector.Runtime) error {
 // ~ StartHarbor
 type StartHarbor struct {
 	common.KubeAction
-}
-
-func (g *StartHarbor) GetName() string {
-	return "StartHarbor"
 }
 
 func (g *StartHarbor) Execute(runtime connector.Runtime) error {

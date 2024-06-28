@@ -34,10 +34,6 @@ type AppArmorDownload struct {
 	common.KubeAction
 }
 
-func (t *AppArmorDownload) GetName() string {
-	return "AppArmorDownload"
-}
-
 func (t *AppArmorDownload) Execute(runtime connector.Runtime) error {
 	logger.Debug("[A] AppArmorDownload")
 	if err := DownloadUbutun24AppArmor(runtime.GetWorkDir(), kubekeyapiv1alpha2.DefaultUbuntu24AppArmonVersion,
@@ -53,10 +49,6 @@ type AppArmorInstall struct {
 	common.KubeAction
 }
 
-func (t *AppArmorInstall) GetName() string {
-	return "AppArmorInstall"
-}
-
 func (t *AppArmorInstall) Execute(runtime connector.Runtime) error {
 	logger.Debugf("[A] AppArmorInstall")
 	return nil
@@ -65,10 +57,6 @@ func (t *AppArmorInstall) Execute(runtime connector.Runtime) error {
 // ~ Download
 type Download struct {
 	common.KubeAction
-}
-
-func (d *Download) GetName() string {
-	return "Download"
 }
 
 func (d *Download) Execute(runtime connector.Runtime) error {
@@ -106,10 +94,6 @@ type K3sDownload struct {
 	common.KubeAction
 }
 
-func (k *K3sDownload) GetName() string {
-	return "K3sDownload"
-}
-
 func (k *K3sDownload) Execute(runtime connector.Runtime) error {
 	cfg := k.KubeConf.Cluster
 
@@ -143,10 +127,6 @@ func (k *K3sDownload) Execute(runtime connector.Runtime) error {
 // ~ ArtifactDownload
 type ArtifactDownload struct {
 	common.ArtifactAction
-}
-
-func (a *ArtifactDownload) GetName() string {
-	return "ArtifactDownload"
 }
 
 func (a *ArtifactDownload) Execute(runtime connector.Runtime) error {
@@ -195,10 +175,6 @@ type K3sArtifactDownload struct {
 	common.ArtifactAction
 }
 
-func (a *K3sArtifactDownload) GetName() string {
-	return "K3sArtifactDownload"
-}
-
 func (a *K3sArtifactDownload) Execute(runtime connector.Runtime) error {
 	manifest := a.Manifest.Spec
 
@@ -245,10 +221,6 @@ type RegistryPackageDownload struct {
 	common.KubeAction
 }
 
-func (d *RegistryPackageDownload) GetName() string {
-	return "RegistryPackageDownload"
-}
-
 func (k *RegistryPackageDownload) Execute(runtime connector.Runtime) error {
 	arch := runtime.GetHostsByRole(common.Registry)[0].GetArch()
 	if err := RegistryPackageDownloadHTTP(k.KubeConf, runtime.GetWorkDir(), arch, k.PipelineCache); err != nil {
@@ -261,10 +233,6 @@ func (k *RegistryPackageDownload) Execute(runtime connector.Runtime) error {
 // ~ CriDownload
 type CriDownload struct {
 	common.KubeAction
-}
-
-func (d *CriDownload) GetName() string {
-	return "CriDownload"
 }
 
 func (d *CriDownload) Execute(runtime connector.Runtime) error {

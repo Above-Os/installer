@@ -33,10 +33,6 @@ type ClusterDNSModule struct {
 	common.KubeModule
 }
 
-func (c *ClusterDNSModule) GetName() string {
-	return "ClusterDNSModule"
-}
-
 func (c *ClusterDNSModule) Init() {
 	c.Name = "ClusterDNSModule"
 	c.Desc = "Deploy cluster dns"

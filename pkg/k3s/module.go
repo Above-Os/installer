@@ -31,10 +31,6 @@ type StatusModule struct {
 	common.KubeModule
 }
 
-func (s *StatusModule) GetName() string {
-	return "StatusModule"
-}
-
 func (s *StatusModule) Init() {
 	s.Name = "StatusModule"
 	s.Desc = "Get cluster status"
@@ -43,7 +39,7 @@ func (s *StatusModule) Init() {
 	s.PipelineCache.GetOrSet(common.ClusterStatus, cluster)
 
 	clusterStatus := &task.RemoteTask{
-		Name:     "GetClusterStatus",
+		Name:     "GetClusterStatus(k3s)",
 		Desc:     "Get k3s cluster status",
 		Hosts:    s.Runtime.GetHostsByRole(common.Master),
 		Action:   new(GetClusterStatus),
@@ -59,16 +55,12 @@ type InstallKubeBinariesModule struct {
 	common.KubeModule
 }
 
-func (i *InstallKubeBinariesModule) GetName() string {
-	return "InstallKubeBinariesModule"
-}
-
 func (i *InstallKubeBinariesModule) Init() {
 	i.Name = "InstallKubeBinariesModule"
 	i.Desc = "Install k3s cluster"
 
 	syncBinary := &task.RemoteTask{
-		Name:     "SyncKubeBinary",
+		Name:     "SyncKubeBinary(k3s)",
 		Desc:     "Synchronize k3s binaries",
 		Hosts:    i.Runtime.GetHostsByRole(common.K8s),
 		Prepare:  &NodeInCluster{Not: true},
@@ -106,7 +98,7 @@ func (i *InstallKubeBinariesModule) Init() {
 	}
 
 	chmod := &task.RemoteTask{
-		Name:     "ChmodScript",
+		Name:     "ChmodScript(k3s)",
 		Desc:     "Chmod +x k3s script ",
 		Hosts:    i.Runtime.GetHostsByRole(common.K8s),
 		Prepare:  &NodeInCluster{Not: true},
@@ -125,10 +117,6 @@ func (i *InstallKubeBinariesModule) Init() {
 
 type InitClusterModule struct {
 	common.KubeModule
-}
-
-func (i *InitClusterModule) GetName() string {
-	return "InitClusterModule"
 }
 
 func (i *InitClusterModule) Init() {
@@ -199,7 +187,7 @@ func (i *InitClusterModule) Init() {
 	}
 
 	addMasterTaint := &task.RemoteTask{
-		Name:  "AddMasterTaint",
+		Name:  "AddMasterTaint(k3s)",
 		Desc:  "Add master taint",
 		Hosts: i.Runtime.GetHostsByRole(common.Master),
 		Prepare: &prepare.PrepareCollection{
@@ -304,7 +292,7 @@ func (j *JoinNodesModule) Init() {
 	}
 
 	syncKubeConfigToWorker := &task.RemoteTask{
-		Name:  "SyncKubeConfigToWorker",
+		Name:  "SyncKubeConfigToWorker(k3s)",
 		Desc:  "Synchronize kube config to worker",
 		Hosts: j.Runtime.GetHostsByRole(common.Worker),
 		Prepare: &prepare.PrepareCollection{
@@ -316,7 +304,7 @@ func (j *JoinNodesModule) Init() {
 	}
 
 	addMasterTaint := &task.RemoteTask{
-		Name:  "AddMasterTaint",
+		Name:  "AddMasterTaint(k3s)",
 		Desc:  "Add master taint",
 		Hosts: j.Runtime.GetHostsByRole(common.Master),
 		Prepare: &prepare.PrepareCollection{
@@ -359,16 +347,12 @@ type DeleteClusterModule struct {
 	common.KubeModule
 }
 
-func (d *DeleteClusterModule) GetName() string {
-	return "DeleteClusterModule"
-}
-
 func (d *DeleteClusterModule) Init() {
 	d.Name = "DeleteClusterModule"
 	d.Desc = "Delete k3s cluster"
 
 	execScript := &task.RemoteTask{
-		Name:     "ExecUninstallScript",
+		Name:     "ExecUninstallScript(k3s)",
 		Desc:     "Exec k3s uninstall script",
 		Hosts:    d.Runtime.GetHostsByRole(common.K8s),
 		Action:   new(ExecUninstallScript),
@@ -389,7 +373,7 @@ func (s *SaveKubeConfigModule) Init() {
 	s.Desc = "Save kube config file as a configmap"
 
 	save := &task.LocalTask{
-		Name:   "SaveKubeConfig",
+		Name:   "SaveKubeConfig(k3s)",
 		Desc:   "Save kube config as a configmap",
 		Action: new(SaveKubeConfig),
 	}

@@ -34,10 +34,6 @@ type HaproxyModule struct {
 	Skip bool
 }
 
-func (h *HaproxyModule) GetName() string {
-	return "HaproxyModule"
-}
-
 func (h *HaproxyModule) IsSkip() bool {
 	return h.Skip
 }
@@ -147,10 +143,6 @@ type KubevipModule struct {
 	Skip bool
 }
 
-func (k *KubevipModule) GetName() string {
-	return "KubevipModule"
-}
-
 func (k *KubevipModule) IsSkip() bool {
 	return k.Skip
 }
@@ -212,10 +204,6 @@ func (k *KubevipModule) Init() {
 type K3sHaproxyModule struct {
 	common.KubeModule
 	Skip bool
-}
-
-func (k *K3sHaproxyModule) GetName() string {
-	return "K3sHaproxyModule"
 }
 
 func (k *K3sHaproxyModule) IsSkip() bool {
@@ -306,10 +294,6 @@ type K3sKubevipModule struct {
 	Skip bool
 }
 
-func (k *K3sKubevipModule) GetName() string {
-	return "K3sKubevipModule"
-}
-
 func (k *K3sKubevipModule) IsSkip() bool {
 	return k.Skip
 }
@@ -365,10 +349,6 @@ func (k *K3sKubevipModule) Init() {
 type DeleteVIPModule struct {
 	common.KubeModule
 	Skip bool
-}
-
-func (k *DeleteVIPModule) GetName() string {
-	return "DeleteVIPModule"
 }
 
 func (k *DeleteVIPModule) IsSkip() bool {

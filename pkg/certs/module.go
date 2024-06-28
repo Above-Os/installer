@@ -30,12 +30,9 @@ import (
 	"bytetrade.io/web3os/installer/pkg/kubernetes"
 )
 
+// ~ CheckCertsModule
 type CheckCertsModule struct {
 	common.KubeModule
-}
-
-func (c *CheckCertsModule) GetName() string {
-	return "CheckCertsModule"
 }
 
 func (c *CheckCertsModule) Init() {
@@ -55,12 +52,9 @@ func (c *CheckCertsModule) Init() {
 	}
 }
 
+// ~ PrintClusterCertsModule
 type PrintClusterCertsModule struct {
 	common.KubeModule
-}
-
-func (p *PrintClusterCertsModule) GetName() string {
-	return "PrintClusterCertsModule"
 }
 
 func (p *PrintClusterCertsModule) Init() {
@@ -78,12 +72,9 @@ func (p *PrintClusterCertsModule) Init() {
 	}
 }
 
+// ~ RenewCertsModule
 type RenewCertsModule struct {
 	common.KubeModule
-}
-
-func (r *RenewCertsModule) GetName() string {
-	return "RenewCertsModule"
 }
 
 func (r *RenewCertsModule) Init() {
@@ -137,13 +128,10 @@ func (r *RenewCertsModule) Init() {
 	}
 }
 
+// ~ AutoRenewCertsModule
 type AutoRenewCertsModule struct {
 	common.KubeModule
 	Skip bool
-}
-
-func (a *AutoRenewCertsModule) GetName() string {
-	return "AutoRenewCertsModule"
 }
 
 func (a *AutoRenewCertsModule) IsSkip() bool {
@@ -209,12 +197,9 @@ func (a *AutoRenewCertsModule) Init() {
 	}
 }
 
+// ~ UninstallAutoRenewCertsModule
 type UninstallAutoRenewCertsModule struct {
 	common.KubeModule
-}
-
-func (u *UninstallAutoRenewCertsModule) GetName() string {
-	return "UninstallAutoRenewCertsModule"
 }
 
 func (u *UninstallAutoRenewCertsModule) Init() {

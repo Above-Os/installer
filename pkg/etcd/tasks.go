@@ -59,10 +59,6 @@ type GetStatus struct {
 	common.KubeAction
 }
 
-func (g *GetStatus) GetName() string {
-	return "GetStatus"
-}
-
 func (g *GetStatus) Execute(runtime connector.Runtime) error {
 	exist, err := runtime.GetRunner().FileExist("/etc/etcd.env")
 	if err != nil {
@@ -116,10 +112,6 @@ type SyncCertsFile struct {
 	common.KubeAction
 }
 
-func (s *SyncCertsFile) GetName() string {
-	return "SyncCertsFile"
-}
-
 func (s *SyncCertsFile) Execute(runtime connector.Runtime) error {
 	localCertsDir, ok := s.ModuleCache.Get(LocalCertsDir)
 	if !ok {
@@ -144,10 +136,6 @@ func (s *SyncCertsFile) Execute(runtime connector.Runtime) error {
 // ~ InstallETCDBinary
 type InstallETCDBinary struct {
 	common.KubeAction
-}
-
-func (i *InstallETCDBinary) GetName() string {
-	return "InstallETCDBinary"
 }
 
 func (g *InstallETCDBinary) Execute(runtime connector.Runtime) error {
@@ -183,10 +171,6 @@ type GenerateAccessAddress struct {
 	common.KubeAction
 }
 
-func (g *GenerateAccessAddress) GetName() string {
-	return "GenerateAccessAddress"
-}
-
 func (g *GenerateAccessAddress) Execute(runtime connector.Runtime) error {
 	var addrList []string
 	for _, host := range runtime.GetHostsByRole(common.ETCD) {
@@ -207,10 +191,6 @@ func (g *GenerateAccessAddress) Execute(runtime connector.Runtime) error {
 // ~ HealthCheck
 type HealthCheck struct {
 	common.KubeAction
-}
-
-func (h *HealthCheck) GetName() string {
-	return "HealthCheck"
 }
 
 func (h *HealthCheck) Execute(runtime connector.Runtime) error {
@@ -242,10 +222,6 @@ func healthCheck(runtime connector.Runtime, cluster *EtcdCluster) error {
 // ~ GenerateConfig
 type GenerateConfig struct {
 	common.KubeAction
-}
-
-func (g *GenerateConfig) GetName() string {
-	return "GenerateConfig"
 }
 
 func (g *GenerateConfig) Execute(runtime connector.Runtime) error {
@@ -280,10 +256,6 @@ func (g *GenerateConfig) Execute(runtime connector.Runtime) error {
 type RefreshConfig struct {
 	common.KubeAction
 	ToExisting bool
-}
-
-func (r *RefreshConfig) GetName() string {
-	return "RefreshConfig"
 }
 
 func (r *RefreshConfig) Execute(runtime connector.Runtime) error {
@@ -353,10 +325,6 @@ type JoinMember struct {
 	common.KubeAction
 }
 
-func (j *JoinMember) GetName() string {
-	return "JoinMember"
-}
-
 func (j *JoinMember) Execute(runtime connector.Runtime) error {
 	host := runtime.RemoteHost()
 	etcdName, ok := host.GetCache().GetMustString(common.ETCDName)
@@ -388,10 +356,6 @@ type CheckMember struct {
 	common.KubeAction
 }
 
-func (c *CheckMember) GetName() string {
-	return "CheckMember"
-}
-
 func (c *CheckMember) Execute(runtime connector.Runtime) error {
 	host := runtime.RemoteHost()
 	if v, ok := c.PipelineCache.Get(common.ETCDCluster); ok {
@@ -419,10 +383,6 @@ type RestartETCD struct {
 	common.KubeAction
 }
 
-func (r *RestartETCD) GetName() string {
-	return "RestartETCD"
-}
-
 func (r *RestartETCD) Execute(runtime connector.Runtime) error {
 	if _, err := runtime.GetRunner().SudoCmd("systemctl daemon-reload && systemctl restart etcd && systemctl enable etcd", true); err != nil {
 		return errors.Wrap(errors.WithStack(err), "start etcd failed")
@@ -433,10 +393,6 @@ func (r *RestartETCD) Execute(runtime connector.Runtime) error {
 // ~ BackupETCD
 type BackupETCD struct {
 	common.KubeAction
-}
-
-func (b *BackupETCD) GetName() string {
-	return "BackupETCD"
 }
 
 func (b *BackupETCD) Execute(runtime connector.Runtime) error {
@@ -467,10 +423,6 @@ func (b *BackupETCD) Execute(runtime connector.Runtime) error {
 // ~ EnableBackupETCDService
 type EnableBackupETCDService struct {
 	common.KubeAction
-}
-
-func (e *EnableBackupETCDService) GetName() string {
-	return "EnableBackupETCDService"
 }
 
 func (e *EnableBackupETCDService) Execute(runtime connector.Runtime) error {

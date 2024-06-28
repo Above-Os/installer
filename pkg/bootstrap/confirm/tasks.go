@@ -60,10 +60,6 @@ type InstallationConfirm struct {
 	common.KubeAction
 }
 
-func (i *InstallationConfirm) GetName() string {
-	return "InstallationConfirm"
-}
-
 func (i *InstallationConfirm) Execute(runtime connector.Runtime) error {
 	var (
 		results  []PreCheckResults
@@ -157,10 +153,6 @@ type DeleteConfirm struct {
 	Content string
 }
 
-func (d *DeleteConfirm) GetName() string {
-	return "DeleteConfirm"
-}
-
 func (d *DeleteConfirm) Execute(runtime connector.Runtime) error {
 	reader := bufio.NewReader(os.Stdin)
 
@@ -189,10 +181,6 @@ func (d *DeleteConfirm) Execute(runtime connector.Runtime) error {
 // ~ UpgradeConfirm
 type UpgradeConfirm struct {
 	common.KubeAction
-}
-
-func (u *UpgradeConfirm) GetName() string {
-	return "UpgradeConfirm"
 }
 
 func (u *UpgradeConfirm) Execute(runtime connector.Runtime) error {
@@ -331,10 +319,6 @@ type CheckFile struct {
 	FileName string
 }
 
-func (c *CheckFile) GetName() string {
-	return "CheckFile"
-}
-
 func (c *CheckFile) Execute(runtime connector.Runtime) error {
 	if util.IsExist(c.FileName) {
 		reader := bufio.NewReader(os.Stdin)
@@ -363,10 +347,6 @@ func (c *CheckFile) Execute(runtime connector.Runtime) error {
 // ~ MigrateCri
 type MigrateCri struct {
 	common.KubeAction
-}
-
-func (d *MigrateCri) GetName() string {
-	return "MigrateCri"
 }
 
 func (d *MigrateCri) Execute(runtime connector.Runtime) error {

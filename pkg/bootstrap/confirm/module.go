@@ -22,13 +22,10 @@ import (
 	"bytetrade.io/web3os/installer/pkg/core/task"
 )
 
+// ~ InstallConfirmModule
 type InstallConfirmModule struct {
 	common.KubeModule
 	Skip bool
-}
-
-func (i *InstallConfirmModule) GetName() string {
-	return "InstallConfirmModule"
 }
 
 func (i *InstallConfirmModule) IsSkip() bool {
@@ -50,12 +47,9 @@ func (i *InstallConfirmModule) Init() {
 	}
 }
 
+// ~ DeleteClusterConfirmModule
 type DeleteClusterConfirmModule struct {
 	common.KubeModule
-}
-
-func (d *DeleteClusterConfirmModule) GetName() string {
-	return "DeleteClusterConfirmModule"
 }
 
 func (d *DeleteClusterConfirmModule) Init() {
@@ -73,12 +67,9 @@ func (d *DeleteClusterConfirmModule) Init() {
 	}
 }
 
+// ~ DeleteNodeConfirmModule
 type DeleteNodeConfirmModule struct {
 	common.KubeModule
-}
-
-func (d *DeleteNodeConfirmModule) GetName() string {
-	return "DeleteNodeConfirmModule"
 }
 
 func (d *DeleteNodeConfirmModule) Init() {
@@ -96,13 +87,10 @@ func (d *DeleteNodeConfirmModule) Init() {
 	}
 }
 
+// ~ UpgradeConfirmModule
 type UpgradeConfirmModule struct {
 	common.KubeModule
 	Skip bool
-}
-
-func (u *UpgradeConfirmModule) GetName() string {
-	return "UpgradeConfirmModule"
 }
 
 func (u *UpgradeConfirmModule) IsSkip() bool {
@@ -124,13 +112,10 @@ func (u *UpgradeConfirmModule) Init() {
 	}
 }
 
+// ~ CheckFileExistModule
 type CheckFileExistModule struct {
 	module.BaseTaskModule
 	FileName string
-}
-
-func (c *CheckFileExistModule) GetName() string {
-	return "CheckFileExistModule"
 }
 
 func (c *CheckFileExistModule) Init() {
@@ -148,12 +133,9 @@ func (c *CheckFileExistModule) Init() {
 	}
 }
 
+// ~ MigrateCriConfirmModule
 type MigrateCriConfirmModule struct {
 	common.KubeModule
-}
-
-func (d *MigrateCriConfirmModule) GetName() string {
-	return "MigrateCriConfirmModule"
 }
 
 func (d *MigrateCriConfirmModule) Init() {

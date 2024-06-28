@@ -34,10 +34,6 @@ type DeployNetworkPluginModule struct {
 	common.KubeModule
 }
 
-func (d *DeployNetworkPluginModule) GetName() string {
-	return "DeployNetworkPluginModule"
-}
-
 func (d *DeployNetworkPluginModule) Init() {
 	d.Name = "DeployNetworkPluginModule"
 	d.Desc = "Deploy cluster network plugin"

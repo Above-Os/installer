@@ -41,10 +41,6 @@ type PullImage struct {
 	common.KubeAction
 }
 
-func (p *PullImage) GetName() string {
-	return "PullImage"
-}
-
 func (p *PullImage) Execute(runtime connector.Runtime) error {
 	if !p.KubeConf.Arg.SkipPullImages {
 		i := Images{}
@@ -150,10 +146,6 @@ type SaveImages struct {
 	common.ArtifactAction
 }
 
-func (s *SaveImages) GetName() string {
-	return "SaveImages"
-}
-
 func (s *SaveImages) Execute(runtime connector.Runtime) error {
 	auths := registry.DockerRegistryAuthEntries(s.Manifest.Spec.ManifestRegistry.Auths)
 
@@ -219,10 +211,6 @@ func (s *SaveImages) Execute(runtime connector.Runtime) error {
 type CopyImagesToRegistry struct {
 	common.KubeAction
 	ImagesPath string
-}
-
-func (c *CopyImagesToRegistry) GetName() string {
-	return "CopyImagesToRegistry"
 }
 
 func (c *CopyImagesToRegistry) Execute(runtime connector.Runtime) error {
@@ -323,10 +311,6 @@ func (c *CopyImagesToRegistry) Execute(runtime connector.Runtime) error {
 // ~ PushManifest
 type PushManifest struct {
 	common.KubeAction
-}
-
-func (p *PushManifest) GetName() string {
-	return "PushManifest"
 }
 
 func (p *PushManifest) Execute(_ connector.Runtime) error {

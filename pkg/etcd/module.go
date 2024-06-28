@@ -32,10 +32,6 @@ type PreCheckModule struct {
 	Skip bool
 }
 
-func (p *PreCheckModule) GetName() string {
-	return "PreCheckModule"
-}
-
 func (p *PreCheckModule) IsSkip() bool {
 	return p.Skip
 }
@@ -60,10 +56,6 @@ func (p *PreCheckModule) Init() {
 type CertsModule struct {
 	common.KubeModule
 	Skip bool
-}
-
-func (p *CertsModule) GetName() string {
-	return "CertsModule"
 }
 
 func (p *CertsModule) IsSkip() bool {
@@ -153,10 +145,6 @@ type InstallETCDBinaryModule struct {
 	Skip bool
 }
 
-func (p *InstallETCDBinaryModule) GetName() string {
-	return "InstallETCDBinaryModule"
-}
-
 func (p *InstallETCDBinaryModule) IsSkip() bool {
 	return p.Skip
 }
@@ -207,10 +195,6 @@ func (i *InstallETCDBinaryModule) Init() {
 type ConfigureModule struct {
 	common.KubeModule
 	Skip bool
-}
-
-func (p *ConfigureModule) GetName() string {
-	return "ConfigureModule"
 }
 
 func (p *ConfigureModule) IsSkip() bool {
@@ -389,10 +373,6 @@ func handleExistCluster(c *ConfigureModule) []task.Interface {
 type BackupModule struct {
 	common.KubeModule
 	Skip bool
-}
-
-func (p *BackupModule) GetName() string {
-	return "BackupModule"
 }
 
 func (p *BackupModule) IsSkip() bool {

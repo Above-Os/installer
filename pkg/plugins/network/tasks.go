@@ -41,10 +41,6 @@ type ReleaseCiliumChart struct {
 	common.KubeAction
 }
 
-func (r *ReleaseCiliumChart) GetName() string {
-	return "ReleaseCiliumChart"
-}
-
 func (r *ReleaseCiliumChart) Execute(runtime connector.Runtime) error {
 	fs, err := os.Create(fmt.Sprintf("%s/cilium.tgz", runtime.GetWorkDir()))
 	if err != nil {
@@ -69,10 +65,6 @@ type SyncCiliumChart struct {
 	common.KubeAction
 }
 
-func (s *SyncCiliumChart) GetName() string {
-	return "SyncCiliumChart"
-}
-
 func (s *SyncCiliumChart) Execute(runtime connector.Runtime) error {
 	src := filepath.Join(runtime.GetWorkDir(), "cilium.tgz")
 	dst := filepath.Join(common.TmpDir, "cilium.tgz")
@@ -88,10 +80,6 @@ func (s *SyncCiliumChart) Execute(runtime connector.Runtime) error {
 // ~ DeployCilium
 type DeployCilium struct {
 	common.KubeAction
-}
-
-func (d *DeployCilium) GetName() string {
-	return "DeployCilium"
 }
 
 func (d *DeployCilium) Execute(runtime connector.Runtime) error {
@@ -119,10 +107,6 @@ type DeployNetworkPlugin struct {
 	common.KubeAction
 }
 
-func (d *DeployNetworkPlugin) GetName() string {
-	return "DeployNetworkPlugin"
-}
-
 func (d *DeployNetworkPlugin) Execute(runtime connector.Runtime) error {
 	if _, err := runtime.GetRunner().SudoCmd(
 		"/usr/local/bin/kubectl apply -f /etc/kubernetes/network-plugin.yaml --force", true); err != nil {
@@ -134,10 +118,6 @@ func (d *DeployNetworkPlugin) Execute(runtime connector.Runtime) error {
 // ~ DeployKubeovnPlugin
 type DeployKubeovnPlugin struct {
 	common.KubeAction
-}
-
-func (d *DeployKubeovnPlugin) GetName() string {
-	return "DeployKubeovnPlugin"
 }
 
 func (d *DeployKubeovnPlugin) Execute(runtime connector.Runtime) error {
@@ -161,10 +141,6 @@ type DeployNetworkMultusPlugin struct {
 	common.KubeAction
 }
 
-func (d *DeployNetworkMultusPlugin) GetName() string {
-	return "DeployNetworkMultusPlugin"
-}
-
 func (d *DeployNetworkMultusPlugin) Execute(runtime connector.Runtime) error {
 	if _, err := runtime.GetRunner().SudoCmd(
 		"/usr/local/bin/kubectl apply -f /etc/kubernetes/multus-network-plugin.yaml --force", true); err != nil {
@@ -176,10 +152,6 @@ func (d *DeployNetworkMultusPlugin) Execute(runtime connector.Runtime) error {
 // ~ LabelNode
 type LabelNode struct {
 	common.KubeAction
-}
-
-func (l *LabelNode) GetName() string {
-	return "LabelNode"
 }
 
 func (l *LabelNode) Execute(runtime connector.Runtime) error {
@@ -195,10 +167,6 @@ func (l *LabelNode) Execute(runtime connector.Runtime) error {
 // ~ GenerateSSL
 type GenerateSSL struct {
 	common.KubeAction
-}
-
-func (g *GenerateSSL) GetName() string {
-	return "GenerateSSL"
 }
 
 func (g *GenerateSSL) Execute(runtime connector.Runtime) error {
@@ -240,10 +208,6 @@ func (g *GenerateSSL) Execute(runtime connector.Runtime) error {
 // ~ GenerateKubeOVN
 type GenerateKubeOVN struct {
 	common.KubeAction
-}
-
-func (g *GenerateKubeOVN) GetName() string {
-	return "GenerateKubeOVN"
 }
 
 func (g *GenerateKubeOVN) Execute(runtime connector.Runtime) error {
@@ -344,10 +308,6 @@ func (g *GenerateKubeOVN) Execute(runtime connector.Runtime) error {
 // ~ ChmodKubectlKo
 type ChmodKubectlKo struct {
 	common.KubeAction
-}
-
-func (c *ChmodKubectlKo) GetName() string {
-	return "ChmodKubectlKo"
 }
 
 func (c *ChmodKubectlKo) Execute(runtime connector.Runtime) error {

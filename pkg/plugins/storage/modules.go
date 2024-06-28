@@ -33,10 +33,6 @@ type DeployLocalVolumeModule struct {
 	Skip bool
 }
 
-func (d *DeployLocalVolumeModule) GetName() string {
-	return "DeployLocalVolumeModule"
-}
-
 func (d *DeployLocalVolumeModule) IsSkip() bool {
 	return d.Skip
 }

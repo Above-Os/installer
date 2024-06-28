@@ -59,11 +59,12 @@ func (p *Pipeline) Start() error {
 		if m.IsSkip() {
 			continue
 		}
-		logger.Debugf("[Module] %s", m.GetName())
+
 		moduleCache := p.newModuleCache()
 		m.Default(p.Runtime, p.PipelineCache, moduleCache)
 		m.AutoAssert()
 		m.Init()
+		logger.Debugf("[Module] %s", m.GetName())
 		for j := range p.ModulePostHooks {
 			m.AppendPostHook(p.ModulePostHooks[j])
 		}

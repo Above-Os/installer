@@ -43,10 +43,6 @@ type Copy struct {
 	action.BaseAction
 }
 
-func (t *Copy) GetName() string {
-	return "Copy Scripts"
-}
-
 func (t *Copy) Execute(runtime connector.Runtime) error {
 	p := fmt.Sprintf("%s/%s", constants.WorkDir, common.Scripts)
 	if ok := util.IsExist(p); !ok {
@@ -90,13 +86,9 @@ type CopyUninstallScriptTask struct {
 	action.BaseAction
 }
 
-func (t *CopyUninstallScriptTask) GetName() string {
-	return "Copy Uninstall Script"
-}
-
 func (t *CopyUninstallScriptTask) Execute(runtime connector.Runtime) error {
 	dest := path.Join(runtime.GetPackageDir(), common.InstallDir)
-	fmt.Println("---1---", dest)
+
 	if ok := util.IsExist(dest); !ok {
 		return fmt.Errorf("directory %s not exist", dest)
 	}

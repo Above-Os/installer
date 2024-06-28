@@ -36,10 +36,6 @@ type InstallTerminusModule struct {
 	common.KubeModule
 }
 
-func (m *InstallTerminusModule) GetName() string {
-	return "InstallTerminusModule"
-}
-
 func (m *InstallTerminusModule) Init() {
 	m.Name = "InstallTerminusModule"
 	m.Desc = "Install Terminus Module"

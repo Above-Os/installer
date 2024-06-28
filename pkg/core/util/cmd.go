@@ -44,7 +44,7 @@ func Exec(name string, printOutput bool, printLine bool) (stdout string, code in
 		}
 
 		if printLine {
-			fmt.Println(line)
+			fmt.Println(strings.TrimSuffix(line, "\n"))
 		}
 
 		outputBuffer.WriteString(line)
@@ -106,7 +106,7 @@ func ExecWithChannel(name string, printOutput bool, printLine bool, output chan 
 			output <- line
 		}
 		if printLine {
-			fmt.Println(line)
+			fmt.Println(strings.TrimSuffix(line, "\n"))
 		}
 
 		outputBuffer.WriteString(line)

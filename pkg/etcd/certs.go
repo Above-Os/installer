@@ -143,10 +143,6 @@ type GenerateCerts struct {
 	common.KubeAction
 }
 
-func (g *GenerateCerts) GetName() string {
-	return "GenerateCerts"
-}
-
 func (g *GenerateCerts) Execute(runtime connector.Runtime) error {
 	pkiPath := fmt.Sprintf("%s/pki/etcd", runtime.GetWorkDir())
 
@@ -222,10 +218,6 @@ func GenerateAltName(k *common.KubeConf, runtime *connector.Runtime) *cert.AltNa
 // ~ FetchCertsForExternalEtcd
 type FetchCertsForExternalEtcd struct {
 	common.KubeAction
-}
-
-func (f *FetchCertsForExternalEtcd) GetName() string {
-	return "FetchCertsForExternalEtcd"
 }
 
 func (f *FetchCertsForExternalEtcd) Execute(runtime connector.Runtime) error {

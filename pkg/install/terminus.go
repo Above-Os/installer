@@ -17,10 +17,6 @@ type Terminus struct {
 	common.KubeAction
 }
 
-func (a *Terminus) GetName() string {
-	return "Install"
-}
-
 func (a *Terminus) Execute(runtime connector.Runtime) error {
 	var installReq model.InstallModelReq
 	var err error

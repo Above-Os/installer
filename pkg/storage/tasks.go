@@ -22,10 +22,10 @@ func (t *SaveInstallConfigTask) Execute(runtime connector.Runtime) error {
 		return fmt.Errorf("invalid install model req %+v", t.KubeConf.Arg.Request)
 	}
 
-	var ctx, cancel = context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
 	if installReq.DebugSaveConfig == 1 {
+		var ctx, cancel = context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+
 		return t.KubeConf.Arg.Provider.SaveInstallConfig(ctx, installReq)
 	}
 	return nil

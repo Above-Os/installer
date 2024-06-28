@@ -171,10 +171,6 @@ type UninstallContainerModule struct {
 	Skip bool
 }
 
-func (i *UninstallContainerModule) GetName() string {
-	return "UninstallContainerModule"
-}
-
 func (i *UninstallContainerModule) IsSkip() bool {
 	return i.Skip
 }
@@ -216,10 +212,6 @@ type CriMigrateModule struct {
 	common.KubeModule
 
 	Skip bool
-}
-
-func (i *CriMigrateModule) GetName() string {
-	return "CriMigrateModule"
 }
 
 func (i *CriMigrateModule) IsSkip() bool {

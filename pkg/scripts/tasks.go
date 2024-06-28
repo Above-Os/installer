@@ -22,10 +22,6 @@ type Greeting struct {
 	action.BaseAction
 }
 
-func (t *Greeting) GetName() string {
-	return "Greeting Script"
-}
-
 func (t *Greeting) Execute(runtime connector.Runtime) error {
 	p := fmt.Sprintf("%s/%s/%s", constants.WorkDir, common.Scripts, common.GreetingShell)
 	if ok := util.IsExist(p); ok {

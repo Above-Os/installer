@@ -165,6 +165,6 @@ func (b *BaseHost) ExecWithChannel(name string, printOutput bool, printLine bool
 }
 
 func (b *BaseHost) Echo() {
-
 	fmt.Println("---echo---")
+	util.Exec("echo '---hello world!!!!---'", true, false)
 }

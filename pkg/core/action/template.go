@@ -34,10 +34,6 @@ type Template struct {
 	Data     util.Data
 }
 
-func (t *Template) GetName() string {
-	return "template"
-}
-
 func (t *Template) Execute(runtime connector.Runtime) error {
 	templateStr, err := util.Render(t.Template, t.Data)
 	if err != nil {

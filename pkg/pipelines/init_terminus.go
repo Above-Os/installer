@@ -12,7 +12,7 @@ import (
 
 // + 测试函数，测试下载 full 包，并执行安装
 func InstallTerminusPipeline(args common.Argument) error {
-	runtime, err := common.NewKubeRuntime(common.AllInOne, args)
+	runtime, err := common.NewKubeRuntime(common.AllInOne, args) // 后续拆解 install_cmd.sh，会用到 KubeRuntime
 	if err != nil {
 		return err
 	}

@@ -40,10 +40,6 @@ type SyncContainerd struct {
 	common.KubeAction
 }
 
-func (s *SyncContainerd) GetName() string {
-	return "SyncContainerd"
-}
-
 func (s *SyncContainerd) Execute(runtime connector.Runtime) error {
 	if err := utils.ResetTmpDir(runtime); err != nil {
 		return err
@@ -75,10 +71,6 @@ func (s *SyncContainerd) Execute(runtime connector.Runtime) error {
 
 type SyncCrictlBinaries struct {
 	common.KubeAction
-}
-
-func (s *SyncCrictlBinaries) GetName() string {
-	return "SyncCrictlBinaries"
 }
 
 func (s *SyncCrictlBinaries) Execute(runtime connector.Runtime) error {
@@ -113,10 +105,6 @@ func (s *SyncCrictlBinaries) Execute(runtime connector.Runtime) error {
 
 type EnableContainerd struct {
 	common.KubeAction
-}
-
-func (e *EnableContainerd) GetName() string {
-	return "EnableContainerd"
 }
 
 func (e *EnableContainerd) Execute(runtime connector.Runtime) error {
@@ -159,10 +147,6 @@ type DisableContainerd struct {
 	common.KubeAction
 }
 
-func (d *DisableContainerd) GetName() string {
-	return "DisableContainerd"
-}
-
 func (d *DisableContainerd) Execute(runtime connector.Runtime) error {
 	if _, err := runtime.GetRunner().SudoCmd(
 		"systemctl disable containerd && systemctl stop containerd", true); err != nil {
@@ -195,10 +179,6 @@ type CordonNode struct {
 	common.KubeAction
 }
 
-func (d *CordonNode) GetName() string {
-	return "CordonNode"
-}
-
 func (d *CordonNode) Execute(runtime connector.Runtime) error {
 	nodeName := runtime.RemoteHost().GetName()
 	if _, err := runtime.GetRunner().SudoCmd(fmt.Sprintf("/usr/local/bin/kubectl cordon %s ", nodeName), true); err != nil {
@@ -209,10 +189,6 @@ func (d *CordonNode) Execute(runtime connector.Runtime) error {
 
 type UnCordonNode struct {
 	common.KubeAction
-}
-
-func (d *UnCordonNode) GetName() string {
-	return "UnCordonNode"
 }
 
 func (d *UnCordonNode) Execute(runtime connector.Runtime) error {
@@ -231,10 +207,6 @@ type DrainNode struct {
 	common.KubeAction
 }
 
-func (d *DrainNode) GetName() string {
-	return "DrainNode"
-}
-
 func (d *DrainNode) Execute(runtime connector.Runtime) error {
 	nodeName := runtime.RemoteHost().GetName()
 	if _, err := runtime.GetRunner().SudoCmd(fmt.Sprintf("/usr/local/bin/kubectl drain %s --delete-emptydir-data --ignore-daemonsets --timeout=2m --force", nodeName), true); err != nil {
@@ -245,10 +217,6 @@ func (d *DrainNode) Execute(runtime connector.Runtime) error {
 
 type RestartCri struct {
 	common.KubeAction
-}
-
-func (i *RestartCri) GetName() string {
-	return "RestartCri"
 }
 
 func (i *RestartCri) Execute(runtime connector.Runtime) error {
@@ -270,10 +238,6 @@ func (i *RestartCri) Execute(runtime connector.Runtime) error {
 
 type EditKubeletCri struct {
 	common.KubeAction
-}
-
-func (i *EditKubeletCri) GetName() string {
-	return "EditKubeletCri"
 }
 
 func (i *EditKubeletCri) Execute(runtime connector.Runtime) error {
@@ -299,10 +263,6 @@ func (i *EditKubeletCri) Execute(runtime connector.Runtime) error {
 
 type RestartKubeletNode struct {
 	common.KubeAction
-}
-
-func (d *RestartKubeletNode) GetName() string {
-	return "RestartKubeletNode"
 }
 
 func (d *RestartKubeletNode) Execute(runtime connector.Runtime) error {
@@ -563,10 +523,6 @@ func MigrateSelfNodeCriTasks(runtime connector.Runtime, kubeAction common.KubeAc
 
 type MigrateSelfNodeCri struct {
 	common.KubeAction
-}
-
-func (d *MigrateSelfNodeCri) GetName() string {
-	return "MigrateSelfNodeCri"
 }
 
 func (d *MigrateSelfNodeCri) Execute(runtime connector.Runtime) error {

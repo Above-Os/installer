@@ -28,10 +28,6 @@ type Script struct {
 	PrintOutput bool
 }
 
-func (s *Script) GetName() string {
-	return "script"
-}
-
 func (s *Script) Execute(runtime connector.Runtime) error {
 	scriptFileName := path.Join(constants.WorkDir, common.Scripts, s.File)
 	if !util.IsExist(scriptFileName) {

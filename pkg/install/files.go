@@ -15,10 +15,6 @@ type CheckFilesExists struct {
 	common.KubeAction
 }
 
-func (a *CheckFilesExists) GetName() string {
-	return "CheckFilesExists"
-}
-
 // todo 检查 kk 文件是否存在
 func (a *CheckFilesExists) Execute(runtime connector.Runtime) error {
 	src := runtime.GetWorkDir()
@@ -33,10 +29,6 @@ func (a *CheckFilesExists) Execute(runtime connector.Runtime) error {
 // ~ CopyInstallPackage
 type CopyInstallPackage struct {
 	common.KubeAction
-}
-
-func (a *CopyInstallPackage) GetName() string {
-	return "CopyInstallPackage"
 }
 
 func (a *CopyInstallPackage) Execute(runtime connector.Runtime) error {

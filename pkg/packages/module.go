@@ -11,19 +11,19 @@ type PackagesModule struct {
 }
 
 func (m *PackagesModule) Init() {
-	m.Name = "PackageModule"
+	m.Name = "DownloadInstaller"
 	m.Desc = "Download installer packages"
 
 	download := &task.LocalTask{
-		Name:   "DownloadPackage",
+		Name:   "Download",
 		Desc:   "Download installer packages",
 		Action: new(PackageDownload),
 		Retry:  0,
 	}
 
 	untar := &task.LocalTask{
-		Name:   "UntarPackage",
-		Desc:   "Untar installer package",
+		Name:   "Decompress",
+		Desc:   "Decompress installer package",
 		Action: new(PackageUntar),
 		Retry:  0,
 	}

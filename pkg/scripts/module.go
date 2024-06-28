@@ -14,11 +14,9 @@ type CopyUninstallScriptModule struct {
 
 func (m *CopyUninstallScriptModule) Init() {
 	m.Name = "CopyUninstallScript"
-	m.Desc = "copy uninstall script"
 
 	copyUninstallScript := &task.LocalTask{
-		Name:   "CopyUninstallScript",
-		Desc:   "CopyUninstallScript",
+		Name:   "Copy",
 		Action: new(CopyUninstallScriptTask),
 	}
 

@@ -10,12 +10,10 @@ type SaveInstallConfigModule struct {
 }
 
 func (m *SaveInstallConfigModule) Init() {
-	m.Name = "SaveInstallConfigModule"
-	m.Desc = "SaveInstallConfigModule"
+	m.Name = "SaveInstallConfig"
 
 	save := &task.LocalTask{
-		Name:   "SaveInstallConfig",
-		Desc:   "SaveInstallConfig",
+		Name:   "Save",
 		Action: &SaveInstallConfigTask{},
 		Retry:  0,
 	}

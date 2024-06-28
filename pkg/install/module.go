@@ -37,12 +37,10 @@ type InstallTerminusModule struct {
 }
 
 func (m *InstallTerminusModule) Init() {
-	m.Name = "InstallTerminusModule"
-	m.Desc = "Install Terminus Module"
+	m.Name = "InstallTerminus"
 
 	runTerminus := &task.LocalTask{
-		Name:   "InstallTerminus",
-		Desc:   "install terminus",
+		Name:   "Install",
 		Action: new(Terminus),
 	}
 

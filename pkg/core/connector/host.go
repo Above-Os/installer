@@ -17,7 +17,10 @@
 package connector
 
 import (
+	"fmt"
+
 	"bytetrade.io/web3os/installer/pkg/core/cache"
+	"bytetrade.io/web3os/installer/pkg/core/util"
 )
 
 type BaseHost struct {
@@ -151,4 +154,17 @@ func (b *BaseHost) GetCache() *cache.Cache {
 
 func (b *BaseHost) SetCache(c *cache.Cache) {
 	b.Cache = c
+}
+
+func (b *BaseHost) Exec(name string, printOutput bool, printLine bool) (stdout string, code int, err error) {
+	return util.Exec(name, printOutput, printLine)
+}
+
+func (b *BaseHost) ExecWithChannel(name string, printOutput bool, printLine bool, output chan string) (stdout string, code int, err error) {
+	return util.ExecWithChannel(name, printOutput, printLine, output)
+}
+
+func (b *BaseHost) Echo() {
+
+	fmt.Println("---echo---")
 }

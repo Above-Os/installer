@@ -1,4 +1,4 @@
-package system
+package os
 
 import (
 	"fmt"
@@ -6,7 +6,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func NewCmdSystemCreate() *cobra.Command {
+func NewCmdInstallOs() *cobra.Command {
 	return &cobra.Command{
 		Use:   "create",
 		Short: "Install Terminus",

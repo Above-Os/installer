@@ -29,7 +29,7 @@ func NewCmdApi() *cobra.Command {
 	o := NewApiServerOptions()
 	cmd := &cobra.Command{
 		Use:   "api",
-		Short: "Create installer api server",
+		Short: "Terminus Api Server",
 		Run: func(cmd *cobra.Command, args []string) {
 			fmt.Println(constants.Logo)
 

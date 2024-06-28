@@ -1,4 +1,4 @@
-package system
+package os
 
 import (
 	"fmt"
@@ -6,7 +6,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func NewCmdSystemRestore() *cobra.Command {
+func NewCmdRestoreOs() *cobra.Command {
 	return &cobra.Command{
 		Use: "restore",
 		Run: func(cmd *cobra.Command, args []string) {

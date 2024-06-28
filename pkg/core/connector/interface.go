@@ -93,4 +93,7 @@ type Host interface {
 	IsRole(role string) bool
 	GetCache() *cache.Cache
 	SetCache(c *cache.Cache)
+	Exec(name string, printOutput bool, printLine bool) (stdout string, code int, err error)
+	ExecWithChannel(name string, printOutput bool, printLine bool, output chan string) (stdout string, code int, err error)
+	Echo()
 }

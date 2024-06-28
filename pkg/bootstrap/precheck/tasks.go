@@ -143,7 +143,7 @@ type GetLocalIpTask struct {
 
 func (t *GetLocalIpTask) Execute(runtime connector.Runtime) error {
 	pingCmd := fmt.Sprintf("ping -c 1 %s", constants.HostName)
-	pingCmdRes, _, err := util.Exec(pingCmd, false, false)
+	pingCmdRes, _, err := runtime.GetRunner().Host.Exec(pingCmd, false, false)
 	if err != nil {
 		return err
 	}
@@ -165,7 +165,7 @@ type TerminusGreetingsTask struct {
 }
 
 func (h *TerminusGreetingsTask) Execute(runtime connector.Runtime) error {
-	stdout, _, err := util.Exec("echo 'Greetings, Terminus!!!!!' ", false, false)
+	stdout, _, err := runtime.GetRunner().Host.Exec("echo 'Greetings, Terminus!!!!!' ", false, false)
 	if err != nil {
 		return err
 	}

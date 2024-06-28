@@ -7,13 +7,16 @@ import (
 )
 
 type InstallModelReq struct {
-	DomainName string `json:"terminus_os_domainname"`
-	UserName   string `json:"terminus_os_username" validate:"required"`
-	KubeType   string `json:"kube_type" validate:"kubeTypeValid"`
-	Vendor     string `json:"vendor"`
-	GpuEnable  int    `json:"gpu_enable" validate:"oneof=0 1"`
-	GpuShare   int    `json:"gpu_share" validate:"required_with=GpuEnable,oneof=0 1"`
-	Version    string `json:"version"`
+	DomainName      string `json:"terminus_os_domainname"`
+	UserName        string `json:"terminus_os_username" validate:"required"`
+	KubeType        string `json:"kube_type" validate:"kubeTypeValid"`
+	Vendor          string `json:"vendor"`
+	GpuEnable       int    `json:"gpu_enable" validate:"oneof=0 1"`
+	GpuShare        int    `json:"gpu_share" validate:"required_with=GpuEnable,oneof=0 1"`
+	Version         string `json:"version"`
+	DebugSaveConfig int    `json:"debug_save_config" validate:"oneof=0 1"`
+	DebugDownload   int    `json:"debug_download" validate:"oneof=0 1"`
+	DebugInstall    int    `json:"debug_install" validate:"oneof=0 1"`
 }
 
 func KubeTypeValid(fl validator.FieldLevel) bool {

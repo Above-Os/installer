@@ -48,7 +48,7 @@ func (b *BaseTaskModule) Run(result *ending.ModuleResult) {
 		res := t.Execute()
 		for j := range res.ActionResults {
 			ac := res.ActionResults[j]
-			logger.Infof("%s: [%s]", ac.Status.String(), ac.Host.GetName())
+			logger.Infof("[Module] %s: %s %s", ac.Host.GetName(), b.Name, ac.Status.String())
 			result.AppendHostResult(ac)
 
 			if _, ok := t.(*task.RemoteTask); ok {

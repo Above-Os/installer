@@ -63,3 +63,58 @@ func Exec(name string, printOutput bool) (stdout string, code int, err error) {
 
 	return res, exitCode, errors.Wrapf(err, "Failed to exec command: %s \n%s", cmd, res)
 }
+
+// 用于全量包安装测试
+func ExecWithChannel(name string, printOutput bool, output chan string) (stdout string, code int, err error) {
+	defer close(output)
+	exitCode := 0
+
+	cmd := exec.Command("/bin/sh", "-c", name)
+	out, err := cmd.StdoutPipe()
+	if err != nil {
+		return "", exitCode, err
+	}
+
+	// logger.Infof("exec cmd: %s", cmd.String())
+	cmd.Stderr = cmd.Stdout
+
+	if err := cmd.Start(); err != nil {
+		exitCode = -1
+		if exitErr, ok := err.(*exec.ExitError); ok {
+			exitCode = exitErr.ExitCode()
+		}
+		return "", exitCode, err
+	}
+
+	var outputBuffer bytes.Buffer
+	r := bufio.NewReader(out)
+
+	for {
+		line, err := r.ReadString('\n')
+		if err != nil {
+			if err.Error() != "EOF" {
+				fmt.Println("read error:", err)
+			}
+			break
+		}
+
+		outputBuffer.WriteString(line)
+	}
+
+	err = cmd.Wait()
+	if err != nil {
+		exitCode = -1
+		if exitErr, ok := err.(*exec.ExitError); ok {
+			exitCode = exitErr.ExitCode()
+		}
+	}
+
+	res := outputBuffer.String()
+	res = strings.TrimSpace(res)
+
+	if printOutput {
+		logger.Debugf("[exec] CMD: %s, OUTPUT: \n%s", cmd.String(), res)
+	}
+
+	return res, exitCode, errors.Wrapf(err, "Failed to exec command: %s \n%s", cmd, res)
+}

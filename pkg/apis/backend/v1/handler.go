@@ -51,7 +51,7 @@ func (h *Handler) handlerConfig(req *restful.Request, resp *restful.Response) {
 // + install
 // ~ 先下载完整包进行安装，需要提取日志写入数据库
 func (h *Handler) handlerInstall(req *restful.Request, resp *restful.Response) {
-	logger.Infof("handler installer req: %s", req.Request.Method)
+	logger.Infof("handler install req: %s", req.Request.Method)
 
 	var reqModel model.InstallModelReq
 	err := req.ReadEntity(&reqModel)
@@ -62,7 +62,8 @@ func (h *Handler) handlerInstall(req *restful.Request, resp *restful.Response) {
 
 	if err = h.validate.Struct(&reqModel); err != nil {
 		if validationErrors := err.(validator.ValidationErrors); validationErrors != nil {
-			response.HandleError(resp, fmt.Errorf("request parameter invalid"))
+			logger.Errorf("handler install request parameter invalid: %v", validationErrors)
+			response.HandleError(resp, fmt.Errorf("handler install request parameter invalid"))
 			return
 		}
 	}
@@ -75,7 +76,7 @@ func (h *Handler) handlerInstall(req *restful.Request, resp *restful.Response) {
 		Provider: h.StorageProvider,
 		Request:  reqModel,
 	}
-	if err := pipelines.InstallTerminusPipeline(arg, reqModel); err != nil { // dev
+	if err := pipelines.InstallTerminusPipeline(arg); err != nil { // dev
 		response.HandleError(resp, err)
 		return
 	}

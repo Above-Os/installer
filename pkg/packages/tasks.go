@@ -26,6 +26,7 @@ import (
 	"bytetrade.io/web3os/installer/pkg/core/connector"
 	"bytetrade.io/web3os/installer/pkg/core/logger"
 	"bytetrade.io/web3os/installer/pkg/core/util"
+	"bytetrade.io/web3os/installer/pkg/model"
 )
 
 type PackageDownload struct {
@@ -37,7 +38,16 @@ func (d *PackageDownload) GetName() string {
 }
 
 func (d *PackageDownload) Execute(runtime connector.Runtime) error {
-	return nil
+	var installReq model.InstallModelReq
+	var ok bool
+	if installReq, ok = any(d.KubeConf.Arg.Request).(model.InstallModelReq); !ok {
+		logger.Errorf("invalid install model req %+v", d.KubeConf.Arg.Request)
+		return nil
+	}
+
+	if installReq.DebugDownload != 1 {
+		return nil
+	}
 
 	if err := DownloadInstallPackage(d.KubeConf, runtime.GetPackageDir(), "0.0.1", kubekeyapiv1alpha2.DefaultArch, d.PipelineCache); err != nil {
 		return err
@@ -51,11 +61,20 @@ type PackageUntar struct {
 }
 
 func (a *PackageUntar) GetName() string {
-	return "PackageUntar"
+	return "PackageDecompression"
 }
 
 func (a *PackageUntar) Execute(runtime connector.Runtime) error {
-	return nil
+	var installReq model.InstallModelReq
+	var ok bool
+	if installReq, ok = any(a.KubeConf.Arg.Request).(model.InstallModelReq); !ok {
+		logger.Errorf("invalid install model req %+v", a.KubeConf.Arg.Request)
+		return nil
+	}
+
+	if installReq.DebugDownload != 1 {
+		return nil
+	}
 
 	var pkgFile = fmt.Sprintf("%s/install-wizard-full.tar.gz", runtime.GetPackageDir())
 	if ok := util.IsExist(pkgFile); !ok {
@@ -75,6 +94,6 @@ func (a *PackageUntar) Execute(runtime connector.Runtime) error {
 	if err := util.Untar(pkgFile, p); err != nil {
 		return fmt.Errorf("untar %s failed %v", pkgFile, err)
 	}
-	logger.Infof("untar %s success", pkgFile)
+	logger.Debugf("decompression %s success", pkgFile)
 	return nil
 }

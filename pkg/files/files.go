@@ -268,8 +268,8 @@ func NewKubeBinary(name, arch, version, prePath string) *KubeBinary {
 		component.Url = "http://192.168.50.32/install-wizard-full.tar.gz"
 		component.CheckSum = false
 		component.BaseDir = filepath.Join(prePath) // /packages/...
-		component.OverWrite = true
-		component.LessTransferLog = true
+		component.OverWrite = false
+		component.LessTransferLog = false
 		component.LessTransferLogSeed = 0.2
 	default:
 		logger.Fatalf("unsupported kube binaries %s", name)
@@ -383,7 +383,7 @@ func (b *KubeBinary) Download() error {
 			if err != nil {
 				logger.Warnf("get file %s size failed", b.FileName)
 			} else if totalSize > 0 {
-				logger.Debugf("get file %s size: %d", b.FileName, utils.FormatBytes(totalSize))
+				logger.Debugf("get file %s size: %s", b.FileName, utils.FormatBytes(totalSize))
 			}
 
 			// parsedUrl, err := url.Parse(b.Url)
@@ -436,7 +436,7 @@ func (b *KubeBinary) Download() error {
 			}
 
 			if err = b.UntarCmd(); err != nil {
-				logger.Errorf("untar failed: %v", err)
+				logger.Errorf("decompression failed: %v", err)
 				time.Sleep(1 * time.Second)
 				continue
 			}

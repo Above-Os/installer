@@ -106,7 +106,7 @@ const (
 	FullPackage = "fullPackage"
 	MiniPackage = "miniPackage"
 
-	DefaultPackageName     = "install-wizard"
+	DefaultInstallDir      = "install-wizard"
 	DefaultFullPackageName = "full"
 	DefaultMiniPackageName = "mini"
 )

@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"os"
 	"os/user"
-	"path"
 
+	"bytetrade.io/web3os/installer/cmd/ctl/helper"
 	"bytetrade.io/web3os/installer/cmd/ctl/options"
 	"bytetrade.io/web3os/installer/pkg/apiserver"
 	"bytetrade.io/web3os/installer/pkg/constants"
@@ -33,7 +33,17 @@ func NewCmdApi() *cobra.Command {
 		Run: func(cmd *cobra.Command, args []string) {
 			fmt.Println(constants.Logo)
 
-			if err := InitLog(o.ApiOptions); err != nil {
+			workDir, err := utils.WorkDir()
+			if err != nil {
+				fmt.Println("working path error", err)
+				os.Exit(1)
+			}
+
+			constants.WorkDir = workDir
+			constants.ApiServerListenAddress = o.ApiOptions.Port
+			constants.Proxy = o.ApiOptions.Proxy
+
+			if err := helper.InitLog(workDir); err != nil {
 				fmt.Println("init logger failed", err)
 				os.Exit(1)
 			}
@@ -75,22 +85,6 @@ func NewCmdApi() *cobra.Command {
 	return cmd
 }
 
-func InitLog(option *options.ApiOptions) error {
-	workDir, err := utils.WorkDir()
-	if err != nil {
-		fmt.Println("fetch working path error", err)
-		os.Exit(1)
-	}
-
-	constants.WorkDir = workDir
-	constants.ApiServerListenAddress = option.Port
-	constants.Proxy = option.Proxy
-
-	logDir := path.Join(workDir, "logs")
-	logger.InitLog(logDir, option.LogLevel)
-	return nil
-}
-
 func GetCurrentUser() error {
 	u, err := user.Current()
 	if err != nil {
@@ -112,7 +106,6 @@ func Run(option *options.ApiOptions) error {
 	logger.Infow("[Installer] API Server startup flags",
 		"enabled", option.Enabled,
 		"port", option.Port,
-		"log-level", option.LogLevel,
 	)
 
 	s, err := apiserver.New()

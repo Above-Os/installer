@@ -25,16 +25,22 @@ type Script struct {
 	Name        string
 	File        string
 	Args        []string
+	Envs        map[string]string
 	PrintOutput bool
+	PrintLine   bool
+	Ignore      bool
 }
 
 func (s *Script) Execute(runtime connector.Runtime) error {
+	if s.Ignore {
+		return nil
+	}
 	scriptFileName := path.Join(constants.WorkDir, common.Scripts, s.File)
 	if !util.IsExist(scriptFileName) {
 		return errors.New(fmt.Sprintf("script file %s not exist", s.File))
 	}
 	var cmd = fmt.Sprintf("bash %s %s", scriptFileName, strings.Join(s.Args, " "))
-	_, _, err := util.Exec(cmd, s.PrintOutput, false)
+	_, _, err := runtime.GetRunner().Host.Exec(cmd, s.PrintOutput, s.PrintLine)
 	if err != nil {
 		return errors.Wrap(errors.WithStack(err), fmt.Sprintf("exec script %s failed, args: %v", s.File, s.Args))
 	}

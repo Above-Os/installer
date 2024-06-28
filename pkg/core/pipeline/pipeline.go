@@ -39,7 +39,10 @@ type Pipeline struct {
 }
 
 func (p *Pipeline) Init() error {
-	p.PipelineCache = cache.NewCache()
+	if p.PipelineCache == nil {
+		p.PipelineCache = cache.NewCache()
+	}
+
 	p.SpecHosts = len(p.Runtime.GetAllHosts())
 	if err := p.Runtime.GenerateWorkDir(); err != nil {
 		return err

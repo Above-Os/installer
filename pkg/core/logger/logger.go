@@ -24,7 +24,7 @@ const (
 	LevelPanic  = zapcore.PanicLevel
 )
 
-func InitLog(logDir string, level any) {
+func InitLog(logDir string) {
 	found, err := isDirExist(logDir)
 	if err != nil {
 		fmt.Println("installer log dir found error", err)

@@ -1,1 +1,16 @@
-package cluster
+package system
+
+import (
+	"fmt"
+
+	"github.com/spf13/cobra"
+)
+
+func NewCmdSystemRestore() *cobra.Command {
+	return &cobra.Command{
+		Use: "restore",
+		Run: func(cmd *cobra.Command, args []string) {
+			fmt.Println("Restore Terminus")
+		},
+	}
+}

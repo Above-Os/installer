@@ -4,7 +4,9 @@ import (
 	"fmt"
 	"io/fs"
 	"io/ioutil"
+	"log"
 	"os"
+	"path"
 	"path/filepath"
 
 	"bytetrade.io/web3os/installer/pkg/constants"
@@ -78,6 +80,37 @@ func (t *Copy) Execute(runtime connector.Runtime) error {
 	}); err != nil {
 		logger.Errorf("copy scripts files failed: %v", err)
 		return err
+	}
+
+	return nil
+}
+
+// ~ CopyUninstallScriptTask
+type CopyUninstallScriptTask struct {
+	action.BaseAction
+}
+
+func (t *CopyUninstallScriptTask) GetName() string {
+	return "Copy Uninstall Script"
+}
+
+func (t *CopyUninstallScriptTask) Execute(runtime connector.Runtime) error {
+	dest := path.Join(runtime.GetPackageDir(), common.InstallDir)
+	fmt.Println("---1---", dest)
+	if ok := util.IsExist(dest); !ok {
+		return fmt.Errorf("directory %s not exist", dest)
+	}
+
+	all := Assets()
+	fileContent, err := all.ReadFile(path.Join("files", common.UninstallOsScript))
+	if err != nil {
+		return fmt.Errorf("read file %s failed: %v", common.UninstallOsScript, err)
+	}
+
+	dstFile := path.Join(dest, common.UninstallOsScript)
+	err = ioutil.WriteFile(dstFile, fileContent, common.FileMode0755)
+	if err != nil {
+		log.Fatalf("failed to write file %s to target directory: %v", dstFile, err)
 	}
 
 	return nil

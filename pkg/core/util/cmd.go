@@ -43,6 +43,10 @@ func Exec(name string, printOutput bool, printLine bool) (stdout string, code in
 			break
 		}
 
+		if printLine {
+			fmt.Println(line)
+		}
+
 		outputBuffer.WriteString(line)
 	}
 
@@ -58,13 +62,13 @@ func Exec(name string, printOutput bool, printLine bool) (stdout string, code in
 	res = strings.TrimSpace(res)
 
 	if printOutput {
-		logger.Debugf("[exec] OUT: %s, CMD: %s", res, cmd.String())
+		fmt.Printf("[exec] CMD: %s, OUTPUT: \n%s", cmd.String(), res)
 	}
 
+	logger.Infof("[exec] CMD: %s, OUTPUT: \n%s", cmd.String(), res)
 	return res, exitCode, errors.Wrapf(err, "Failed to exec command: %s \n%s", cmd, res)
 }
 
-// 用于全量包安装测试
 func ExecWithChannel(name string, printOutput bool, printLine bool, output chan string) (stdout string, code int, err error) {
 	defer close(output)
 	exitCode := 0
@@ -98,7 +102,7 @@ func ExecWithChannel(name string, printOutput bool, printLine bool, output chan 
 			break
 		}
 
-		if strings.Contains(line, "[INFO]") {
+		if strings.Contains(line, "[INFO]") { // only for debug
 			output <- line
 		}
 		if printLine {
@@ -120,8 +124,9 @@ func ExecWithChannel(name string, printOutput bool, printLine bool, output chan 
 	res = strings.TrimSpace(res)
 
 	if printOutput {
-		logger.Debugf("[exec] CMD: %s, OUTPUT: \n%s", cmd.String(), res)
+		fmt.Printf("[exec] CMD: %s, OUTPUT: \n%s", cmd.String(), res)
 	}
 
+	logger.Infof("[exec] CMD: %s, OUTPUT: \n%s", cmd.String(), res)
 	return res, exitCode, errors.Wrapf(err, "Failed to exec command: %s \n%s", cmd, res)
 }

@@ -18,14 +18,15 @@ package common
 
 const (
 	// KubeKey = "kubekey"
-	KubeKey          = "pkg"
-	Components       = "components"
-	Packages         = "packages"
-	InstallDir       = "install-wizard"
-	Scripts          = "scripts"
-	GreetingShell    = "greeting.sh"
-	PrecheckOsShell  = "precheck_os.sh"
-	InstallDepsShell = "install_deps.sh"
+	KubeKey           = "pkg"
+	Components        = "components"
+	Packages          = "packages"
+	InstallDir        = "install-wizard"
+	Scripts           = "scripts"
+	GreetingShell     = "greeting.sh"
+	PrecheckOsShell   = "precheck_os.sh"
+	InstallDepsShell  = "install_deps.sh"
+	UninstallOsScript = "uninstall_cmd.sh"
 
 	DefaultDomainName = "myterminus.com"
 

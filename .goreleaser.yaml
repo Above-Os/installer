@@ -6,11 +6,10 @@ before:
 
 builds:
 - env:
-  - CGO_ENABLED=0
+  - CGO_ENABLED=1
   main: ./cmd/main.go
   goos:
   - linux
-  - darwin
   goarch:
   - amd64
   - arm64
@@ -23,10 +22,10 @@ dist: ./output
 archives:
 - id: terminus-cli
   name_template: "{{ .ProjectName }}-v{{ .Version }}_{{ .Os }}_{{ .Arch }}"
-  # replacements:
-  #   linux: linux
-  #   amd64: amd64
-  #   arm64: arm64
+  replacements:
+    linux: linux
+    amd64: amd64
+    arm64: arm64
   files:
   - none*
 checksum:

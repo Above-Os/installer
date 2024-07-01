@@ -4,22 +4,43 @@ before:
   hooks:
   - go mod tidy
 
+
 builds:
-- env:
+- id: linux_amd64
+  env:
   - CGO_ENABLED=1
-  # - CC=x86_64-linux-musl-gcc
+  - GOOS=linux
+  - GOARCH=amd64
+  - CC=x86_64-linux-musl-gcc
   - CGO_LDFLAGS=-static
-  binary: terminus-cli
-  main: ./cmd/main.go
   goos:
   - linux
   goarch:
   - amd64
-  - arm64
-  tags: containers_image_openpgp
   ldflags:
   - -w
   - -s
+  binary: terminus-cli
+  main: ./cmd/main.go
+- id: linux_arm
+  env:
+  - CGO_ENABLED=1
+  - GOOS=linux
+  - GOARCH=arm
+  - GOARM=7
+  - CC=arm-linux-gnueabihf-gcc
+  - CXX=arm-linux-gnueabihf-g++
+  goos:
+  - linux
+  goarch:
+  - arm
+  goarm:
+  - 7
+  ldflags:
+  - -w
+  - -s
+  binary: terminus-cli
+  main: ./cmd/main.go
 
 dist: ./output
 archives:
@@ -28,7 +49,7 @@ archives:
   replacements:
     linux: linux
     amd64: amd64
-    arm64: arm64
+    arm: armv7
   files:
   - none*
 checksum:

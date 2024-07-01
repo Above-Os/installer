@@ -6,7 +6,6 @@
   "author": "Peng Peng <billpengpeng@gmail.com>",
   "private": true,
   "scripts": {
-    "install" :"npm install",
     "build": "npm run build",
     "lint": "eslint --ext .js,.ts,.vue ./",
     "format": "prettier --write \"**/*.{js,ts,vue,scss,html,md,json}\" --ignore-path .gitignore",

@@ -1,4 +1,4 @@
-project_name: terminus-installer
+project_name: terminus-cli
 
 before:
   hooks:
@@ -21,7 +21,7 @@ builds:
 
 dist: ./output
 archives:
-- id: terminus-installer
+- id: terminus-cli
   name_template: "{{ .ProjectName }}-v{{ .Version }}_{{ .Os }}_{{ .Arch }}"
   # replacements:
   #   linux: linux

@@ -34,7 +34,7 @@ jobs:
         node-version: "18"
 
     - name: Build
-      run: cd frontend;pwd;npm install -g yarn;pwd;yarn install;pwd;yarn global add @quasar/cli;quasar build
+      run: echo '---1---';cd frontend;echo '---2---';yarn install;echo '---3---';yarn global add @quasar/cli;quasar build
 
     - name: Run GoReleaser
       uses: goreleaser/goreleaser-action@v3.1.0

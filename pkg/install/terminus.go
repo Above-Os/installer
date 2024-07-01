@@ -19,6 +19,7 @@ type Terminus struct {
 }
 
 func (a *Terminus) Execute(runtime connector.Runtime) error {
+
 	var installReq model.InstallModelReq
 	var err error
 	var ok bool
@@ -26,34 +27,53 @@ func (a *Terminus) Execute(runtime connector.Runtime) error {
 		logger.Errorf("invalid install model req %+v", a.KubeConf.Arg.Request)
 		return nil
 	}
-	if installReq.DebugInstall == 1 {
-		var domainName = installReq.DomainName
-		var userName = installReq.UserName
-		var kubeType = strings.ToLower(installReq.KubeType)
-		var d = path.Join(runtime.GetPackageDir(), corecommon.InstallDir)
-		var installCommand = fmt.Sprintf("export TERMINUS_OS_DOMAINNAME=%s;export TERMINUS_OS_USERNAME=%s;export KUBE_TYPE=%s;bash %s/install_cmd.sh", domainName, userName, kubeType, d)
 
-		var out chan string = make(chan string)
-		go func() {
-			_, _, err = util.ExecWithChannel(installCommand, false, true, out)
-			if err != nil {
-				return
+	var provider = runtime.GetStorage()
+	var domainName = installReq.DomainName
+	var userName = installReq.UserName
+	var kubeType = strings.ToLower(installReq.KubeType)
+	var d = path.Join(runtime.GetPackageDir(), corecommon.InstallDir)
+	var installCommand = fmt.Sprintf("export TERMINUS_OS_DOMAINNAME=%s;export TERMINUS_OS_USERNAME=%s;export KUBE_TYPE=%s;bash %s/install_cmd.sh", domainName, userName, kubeType, d)
+
+	var out = make(chan []interface{}, 10)
+	go func() {
+		_, _, err = util.ExecWithChannel(installCommand, false, true, out)
+		if err != nil {
+			return
+		}
+	}()
+
+	for {
+		select {
+		case r, ok := <-out:
+			if !ok {
+				break
 			}
-		}()
+			if r == nil || len(r) != 2 {
+				continue
+			}
 
-		for {
-			select {
-			case _, ok := <-out:
-				if !ok {
-					break
-				}
+			msg := r[0].(string)
+			percent := r[1].(int64)
+			state := corecommon.StateInstall
+
+			pos := strings.Index(msg, "[INFO]")
+			if pos >= 0 {
+				msg = msg[pos+len("[INFO]"):]
+			} else {
+				msg = strings.ReplaceAll(msg, "[INFO]", "")
+			}
+			msg = strings.ReplaceAll(msg, "\u001b", "")
+			msg = strings.ReplaceAll(msg, "[0m", "")
+			msg = strings.TrimSpace(msg)
+			if percent == corecommon.DefaultInstallSteps {
+				state = corecommon.StateSuccess
+			}
+			// fmt.Printf("---1--- [%s]  [%d]\n", msg, percent)
+			if err := provider.SaveInstallLog(msg, state, int64(percent*10000/corecommon.DefaultInstallSteps)); err != nil {
+				logger.Errorf("save install log failed %v", err)
 			}
 		}
-
-		// _, _, err := util.Exec(installCommand, true)
-		// if err != nil {
-		// 	return err
-		// }
 	}
 
 	return err

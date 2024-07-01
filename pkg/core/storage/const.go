@@ -4,6 +4,7 @@ import "regexp"
 
 const (
 	tableInstallConfig = "install_config"
+	tableInstallLogs   = "install_logs"
 )
 
 const (

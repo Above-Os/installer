@@ -26,7 +26,6 @@ import (
 	"bytetrade.io/web3os/installer/pkg/core/connector"
 	"bytetrade.io/web3os/installer/pkg/core/logger"
 	"bytetrade.io/web3os/installer/pkg/core/util"
-	"bytetrade.io/web3os/installer/pkg/model"
 )
 
 type PackageDownload struct {
@@ -34,39 +33,19 @@ type PackageDownload struct {
 }
 
 func (d *PackageDownload) Execute(runtime connector.Runtime) error {
-	var installReq model.InstallModelReq
-	var ok bool
-	if installReq, ok = any(d.KubeConf.Arg.Request).(model.InstallModelReq); !ok {
-		logger.Errorf("invalid install model req %+v", d.KubeConf.Arg.Request)
-		return nil
-	}
-
-	if installReq.DebugDownload != 1 {
-		return nil
-	}
-
-	if err := DownloadInstallPackage(d.KubeConf, runtime.GetPackageDir(), "0.0.1", kubekeyapiv1alpha2.DefaultArch, d.PipelineCache); err != nil {
+	provider := runtime.GetStorage()
+	if err := DownloadInstallPackage(d.KubeConf, runtime.GetPackageDir(), "0.0.1", kubekeyapiv1alpha2.DefaultArch, d.PipelineCache, provider); err != nil {
 		return err
 	}
+
 	return nil
 }
 
-// todo 这里是一个测试解压 full 包的 action
 type PackageUntar struct {
 	common.KubeAction
 }
 
 func (a *PackageUntar) Execute(runtime connector.Runtime) error {
-	var installReq model.InstallModelReq
-	var ok bool
-	if installReq, ok = any(a.KubeConf.Arg.Request).(model.InstallModelReq); !ok {
-		logger.Errorf("invalid install model req %+v", a.KubeConf.Arg.Request)
-		return nil
-	}
-
-	if installReq.DebugDownload != 1 {
-		return nil
-	}
 
 	var pkgFile = fmt.Sprintf("%s/install-wizard-full.tar.gz", runtime.GetPackageDir())
 	if ok := util.IsExist(pkgFile); !ok {
@@ -83,6 +62,10 @@ func (a *PackageUntar) Execute(runtime connector.Runtime) error {
 		return fmt.Errorf("mkdir %s failed %v", p, err)
 	}
 
+	var provider = runtime.GetStorage()
+	if err := provider.SaveInstallLog(fmt.Sprintf("decompressing %s, please wait", pkgFile), corecommon.StateDownload, int64(2*10000/corecommon.DefaultInstallSteps)); err != nil {
+		logger.Errorf("save download log failed %v", err)
+	}
 	if err := util.Untar(pkgFile, p); err != nil {
 		return fmt.Errorf("untar %s failed %v", pkgFile, err)
 	}

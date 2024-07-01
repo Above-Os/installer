@@ -2,6 +2,7 @@ package v1
 
 import (
 	"fmt"
+	"time"
 
 	"bytetrade.io/web3os/installer/pkg/api/response"
 	"bytetrade.io/web3os/installer/pkg/common"
@@ -83,14 +84,33 @@ func (h *Handler) handlerInstall(req *restful.Request, resp *restful.Response) {
 	}
 
 	response.SuccessNoData(resp)
-
-}
-
-func (h *Handler) handlerProgress(req *restful.Request, resp *restful.Response) {
-
 }
 
 func (h *Handler) handlerStatus(req *restful.Request, resp *restful.Response) {
+	data, err := h.StorageProvider.QueryInstallState()
+	if err != nil {
+		response.HandleError(resp, err)
+		return
+	}
+
+	var res = make(map[string]interface{})
+	if data == nil {
+		res["status"] = "UNKNOWN"
+		res["msg"] = ""
+		res["percent"] = "0.00%"
+		res["time"] = time.Now().Unix()
+		response.Success(resp, res)
+		return
+	}
+
+	res["status"] = data.State
+	res["msg"] = data.Message
+	res["percent"] = fmt.Sprintf("%.2f%%", float64(float64(data.Percent)/100))
+	res["time"] = data.Time.Unix()
+	response.Success(resp, res)
+}
+
+func (h *Handler) handlerProgress(req *restful.Request, resp *restful.Response) {
 
 }
 

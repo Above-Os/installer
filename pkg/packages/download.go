@@ -7,16 +7,17 @@ import (
 	"bytetrade.io/web3os/installer/pkg/common"
 	"bytetrade.io/web3os/installer/pkg/core/cache"
 	"bytetrade.io/web3os/installer/pkg/core/logger"
+	"bytetrade.io/web3os/installer/pkg/core/storage"
 	"bytetrade.io/web3os/installer/pkg/core/util"
 	"bytetrade.io/web3os/installer/pkg/files"
 	"bytetrade.io/web3os/installer/pkg/utils"
 	"github.com/pkg/errors"
 )
 
-// + 测试 full 包下载
-func DownloadInstallPackage(kubeConf *common.KubeConf, path, version, arch string, pipelineCache *cache.Cache) error {
+func DownloadInstallPackage(kubeConf *common.KubeConf, path, version, arch string, pipelineCache *cache.Cache, sqlProvider storage.Provider) error {
 	installPackage := files.NewKubeBinary("full-package", arch, version, path)
-
+	installPackage.Provider = sqlProvider
+	installPackage.WriteDownloadingLog = true
 	downloadFiles := []*files.KubeBinary{installPackage}
 	filesMap := make(map[string]*files.KubeBinary)
 	for _, downloadFile := range downloadFiles {
@@ -41,7 +42,6 @@ func DownloadInstallPackage(kubeConf *common.KubeConf, path, version, arch strin
 			}
 		}
 
-		// todo doanload
 		if err := downloadFile.Download(); err != nil {
 			return fmt.Errorf("Failed to download %s binary: %s error: %w ", downloadFile.ID, downloadFile.Url, err)
 		}
@@ -79,7 +79,6 @@ func DownloadPackage(kubeConf *common.KubeConf, path, version, arch string, pipe
 			}
 		}
 
-		// todo
 		if err := downloadFile.Download(); err != nil {
 			return fmt.Errorf("Failed to download %s binary: %s error: %w ", downloadFile.ID, downloadFile.Url, err)
 		}

@@ -28,6 +28,13 @@ import (
 	"github.com/pkg/errors"
 )
 
+// var pipelineQueue *PipelineQueue
+
+// type PipelineQueue struct {
+// 	pipelines []*Pipeline
+// 	sync.Mutex
+// }
+
 type Pipeline struct {
 	Name            string
 	Modules         []module.Module

@@ -1,3 +1,6 @@
+DROP TABLE IF EXISTS install_config;
+DROP TABLE IF EXISTS install_logs;
+
 CREATE TABLE IF NOT EXISTS install_config (
     id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     terminus_os_domainname VARCHAR(120) NOT NULL,

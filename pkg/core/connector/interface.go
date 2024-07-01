@@ -21,6 +21,7 @@ import (
 	"os"
 
 	"bytetrade.io/web3os/installer/pkg/core/cache"
+	"bytetrade.io/web3os/installer/pkg/core/storage"
 )
 
 type Connection interface {
@@ -62,6 +63,8 @@ type Runtime interface {
 	SetRunner(r *Runner)
 	GetConnector() Connector
 	SetConnector(c Connector)
+	SetStorage(s storage.Provider)
+	GetStorage() storage.Provider
 	RemoteHost() Host
 	Copy() Runtime
 	ModuleRuntime
@@ -94,6 +97,6 @@ type Host interface {
 	GetCache() *cache.Cache
 	SetCache(c *cache.Cache)
 	Exec(name string, printOutput bool, printLine bool) (stdout string, code int, err error)
-	ExecWithChannel(name string, printOutput bool, printLine bool, output chan string) (stdout string, code int, err error)
+	ExecWithChannel(name string, printOutput bool, printLine bool, output chan []interface{}) (stdout string, code int, err error)
 	Echo()
 }

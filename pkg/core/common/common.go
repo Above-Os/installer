@@ -46,3 +46,14 @@ const (
 	CopyCmd = "cp -r %s %s"
 	MoveCmd = "mv -f %s %s"
 )
+
+const (
+	StateDownload = "Download"
+	StateInstall  = "Install"
+	StateFail     = "Fail"
+	StateSuccess  = "Success"
+)
+
+const (
+	DefaultInstallSteps int64 = 32
+)

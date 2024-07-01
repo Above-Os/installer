@@ -69,7 +69,8 @@ func Exec(name string, printOutput bool, printLine bool) (stdout string, code in
 	return res, exitCode, errors.Wrapf(err, "Failed to exec command: %s \n%s", cmd, res)
 }
 
-func ExecWithChannel(name string, printOutput bool, printLine bool, output chan string) (stdout string, code int, err error) {
+// ! only test for install_cmd.sh
+func ExecWithChannel(name string, printOutput bool, printLine bool, output chan []interface{}) (stdout string, code int, err error) {
 	defer close(output)
 	exitCode := 0
 
@@ -92,6 +93,7 @@ func ExecWithChannel(name string, printOutput bool, printLine bool, output chan 
 
 	var outputBuffer bytes.Buffer
 	r := bufio.NewReader(out)
+	var step int64 = 3
 
 	for {
 		line, err := r.ReadString('\n')
@@ -101,12 +103,15 @@ func ExecWithChannel(name string, printOutput bool, printLine bool, output chan 
 			}
 			break
 		}
+		l := strings.TrimSuffix(line, "\n")
+		l = strings.TrimSpace(l)
 
-		if strings.Contains(line, "[INFO]") { // only for debug
-			output <- line
+		if strings.Contains(l, "[INFO]") { // ! only for debug
+			step++
+			output <- []interface{}{l, step}
 		}
 		if printLine {
-			fmt.Println(strings.TrimSuffix(line, "\n"))
+			fmt.Println(l)
 		}
 
 		outputBuffer.WriteString(line)

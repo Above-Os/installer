@@ -29,7 +29,9 @@ import (
 	"strings"
 	"time"
 
+	"bytetrade.io/web3os/installer/pkg/core/common"
 	"bytetrade.io/web3os/installer/pkg/core/logger"
+	"bytetrade.io/web3os/installer/pkg/core/storage"
 	"bytetrade.io/web3os/installer/pkg/core/util"
 	"bytetrade.io/web3os/installer/pkg/utils"
 	"github.com/cavaliergopher/grab/v3"
@@ -97,9 +99,12 @@ type KubeBinary struct {
 	BaseDir             string
 	Zone                string
 	CheckSum            bool
+	PrintOutput         bool
 	OverWrite           bool
 	LessTransferLog     bool
 	LessTransferLogSeed float64
+	WriteDownloadingLog bool
+	Provider            storage.Provider
 }
 
 func NewKubeBinary(name, arch, version, prePath string) *KubeBinary {
@@ -269,6 +274,7 @@ func NewKubeBinary(name, arch, version, prePath string) *KubeBinary {
 		component.CheckSum = false
 		component.BaseDir = filepath.Join(prePath) // /packages/...
 		component.OverWrite = false
+		component.PrintOutput = true
 		component.LessTransferLog = false
 		component.LessTransferLogSeed = 0.2
 	default:
@@ -376,87 +382,117 @@ func (b *KubeBinary) GetFileSize() (int64, error) {
 }
 
 func (b *KubeBinary) Download() error {
-	var newfunc bool = true
-	if newfunc {
-		for i := 5; i > 0; i-- {
-			totalSize, err := b.GetFileSize()
-			if err != nil {
-				logger.Warnf("get file %s size failed", b.FileName)
-			} else if totalSize > 0 {
-				logger.Debugf("get file %s size: %s", b.FileName, utils.FormatBytes(totalSize))
-			}
+	var line = make(chan []interface{}, 50)
+	defer close(line)
 
-			// parsedUrl, err := url.Parse(b.Url)
-			// if err != nil {
-			// 	return fmt.Errorf("failed to parse URL: %v", err)
-			// }
-			// fileName := path.Base(parsedUrl.Path)
-
-			client := grab.NewClient()
-			req, _ := grab.NewRequest(fmt.Sprintf("%s/%s", b.BaseDir, b.FileName), b.Url)
-			// req.RateLimiter = NewLimiter(1024 * 4096)
-			req.HTTPRequest = req.HTTPRequest.WithContext(context.Background())
-			ctx, cancel := context.WithTimeout(req.HTTPRequest.Context(), 5*time.Minute)
-			defer cancel()
-
-			req.HTTPRequest = req.HTTPRequest.WithContext(ctx)
-			resp := client.Do(req)
-
-			t := time.NewTicker(500 * time.Millisecond)
-			defer t.Stop()
-
-		Loop:
-			for {
-				select {
-				case <-t.C:
-					downloaded := resp.BytesComplete()
-					num := utils.GenerateNumberWithProbability(b.LessTransferLogSeed)
-					if b.LessTransferLog && num%2 != 0 {
-						continue
+	go func() {
+		for {
+			select {
+			case r, ok := <-line:
+				if !ok {
+					return
+				}
+				if r == nil || len(r) != 3 {
+					continue
+				}
+				var msg = r[0].(string)
+				var state = r[1].(string)
+				var percent = r[2].(float64)
+				if b.WriteDownloadingLog {
+					if err := b.Provider.SaveInstallLog(msg, state, int64(percent)); err != nil {
+						logger.Errorf("save download log failed %v", err)
 					}
-					if totalSize != 0 {
-						result := float64(downloaded) / float64(totalSize)
-						logger.Debugf("transferred %s %s / %s (%.2f%%) / speed: %s", b.FileName, utils.FormatBytes(resp.BytesComplete()), utils.FormatBytes(totalSize), math.Round(result*10000)/100, utils.FormatBytes(int64(resp.BytesPerSecond())))
-					} else {
-						logger.Debugf("transferred %s %s / speed: %s", b.FileName, utils.FormatBytes(resp.BytesComplete()), utils.FormatBytes(int64(resp.BytesPerSecond())))
-					}
-				case <-resp.Done:
-					break Loop
 				}
 			}
+		}
+	}()
 
-			if err := resp.Err(); err != nil {
-				logger.Errorf("Download failed: %v", err)
-				if i == 1 {
-					logger.Error("All download attempts failed")
-					return err
-				}
-				time.Sleep(2 * time.Second)
-				continue
-			}
-
-			if err = b.UntarCmd(); err != nil {
-				logger.Errorf("decompression failed: %v", err)
-				time.Sleep(1 * time.Second)
-				continue
-			}
-
-			if err := b.SHA256Check(); err != nil { // ~ checksum
-				logger.Errorf("SHA256 check failed: %v", err)
-				if i == 1 {
-					return err
-				}
-				path := b.Path()
-				_ = exec.Command("/bin/sh", "-c", fmt.Sprintf("rm -f %s", path)).Run()
-				time.Sleep(2 * time.Second)
-				continue
-			}
-
-			logger.Debugf("%s download succeeded", b.FileName)
-			break
+	for i := 5; i > 0; i-- {
+		totalSize, err := b.GetFileSize()
+		if err != nil {
+			logger.Warnf("get file %s size failed", b.FileName)
+		} else if totalSize > 0 {
+			logger.Debugf("get file %s size: %s", b.FileName, utils.FormatBytes(totalSize))
 		}
 
-		return nil
+		client := grab.NewClient()
+		req, _ := grab.NewRequest(fmt.Sprintf("%s/%s", b.BaseDir, b.FileName), b.Url)
+		// req.RateLimiter = NewLimiter(1024 * 4096)
+		req.HTTPRequest = req.HTTPRequest.WithContext(context.Background())
+		ctx, cancel := context.WithTimeout(req.HTTPRequest.Context(), 5*time.Minute)
+		defer cancel()
+
+		req.HTTPRequest = req.HTTPRequest.WithContext(ctx)
+		resp := client.Do(req)
+
+		t := time.NewTicker(500 * time.Millisecond)
+		defer t.Stop()
+
+	Loop:
+		for {
+			select {
+			case <-t.C:
+				downloaded := resp.BytesComplete()
+				num := utils.GenerateNumberWithProbability(b.LessTransferLogSeed)
+				if b.LessTransferLog && num%2 != 0 {
+					continue
+				}
+				var progressInfo string
+				if totalSize != 0 {
+					result := float64(downloaded) / float64(totalSize)
+					progressInfo = fmt.Sprintf("transferred %s %s / %s (%.2f%%) / speed: %s", b.FileName, utils.FormatBytes(resp.BytesComplete()), utils.FormatBytes(totalSize), math.Round(result*10000)/100, utils.FormatBytes(int64(resp.BytesPerSecond())))
+					if b.PrintOutput {
+						fmt.Println(progressInfo)
+					}
+					logger.Info(progressInfo)
+					line <- []interface{}{fmt.Sprintf("downloading %s %s (%0.2f%%)", b.FileName, utils.FormatBytes(resp.BytesComplete()), math.Round(result*10000)/100),
+						common.StateDownload, math.Round(result * 10000 / float64(common.DefaultInstallSteps))}
+				} else {
+					progressInfo = fmt.Sprintf("transferred %s %s / speed: %s\n", b.FileName, utils.FormatBytes(resp.BytesComplete()), utils.FormatBytes(int64(resp.BytesPerSecond())))
+					if b.PrintOutput {
+						fmt.Println(progressInfo)
+					}
+					logger.Infof(progressInfo)
+					line <- []interface{}{fmt.Sprintf("downloading %s %s", b.FileName, utils.FormatBytes(resp.BytesComplete())),
+						common.StateDownload, math.Round(1 * 10000 / float64(common.DefaultInstallSteps))}
+				}
+			case <-resp.Done:
+				break Loop
+			}
+		}
+
+		if err := resp.Err(); err != nil {
+			logger.Errorf("Download failed: %v", err)
+			if i == 1 {
+				line <- []interface{}{"All download attempts failed", common.StateFail, 0}
+				logger.Error("All download attempts failed")
+				return err
+			}
+			time.Sleep(2 * time.Second)
+			continue
+		}
+
+		if err = b.UntarCmd(); err != nil { // only for helm and kubekey
+			logger.Errorf("decompression failed: %v", err)
+			time.Sleep(1 * time.Second)
+			continue
+		}
+
+		if err := b.SHA256Check(); err != nil { // ~ checksum
+			logger.Errorf("SHA256 check failed: %v", err)
+			if i == 1 {
+				line <- []interface{}{fmt.Sprintf("SHA256 check failed: %v", err), common.StateFail, 0}
+				return err
+			}
+			path := b.Path()
+			_ = exec.Command("/bin/sh", "-c", fmt.Sprintf("rm -f %s", path)).Run()
+			time.Sleep(2 * time.Second)
+			continue
+		}
+
+		logger.Debugf("%s download succeeded", b.FileName)
+		line <- []interface{}{fmt.Sprintf("%s download succeeded", b.FileName), common.StateDownload, math.Round(1 * 10000 / float64(common.DefaultInstallSteps))}
+		break
 	}
 
 	return nil

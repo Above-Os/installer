@@ -160,7 +160,7 @@ func (b *BaseHost) Exec(name string, printOutput bool, printLine bool) (stdout s
 	return util.Exec(name, printOutput, printLine)
 }
 
-func (b *BaseHost) ExecWithChannel(name string, printOutput bool, printLine bool, output chan string) (stdout string, code int, err error) {
+func (b *BaseHost) ExecWithChannel(name string, printOutput bool, printLine bool, output chan []interface{}) (stdout string, code int, err error) {
 	return util.ExecWithChannel(name, printOutput, printLine, output)
 }
 

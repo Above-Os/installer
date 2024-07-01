@@ -1,8 +1,6 @@
 package storage
 
 import (
-	"context"
-
 	"bytetrade.io/web3os/installer/pkg/model"
 )
 
@@ -14,5 +12,7 @@ type Provider interface {
 	// Close the underlying storage provider.
 	Close() (err error)
 
-	SaveInstallConfig(ctx context.Context, config model.InstallModelReq) (err error)
+	SaveInstallConfig(config model.InstallModelReq) (err error)
+	SaveInstallLog(msg string, state string, percent int64) (err error)
+	QueryInstallState() (data *model.InstallState, err error)
 }

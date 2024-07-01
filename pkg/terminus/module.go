@@ -7,6 +7,7 @@ import (
 	corecommon "bytetrade.io/web3os/installer/pkg/core/common"
 	"bytetrade.io/web3os/installer/pkg/core/module"
 	"bytetrade.io/web3os/installer/pkg/core/task"
+	"bytetrade.io/web3os/installer/pkg/scripts"
 )
 
 // ~ UninstallTerminusCliModule
@@ -17,12 +18,18 @@ type UninstallTerminusCliModule struct {
 func (m *UninstallTerminusCliModule) Init() {
 	m.Name = "Uninstall Terminus Cli Mode"
 
+	copyUninstallScript := &task.LocalTask{
+		Name:   "Copy",
+		Action: new(scripts.CopyUninstallScriptTask),
+	}
+
 	checkFileExists := &task.LocalTask{
 		Name:   "Check Script Exists",
 		Action: new(CheckUninstallScriptExistsAction),
 	}
 
 	m.Tasks = []task.Interface{
+		copyUninstallScript,
 		checkFileExists,
 	}
 }

@@ -34,7 +34,7 @@ func AddContainer(c *restful.Container, db storage.Provider) error {
 		Metadata(restfulspec.KeyOpenAPITags, tags).
 		Returns(http.StatusOK, "", response.Response{}))
 
-	ws.Route(ws.POST("/status").
+	ws.Route(ws.GET("/status").
 		To(handler.handlerStatus).
 		Doc("").
 		Metadata(restfulspec.KeyOpenAPITags, tags).

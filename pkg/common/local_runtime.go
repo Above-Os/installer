@@ -53,7 +53,7 @@ func NewLocalRuntime(debug, ingoreErr bool) (LocalRuntime, error) {
 	if err != nil {
 		return localRuntime, err
 	}
-	base := connector.NewBaseRuntime(name, connector.NewDialer(), debug, ingoreErr)
+	base := connector.NewBaseRuntime(name, connector.NewDialer(), debug, ingoreErr, nil)
 
 	host := connector.NewHost()
 	host.Name = name

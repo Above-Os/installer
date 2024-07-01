@@ -34,7 +34,7 @@ jobs:
         node-version: "18"
 
     - name: Build
-      run: cd fontend;npm i -g @quasar/cli;quasar build
+      run: cd fontend;npm install;npm i -g @quasar/cli;quasar build
 
     - name: Run GoReleaser
       uses: goreleaser/goreleaser-action@v3.1.0

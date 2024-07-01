@@ -7,7 +7,7 @@ before:
 builds:
 - env:
   - CGO_ENABLED=1
-  - CC=x86_64-linux-musl-gcc
+  # - CC=x86_64-linux-musl-gcc
   - CGO_LDFLAGS=-static
   binary: terminus-cli
   main: ./cmd/main.go

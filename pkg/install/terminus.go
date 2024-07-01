@@ -70,6 +70,9 @@ func (a *Terminus) Execute(runtime connector.Runtime) error {
 				state = corecommon.StateSuccess
 			}
 			// fmt.Printf("---1--- [%s]  [%d]\n", msg, percent)
+			if strings.Contains(msg, "installing k8s and kubesphere") {
+				msg = "installing k8s and kubesphere, this will take a few minutes, please wait ..."
+			}
 			if err := provider.SaveInstallLog(msg, state, int64(percent*10000/corecommon.DefaultInstallSteps)); err != nil {
 				logger.Errorf("save install log failed %v", err)
 			}

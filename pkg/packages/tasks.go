@@ -63,7 +63,7 @@ func (a *PackageUntar) Execute(runtime connector.Runtime) error {
 	}
 
 	var provider = runtime.GetStorage()
-	if err := provider.SaveInstallLog(fmt.Sprintf("decompressing %s, please wait", pkgFile), corecommon.StateDownload, int64(2*10000/corecommon.DefaultInstallSteps)); err != nil {
+	if err := provider.SaveInstallLog(fmt.Sprintf("decompressing %s, please wait", "install-wizard-full.tar.gz"), corecommon.StateDownload, int64(2*10000/corecommon.DefaultInstallSteps)); err != nil {
 		logger.Errorf("save download log failed %v", err)
 	}
 	if err := util.Untar(pkgFile, p); err != nil {

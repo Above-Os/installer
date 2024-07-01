@@ -107,8 +107,8 @@ func ExecWithChannel(name string, printOutput bool, printLine bool, output chan 
 		l = strings.TrimSpace(l)
 
 		if strings.Contains(l, "[INFO]") { // ! only for debug
-			step++
 			output <- []interface{}{l, step}
+			step++
 		}
 		if printLine {
 			fmt.Println(l)

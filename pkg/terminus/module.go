@@ -1,11 +1,10 @@
 package terminus
 
 import (
-	"fmt"
 	"path"
 
 	"bytetrade.io/web3os/installer/pkg/core/action"
-	"bytetrade.io/web3os/installer/pkg/core/common"
+	corecommon "bytetrade.io/web3os/installer/pkg/core/common"
 	"bytetrade.io/web3os/installer/pkg/core/module"
 	"bytetrade.io/web3os/installer/pkg/core/task"
 )
@@ -18,12 +17,9 @@ type UninstallTerminusCliModule struct {
 func (m *UninstallTerminusCliModule) Init() {
 	m.Name = "Uninstall Terminus Cli Mode"
 
-	aa, bb := m.PipelineCache.Get("hello")
-	fmt.Printf("aa: %s, bb: %v\n", aa, bb)
-
 	checkFileExists := &task.LocalTask{
-		Name:    "Check Script Exists",
-		Prepare: new(CheckUninstallScriptExists), // todo 这里缺少actioin 会报错
+		Name:   "Check Script Exists",
+		Action: new(CheckUninstallScriptExistsAction),
 	}
 
 	m.Tasks = []task.Interface{
@@ -40,19 +36,23 @@ type ExecUninstallScriptModule struct {
 func (m *ExecUninstallScriptModule) Init() {
 	m.Name = "ExecUninstallScript"
 
-	a, b := m.ModuleCache.Get("uninstall")
-	fmt.Printf("---1--- %+v  %v\n", a, b)
+	var proxy, _ = m.PipelineCache.Get("proxy")
+	var kubeType, _ = m.PipelineCache.Get("kube_type")
+
+	var envs = make(map[string]string)
+	envs["PROXY"] = proxy.(string)
+	envs["KUBE_TYPE"] = kubeType.(string)
+	envs["FORCE_UNINSTALL_CLUSTER"] = "1"
 
 	execUninstallScript := &task.LocalTask{
 		Name: "ExecUninstallScript",
 		Action: &action.Script{
-			Name:        "ExecUninstallScript",
-			File:        path.Join(m.Runtime.GetPackageDir(), common.InstallDir, common.UninstallOsScript),
+			File:        path.Join(m.Runtime.GetPackageDir(), corecommon.InstallDir, corecommon.UninstallOsScript),
 			Args:        []string{},
-			Envs:        make(map[string]string),
-			PrintOutput: true,
+			Envs:        envs,
+			PrintOutput: false,
 			PrintLine:   true,
-			Ignore:      true,
+			Ignore:      false,
 		},
 		Retry: 0,
 	}

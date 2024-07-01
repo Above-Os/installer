@@ -5,6 +5,7 @@ import (
 
 	"bytetrade.io/web3os/installer/pkg/api/response"
 	"bytetrade.io/web3os/installer/pkg/common"
+	corecommon "bytetrade.io/web3os/installer/pkg/core/common"
 	"bytetrade.io/web3os/installer/pkg/core/logger"
 	"bytetrade.io/web3os/installer/pkg/core/storage"
 	"bytetrade.io/web3os/installer/pkg/model"
@@ -69,14 +70,14 @@ func (h *Handler) handlerInstall(req *restful.Request, resp *restful.Response) {
 	}
 
 	if reqModel.DomainName == "" {
-		reqModel.DomainName = "myterminus.com"
+		reqModel.DomainName = corecommon.DefaultDomainName
 	}
 
 	arg := common.Argument{
 		Provider: h.StorageProvider,
 		Request:  reqModel,
 	}
-	if err := pipelines.InstallTerminusPipeline(arg); err != nil { // dev
+	if err := pipelines.InstallTerminusPipeline(arg); err != nil {
 		response.HandleError(resp, err)
 		return
 	}

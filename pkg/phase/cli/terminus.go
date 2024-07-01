@@ -27,7 +27,8 @@ func Uninstall(o *options.CliTerminusUninstallOptions) error {
 		PipelineCache: cache.NewCache(),
 	}
 
-	p.PipelineCache.Set("hello", "world")
+	p.PipelineCache.Set("proxy", o.Proxy)
+	p.PipelineCache.Set("kube_type", o.KubeType)
 
 	return p.Start()
 }

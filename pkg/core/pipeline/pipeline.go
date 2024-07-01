@@ -74,12 +74,14 @@ func (p *Pipeline) Start() error {
 		res := p.RunModule(m)
 		err := m.CallPostHook(res)
 		if res.IsFailed() {
-			logger.Errorf("[Job] %s execute failed %v", p.Name, err)
-			return errors.Wrapf(res.CombineResult, "Pipeline[%s] execute failed", p.Name)
+			logger.Errorf("[Job] [%s] execute failed %v", p.Name, err)
+			// return errors.Wrapf(res.CombineResult, "Pipeline[%s] execute failed", p.Name)
+			return res.CombineResult
 		}
 		if err != nil {
-			logger.Errorf("[Job] %s execute failed %v", p.Name, err)
-			return errors.Wrapf(err, "Job[%s] execute failed", p.Name)
+			logger.Errorf("[Job] [%s] execute failed %v", p.Name, err)
+			// return errors.Wrapf(err, "Job[%s] execute failed", p.Name)
+			return err
 		}
 		p.releaseModuleCache(moduleCache)
 	}

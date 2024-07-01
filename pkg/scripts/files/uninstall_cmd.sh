@@ -14,7 +14,7 @@ STS_SECRET_KEY=""
 STS_TOKEN=""
 STS_CLUSTER_ID=""
 
-echo "root: ${BASE_DIR}\nversion: ${TERMINUS_CLI_VERSION}"
+printf "root: ${BASE_DIR}\nversion: ${TERMINUS_CLI_VERSION}"
 
 command_exists() {
 	command -v "$@" > /dev/null 2>&1

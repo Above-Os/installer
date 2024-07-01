@@ -46,7 +46,7 @@ func AddContainer(c *restful.Container, db storage.Provider) error {
 					Metadata(restfulspec.KeyOpenAPITags, tags).
 					Returns(http.StatusOK, "", response.Response{}))
 
-	// - debug
+	// ~ debug
 	ws.Route(ws.POST("/test").
 		To(handler.handlerTest).
 		Doc("").
@@ -76,7 +76,7 @@ func AddContainer(c *restful.Container, db storage.Provider) error {
 		Metadata(restfulspec.KeyOpenAPITags, tags).
 		Returns(http.StatusOK, "", response.Response{}))
 
-	ws.Route(ws.GET("/inst").To(handler.handlerInst). // + 测试 install
+	ws.Route(ws.GET("/inst").To(handler.handlerInst). // ! 测试 install
 								Doc("").
 								Metadata(restfulspec.KeyOpenAPITags, tags).
 								Returns(http.StatusOK, "", response.Response{}))

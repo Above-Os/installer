@@ -2,11 +2,9 @@ name: Release
 
 on:
   workflow_dispatch:
-
-  push:
-    tags:
-    - 'v*'
-
+    inputs:
+      tags:
+        description: 'Tags'
 jobs:
   goreleaser:
     runs-on: ubuntu-latest

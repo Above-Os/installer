@@ -29,7 +29,10 @@ jobs:
         node-version: "18"
 
     - name: Build
-      run: cd frontend;npm install;npm i -g @quasar/cli;quasar build;rm -rf ./package-lock.json;
+      run: cd frontend;npm install;npm i -g @quasar/cli;quasar build;
+
+    - name: Remove package-lock.json
+      run: rm -f frontend/package-lock.json
 
     - name: Set up Go
       uses: actions/setup-go@v3

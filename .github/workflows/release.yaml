@@ -31,16 +31,10 @@ jobs:
     - name: Build
       run: cd frontend;npm install;npm i -g @quasar/cli;quasar build;
 
-    - name: Remove package-lock.json
-      run: rm -f frontend/package-lock.json
-
     - name: Set up Go
       uses: actions/setup-go@v3
       with:
         go-version: 1.22.4
-
-    - name: MyTest
-      run: ls;cd frontend;ls;
 
     - name: Install x86_64 cross-compiler
       run: sudo apt-get update && sudo apt-get install -y musl-tools
@@ -53,6 +47,6 @@ jobs:
       with:
         distribution: goreleaser
         version: v1.18.2
-        args: release --rm-dist
+        args: release --clean
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

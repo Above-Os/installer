@@ -1,24 +1,23 @@
 project_name: terminus-cli
 builds:
-  env:
+- env:
   - CGO_ENABLED=1
   - GOOS=linux
   - GOARCH=arm
   - GOARM=7
   - CC=arm-linux-gnueabihf-gcc
   - CXX=arm-linux-gnueabihf-g++
-  goos:
-  - linux
+  binary: terminus-cli
+  main: ./cmd/main.go
   goarch:
   - arm
+  goos:
+  - linux
   goarm:
   - 7
   ldflags:
   - -w
   - -s
-  binary: terminus-cli
-  main: ./cmd/main.go
-
 dist: ./output
 archives:
 - id: terminus-cli

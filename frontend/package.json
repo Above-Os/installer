@@ -12,6 +12,8 @@
     "test": "echo \"No test specified\" && exit 0"
   },
   "dependencies": {
+    "@bytetrade/core": "0.3.54",
+    "@bytetrade/ui": "^0.0.85",
     "axios": "^0.21.1",
     "vue-i18n": "^9.2.2",
     "pinia": "^2.0.11",

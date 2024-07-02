@@ -29,9 +29,9 @@ func (a *Terminus) Execute(runtime connector.Runtime) error {
 	}
 
 	var provider = runtime.GetStorage()
-	var domainName = installReq.DomainName
-	var userName = installReq.UserName
-	var kubeType = strings.ToLower(installReq.KubeType)
+	var domainName = installReq.Config.DomainName
+	var userName = installReq.Config.UserName
+	var kubeType = strings.ToLower(installReq.Config.KubeType)
 	var d = path.Join(runtime.GetPackageDir(), corecommon.InstallDir)
 	var installCommand = fmt.Sprintf("export TERMINUS_OS_DOMAINNAME=%s;export TERMINUS_OS_USERNAME=%s;export KUBE_TYPE=%s;bash %s/install_cmd.sh", domainName, userName, kubeType, d)
 

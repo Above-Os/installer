@@ -70,8 +70,8 @@ func (h *Handler) handlerInstall(req *restful.Request, resp *restful.Response) {
 		}
 	}
 
-	if reqModel.DomainName == "" {
-		reqModel.DomainName = corecommon.DefaultDomainName
+	if reqModel.Config.DomainName == "" {
+		reqModel.Config.DomainName = corecommon.DefaultDomainName
 	}
 
 	arg := common.Argument{
@@ -104,21 +104,30 @@ func (h *Handler) handlerStatus(req *restful.Request, resp *restful.Response) {
 		return
 	}
 
+	var res = make(map[string]interface{})
+	var msgs =make([]map[string]interface{},0)
+
 	if data == nil || len(data) == 0 {
-		response.HandleError(resp, fmt.Errorf("logs not found"))
+		response.HandleError(resp, fmt.Errorf("get status failed"))
 		return
 	}
 
+	
 	var last = data[len(data)-1]
-	var msgs []map[string]interface{}
+
 	for _, d := range data {
+		if d.Time.UnixMilli() == tspan {
+			continue
+		}
 		var r = make(map[string]interface{})
 		r["info"] = d.Message
 		r["time"] = d.Time.UnixMilli()
 		msgs = append(msgs, r)
 	}
+	// if msgs == nil {
+	// 	msgs = make([]map[string]interface{}, 0)
+	// }
 
-	var res = make(map[string]interface{})
 	res["percent"] = fmt.Sprintf("%.2f%%", float64(float64(last.Percent)/100))
 	res["status"] = last.State
 	res["msg"] = msgs

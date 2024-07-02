@@ -61,31 +61,30 @@ func staticFromPathParam(req *restful.Request, resp *restful.Response) {
 	}
 }
 
-// ! ⚠️ 暂时废弃
-func staticFromQueryParam(req *restful.Request, resp *restful.Response) {
-	resource := req.QueryParameter("resource") // todo why here is resource?
-	actual := path.Join("dist/spa", resource)
+// func staticFromQueryParam(req *restful.Request, resp *restful.Response) {
+// 	resource := req.QueryParameter("resource")
+// 	actual := path.Join("dist/spa", resource)
 
-	file, err := frontend.Assets().Open(actual)
-	if err != nil {
-		http.NotFound(resp.ResponseWriter, req.Request)
-		return
-	}
-	defer file.Close()
+// 	file, err := frontend.Assets().Open(actual)
+// 	if err != nil {
+// 		http.NotFound(resp.ResponseWriter, req.Request)
+// 		return
+// 	}
+// 	defer file.Close()
 
-	fileInfo, err := file.Stat()
-	if err != nil {
-		http.NotFound(resp.ResponseWriter, req.Request)
-		return
-	}
+// 	fileInfo, err := file.Stat()
+// 	if err != nil {
+// 		http.NotFound(resp.ResponseWriter, req.Request)
+// 		return
+// 	}
 
-	content, err := io.ReadAll(file)
-	if err != nil {
-		http.NotFound(resp.ResponseWriter, req.Request)
-		return
-	}
+// 	content, err := io.ReadAll(file)
+// 	if err != nil {
+// 		http.NotFound(resp.ResponseWriter, req.Request)
+// 		return
+// 	}
 
-	reader := bytes.NewReader(content)
+// 	reader := bytes.NewReader(content)
 
-	http.ServeContent(resp.ResponseWriter, req.Request, actual, fileInfo.ModTime(), reader)
-}
+// 	http.ServeContent(resp.ResponseWriter, req.Request, actual, fileInfo.ModTime(), reader)
+// }

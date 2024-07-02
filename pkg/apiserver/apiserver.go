@@ -37,6 +37,7 @@ func New() (*APIServer, error) {
 func (s *APIServer) PrepareRun() error {
 	s.container = restful.NewContainer()
 	s.container.RecoverHandler(logStackOnRecover)
+	s.container.Filter(cors)
 	s.container.Filter(func(req *restful.Request, resp *restful.Response, chain *restful.FilterChain) {
 		defer func() {
 			if e := recover(); e != nil {
@@ -83,8 +84,9 @@ func (s *APIServer) installAPIDocs() {
 func (s *APIServer) installStaticResources() {
 	ws := &restful.WebService{}
 
-	ws.Route(ws.GET("/web/{subpath:*}").To(staticFromPathParam))
-	// ws.Route(ws.GET("/web").To(staticFromQueryParam))
+	ws.Route(ws.GET("/").To(staticFromPathParam)) // staticFromQueryParam
+	ws.Route(ws.GET("/{subpath:*}").To(staticFromPathParam))  // staticFromPathParam
+	
 
 	s.container.Add(ws)
 }

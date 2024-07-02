@@ -130,8 +130,8 @@ func (p *SQLProvider) SaveInstallConfig(config model.InstallModelReq) (err error
 	defer cancel()
 
 	if _, err = p.db.ExecContext(ctx, p.sqlInsertInstallConfig,
-		config.DomainName, config.UserName, config.KubeType, config.Vendor, config.GpuEnable, config.GpuShare, config.Vendor); err != nil {
-		return fmt.Errorf("error inserting install config for user '%s': %w", config.UserName, err)
+		config.Config.DomainName, config.Config.UserName, config.Config.KubeType, config.Config.Vendor, config.Config.GpuEnable, config.Config.GpuShare, config.Config.Vendor); err != nil {
+		return fmt.Errorf("error inserting install config for user '%s': %w", config.Config.UserName, err)
 	}
 
 	return nil

@@ -1,6 +1,23 @@
 project_name: terminus-cli
 builds:
-- env:
+- id: linux_amd64
+  env:
+  - CGO_ENABLED=1
+  - GOOS=linux
+  - GOARCH=amd64
+  - CC=x86_64-linux-musl-gcc
+  - CGO_LDFLAGS=-static
+  binary: terminus-cli
+  main: ./cmd/main.go
+  goos:
+  - linux
+  goarch:
+  - amd64
+  ldflags:
+  - -w
+  - -s
+- id: linux_arm
+  env:
   - CGO_ENABLED=1
   - GOOS=linux
   - GOARCH=arm

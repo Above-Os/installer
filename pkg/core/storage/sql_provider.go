@@ -141,19 +141,20 @@ func (p *SQLProvider) SaveInstallLog(msg string, state string, percent int64) (e
 	var ctx, cancel = context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
+	var t = time.Now().UnixMilli()
 	if _, err = p.db.ExecContext(ctx, p.sqlInsertInstallLog,
-		msg, state, percent); err != nil {
+		msg, state, percent, t); err != nil {
 		return fmt.Errorf("error inserting install log %s: %s, %w", state, msg, err)
 	}
 	return nil
 }
 
-func (p *SQLProvider) QueryInstallState() (data *model.InstallState, err error) {
-	var ctx, cancel = context.WithTimeout(context.Background(), 3*time.Second)
+func (p *SQLProvider) QueryInstallState(tspan int64) (data []model.InstallState, err error) {
+	var ctx, cancel = context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	data = new(model.InstallState)
-	if err = p.db.QueryRowContext(ctx, p.sqlQueryInstallState).Scan(&data.Message, &data.State, &data.Percent, &data.Time); err != nil {
+	data = make([]model.InstallState, 0, 10)
+	if err = p.db.SelectContext(ctx, &data, p.sqlQueryInstallState, tspan); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, nil
 		}

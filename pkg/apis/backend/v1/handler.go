@@ -2,7 +2,7 @@ package v1
 
 import (
 	"fmt"
-	"time"
+	"strconv"
 
 	"bytetrade.io/web3os/installer/pkg/api/response"
 	"bytetrade.io/web3os/installer/pkg/common"
@@ -87,26 +87,42 @@ func (h *Handler) handlerInstall(req *restful.Request, resp *restful.Response) {
 }
 
 func (h *Handler) handlerStatus(req *restful.Request, resp *restful.Response) {
-	data, err := h.StorageProvider.QueryInstallState()
+	var timespan = req.QueryParameter("time")
+	if timespan == "" {
+		timespan = "0"
+	}
+
+	tspan, err := strconv.ParseInt(timespan, 10, 64)
 	if err != nil {
 		response.HandleError(resp, err)
 		return
 	}
 
-	var res = make(map[string]interface{})
-	if data == nil {
-		res["status"] = "UNKNOWN"
-		res["msg"] = ""
-		res["percent"] = "0.00%"
-		res["time"] = time.Now().Unix()
-		response.Success(resp, res)
+	data, err := h.StorageProvider.QueryInstallState(tspan)
+	if err != nil {
+		response.HandleError(resp, err)
 		return
 	}
 
-	res["status"] = data.State
-	res["msg"] = data.Message
-	res["percent"] = fmt.Sprintf("%.2f%%", float64(float64(data.Percent)/100))
-	res["time"] = data.Time.Unix()
+	if data == nil || len(data) == 0 {
+		response.HandleError(resp, fmt.Errorf("logs not found"))
+		return
+	}
+
+	var last = data[len(data)-1]
+	var msgs []map[string]interface{}
+	for _, d := range data {
+		var r = make(map[string]interface{})
+		r["info"] = d.Message
+		r["time"] = d.Time.UnixMilli()
+		msgs = append(msgs, r)
+	}
+
+	var res = make(map[string]interface{})
+	res["percent"] = fmt.Sprintf("%.2f%%", float64(float64(last.Percent)/100))
+	res["status"] = last.State
+	res["msg"] = msgs
+
 	response.Success(resp, res)
 }
 

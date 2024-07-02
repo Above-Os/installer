@@ -14,5 +14,5 @@ type Provider interface {
 
 	SaveInstallConfig(config model.InstallModelReq) (err error)
 	SaveInstallLog(msg string, state string, percent int64) (err error)
-	QueryInstallState() (data *model.InstallState, err error)
+	QueryInstallState(tspan int64) (data []model.InstallState, err error)
 }

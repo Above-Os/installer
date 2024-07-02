@@ -28,20 +28,14 @@ jobs:
       with:
         fallback: latest
 
-    - name: Setup Node
-      uses: actions/setup-node@v1
-      with:
-        node-version: "18"
-
-    # - name: Build
-    #   run: cd frontend;npm install;npm i -g @quasar/cli;quasar build;rm -rf ./package-lock.json;
-
     - name: Unshallow
         run: git fetch --prune --unshallow
-      - name: Set up Go 1.22.4
-        uses: actions/setup-go@v3
-        with:
-          go-version: 1.22.4
+
+    - name: Set up Go 1.22.4
+      uses: actions/setup-go@v3
+      with:
+        go-version: 1.22.4
+
     - name: Run GoReleaser
       uses: goreleaser/goreleaser-action@v3.1.0
       with:

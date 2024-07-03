@@ -52,6 +52,7 @@ func InitLog(logDir string) {
 		return lvl >= zapcore.DebugLevel
 	})
 
+
 	fileEncoder := zapcore.EncoderConfig{
 		TimeKey:        "time",
 		LevelKey:       "level",
@@ -61,7 +62,7 @@ func InitLog(logDir string) {
 		MessageKey:     "msg",
 		StacktraceKey:  "stacktrace",
 		LineEnding:     zapcore.DefaultLineEnding,
-		EncodeLevel:    zapcore.CapitalLevelEncoder,
+		EncodeLevel:    zapcore.LowercaseLevelEncoder,
 		EncodeTime:     zapcore.ISO8601TimeEncoder,
 		EncodeDuration: zapcore.StringDurationEncoder,
 		EncodeCaller:   zapcore.ShortCallerEncoder,
@@ -73,7 +74,7 @@ func InitLog(logDir string) {
 		// FunctionKey:    zapcore.OmitKey,
 		MessageKey:    "M",
 		StacktraceKey: "S",
-		// LineEnding:     zapcore.DefaultLineEnding,
+		LineEnding:     zapcore.DefaultLineEnding,
 		EncodeLevel:    zapcore.CapitalLevelEncoder,
 		EncodeTime:     zapcore.ISO8601TimeEncoder,
 		EncodeDuration: zapcore.StringDurationEncoder,
@@ -86,8 +87,7 @@ func InitLog(logDir string) {
 		zapcore.NewCore(zapcore.NewConsoleEncoder(consoleEncoderConfig), consoleDebugging, consolePriority),
 		zapcore.NewCore(zapcore.NewJSONEncoder(fileEncoder), zapcore.AddSync(file), filePriority),
 	)
-	logger = zap.New(core, zap.AddCaller(), zap.Development(),
-		zap.AddCallerSkip(1), zap.AddStacktrace(zapcore.FatalLevel)).Sugar()
+	logger = zap.New(core, zap.AddCaller(), zap.AddCallerSkip(1), zap.AddStacktrace(zapcore.FatalLevel)).Sugar()
 	defer logger.Sync()
 }
 

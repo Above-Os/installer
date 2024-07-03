@@ -126,8 +126,8 @@ func (t *GetSysInfoTask) Execute(runtime connector.Runtime) error {
 	logger.Debugf("SYSTEM, os: %s, platform: %s, arch: %s, version: %s",
 		constants.OsType, constants.OsPlatform, constants.OsArch, constants.OsVersion)
 
-	logger.Infof("host info, hostname: %s, hostid: %s, os: %s, platform: %s, version: %s, arch: %s",
-		constants.HostName, constants.HostId, constants.OsType, constants.OsPlatform, constants.OsVersion, constants.OsArch)
+	logger.Infof("host info, user: %s, hostname: %s, hostid: %s, os: %s, platform: %s, version: %s, arch: %s",
+		constants.CurrentUser,constants.HostName, constants.HostId, constants.OsType, constants.OsPlatform, constants.OsVersion, constants.OsArch)
 	logger.Infof("cpu info, model: %s, logical count: %d, physical count: %d",
 		constants.CpuModel, constants.CpuLogicalCount, constants.CpuPhysicalCount)
 	logger.Infof("disk info, total: %s, free: %s", utils.FormatBytes(int64(constants.DiskTotal)), utils.FormatBytes(int64(constants.DiskFree)))

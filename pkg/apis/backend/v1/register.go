@@ -21,13 +21,6 @@ func AddContainer(c *restful.Container, db storage.Provider) error {
 
 	handler := New(db)
 
-	// + 正式接口
-	// ws.Route(ws.GET("/public-ip").
-	// 	To(handler.handlerPublicIp).
-	// 	Doc("").
-	// 	Metadata(restfulspec.KeyOpenAPITags, tags).
-	// 	Returns(http.StatusOK, "", response.Response{}))
-
 	ws.Route(ws.POST("/install").
 		To(handler.handlerInstall).
 		Doc("").
@@ -40,11 +33,6 @@ func AddContainer(c *restful.Container, db storage.Provider) error {
 		Metadata(restfulspec.KeyOpenAPITags, tags).
 		Returns(http.StatusOK, "", response.Response{}))
 
-	ws.Route(ws.POST("/progress"). // ! 先不做
-					To(handler.handlerProgress).
-					Doc("").
-					Metadata(restfulspec.KeyOpenAPITags, tags).
-					Returns(http.StatusOK, "", response.Response{}))
 
 	// ~ debug
 	ws.Route(ws.POST("/test").

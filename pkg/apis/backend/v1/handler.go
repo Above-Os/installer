@@ -33,25 +33,7 @@ func New(db storage.Provider) *Handler {
 	}
 }
 
-// ~ get public ip
-func (h *Handler) handlerPublicIp(req *restful.Request, resp *restful.Response) {
-	var data = make(map[string]interface{})
-	data["public_ip"] = "13.92.32.12"
-
-	if 1 == 1 {
-		response.HandleError(resp, fmt.Errorf("app %s entrances not found", "TEST"))
-		return
-	}
-
-	response.Success(resp, data)
-}
-
-func (h *Handler) handlerConfig(req *restful.Request, resp *restful.Response) {
-	response.SuccessNoData(resp)
-}
-
 // + install
-// ~ 先下载完整包进行安装，需要提取日志写入数据库
 func (h *Handler) handlerInstall(req *restful.Request, resp *restful.Response) {
 	logger.Infof("handler install req: %s", req.Request.Method)
 
@@ -135,9 +117,6 @@ func (h *Handler) handlerStatus(req *restful.Request, resp *restful.Response) {
 	response.Success(resp, res)
 }
 
-func (h *Handler) handlerProgress(req *restful.Request, resp *restful.Response) {
-
-}
 
 // - test func
 func (h *Handler) handlerTest(req *restful.Request, resp *restful.Response) {

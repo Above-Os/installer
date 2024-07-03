@@ -11,7 +11,6 @@ import (
 	"bytetrade.io/web3os/installer/pkg/constants"
 	"bytetrade.io/web3os/installer/pkg/core/logger"
 	"bytetrade.io/web3os/installer/pkg/phase/startup"
-	"bytetrade.io/web3os/installer/pkg/utils"
 	"github.com/spf13/cobra"
 )
 
@@ -30,29 +29,14 @@ func NewCmdApi() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "api",
 		Short: "Terminus Api Server",
+		PreRun: func(cmd *cobra.Command, args []string) {
+			options.InitEnv(o.ApiOptions)
+		},
 		Run: func(cmd *cobra.Command, args []string) {
-			fmt.Println(constants.Logo)
-
-			workDir, err := utils.WorkDir()
-			if err != nil {
-				fmt.Println("working path error", err)
-				os.Exit(1)
-			}
-
-			constants.WorkDir = workDir
-			constants.ApiServerListenAddress = o.ApiOptions.Port
-			constants.Proxy = o.ApiOptions.Proxy
-
-			if err := helper.InitLog(workDir); err != nil {
+			if err := helper.InitLog(constants.WorkDir); err != nil {
 				fmt.Println("init logger failed", err)
 				os.Exit(1)
 			}
-
-			// fmt.Println("---1---")
-			// logger.Debugf("this is hahah %s, max: %d", "123321", 900)
-			// logger.Error("[error]", "error world!")
-			// logger.Info("[info]", "hello world!!!")
-			// fmt.Println("---end---")
 
 			if err := GetCurrentUser(); err != nil {
 				logger.Errorf(err.Error())
@@ -116,6 +100,5 @@ func Run(option *options.ApiOptions) error {
 	if err = s.PrepareRun(); err != nil {
 		return err
 	}
-
 	return s.Run()
 }

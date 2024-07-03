@@ -36,7 +36,6 @@ type NodeConfigureOS struct {
 }
 
 func (n *NodeConfigureOS) Execute(runtime connector.Runtime) error {
-	fmt.Println("[A] NodeConfigureOS")
 	host := runtime.RemoteHost()
 	if err := addUsers(runtime, host); err != nil {
 		return errors.Wrap(errors.WithStack(err), "Failed to add users")
@@ -124,7 +123,6 @@ type NodeExecScript struct {
 }
 
 func (n *NodeExecScript) Execute(runtime connector.Runtime) error {
-	fmt.Println("[A] NodeExecScript")
 	if _, err := runtime.GetRunner().SudoCmd(fmt.Sprintf("chmod +x %s/initOS.sh", common.KubeScriptDir), false); err != nil {
 		return errors.Wrap(errors.WithStack(err), "Failed to chmod +x init os script")
 	}
@@ -268,7 +266,6 @@ type GetOSData struct {
 }
 
 func (g *GetOSData) Execute(runtime connector.Runtime) error {
-	fmt.Println("[A] GetOSData")
 	osReleaseStr, err := runtime.GetRunner().SudoCmd("cat /etc/os-release", false)
 	if err != nil {
 		return err

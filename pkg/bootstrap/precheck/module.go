@@ -153,10 +153,12 @@ func (h *GreetingsModule) Init() {
 		timeout += v.GetTimeout()
 	}
 
-	hello := &task.LocalTask{
+	hello := &task.RemoteTask{
 		Name:    "Greetings",
 		Desc:    "Greetings",
+		Hosts: 	 h.Runtime.GetAllHosts(),
 		Action:  new(GreetingsTask),
+		Parallel: true,
 		Timeout: time.Duration(timeout) * time.Second,
 	}
 

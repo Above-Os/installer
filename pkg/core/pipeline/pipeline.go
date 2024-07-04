@@ -19,12 +19,14 @@ package pipeline
 import (
 	"os"
 	"sync"
+	"time"
 
 	"bytetrade.io/web3os/installer/pkg/core/cache"
 	"bytetrade.io/web3os/installer/pkg/core/connector"
 	"bytetrade.io/web3os/installer/pkg/core/ending"
 	"bytetrade.io/web3os/installer/pkg/core/logger"
 	"bytetrade.io/web3os/installer/pkg/core/module"
+	"bytetrade.io/web3os/installer/pkg/core/util"
 	"github.com/pkg/errors"
 )
 
@@ -37,6 +39,7 @@ import (
 
 type Pipeline struct {
 	Name            string
+	StartAt         time.Time
 	Modules         []module.Module
 	Runtime         connector.Runtime
 	SpecHosts       int
@@ -54,6 +57,8 @@ func (p *Pipeline) Init() error {
 	if err := p.Runtime.GenerateWorkDir(); err != nil {
 		return err
 	}
+
+	p.StartAt = time.Now()
 
 	return nil
 }
@@ -103,7 +108,7 @@ func (p *Pipeline) Start() error {
 		logger.Errorf("[Job] %s execute failed: there are some error in your spec hosts", p.Name)
 		return errors.Errorf("[Job] %s execute failed: there are some error in your spec hosts", p.Name)
 	}
-	logger.Debugf("[Job] %s execute successfully!!!", p.Name)
+	logger.Debugf("[Job] %s execute successfully!!! (%s)", p.Name, p.since())
 
 	return nil
 }
@@ -161,4 +166,8 @@ func (p *Pipeline) releasePipelineCache() {
 func (p *Pipeline) releaseModuleCache(c *cache.Cache) {
 	c.Clean()
 	p.ModuleCachePool.Put(c)
+}
+
+func (p *Pipeline) since() string {
+	return util.ShortDur(time.Since(p.StartAt))
 }

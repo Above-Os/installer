@@ -33,6 +33,7 @@ type BaseRuntime struct {
 	connector       Connector
 	runner          *Runner
 	storage         storage.Provider
+	rootDir         string
 	workDir         string
 	dependDir       string
 	packageDir      string
@@ -102,6 +103,7 @@ func (b *BaseRuntime) GenerateWorkDir() error {
 	if err != nil {
 		return errors.Wrap(err, "get current dir failed")
 	}
+	b.rootDir = currentDir
 
 	rootPath := filepath.Join(currentDir, common.Pkg)
 	if err := util.CreateDir(rootPath); err != nil {
@@ -132,6 +134,10 @@ func (b *BaseRuntime) GenerateWorkDir() error {
 
 func (b *BaseRuntime) GetHostWorkDir() string {
 	return filepath.Join(b.workDir, b.RemoteHost().GetName())
+}
+
+func (b *BaseRuntime) GetRootDir() string {
+	return b.rootDir
 }
 
 func (b *BaseRuntime) GetWorkDir() string {

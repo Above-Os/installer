@@ -3,9 +3,10 @@ package patch
 import (
 	"fmt"
 	"os/exec"
-	"strings"
+	"path"
 
 	kubekeyapiv1alpha2 "bytetrade.io/web3os/installer/apis/kubekey/v1alpha2"
+	"bytetrade.io/web3os/installer/pkg/binaries"
 	"bytetrade.io/web3os/installer/pkg/common"
 	"bytetrade.io/web3os/installer/pkg/constants"
 	"bytetrade.io/web3os/installer/pkg/core/action"
@@ -16,23 +17,44 @@ import (
 	"github.com/pkg/errors"
 )
 
-// ~ PatchDepsTask apt-get install
-type PatchDepsTask struct {
+// ~ PatchTask
+type PatchTask struct {
 	action.BaseAction
-	Deps []string
 }
 
-func (t *PatchDepsTask) Execute(runtime connector.Runtime) error {
-	if t.Deps == nil || len(t.Deps) == 0 {
-		return nil
+func (t *PatchTask) Execute(runtime connector.Runtime) error {
+	var host = runtime.GetRunner().Host
+	var cmd string
+	var pre_reqs = "apt-transport-https ca-certificates curl"
+
+	if _, err := runtime.GetRunner().Host.GetCommand(common.CommandGPG); err != nil {
+		pre_reqs = pre_reqs + " gnupg"
 	}
-	var apps = strings.Join(t.Deps, " ")
-	var cmd = fmt.Sprintf("apt-get install -y %s", apps)
-	_, _, err := runtime.GetRunner().Host.Exec(cmd, true, true)
-	if err != nil {
-		logger.Errorf("install %s error %v", apps, err)
-		return err
+
+	switch constants.OsPlatform {
+	case common.Ubuntu, common.Debian, common.Raspbian:
+		if _, _, err := host.Exec(fmt.Sprintf("%s update -qq", constants.PkgManager), false, false); err != nil {
+			logger.Errorf("update os error %v", err)
+			return err
+		}
+		if _, _, err := host.Exec(fmt.Sprintf("DEBIAN_FRONTEND=noninteractive %s install -y -qq %s", constants.PkgManager, pre_reqs), false, false); err != nil {
+			logger.Errorf("install deps %s error %v", pre_reqs, err)
+			return err
+		}
+
+		var cmd = "conntrack socat apache2-utils ntpdate net-tools make gcc openssh-server"
+		if _, _, err := host.Exec(fmt.Sprintf("DEBIAN_FRONTEND=noninteractive %s install -y %s", constants.PkgManager, cmd), false, false); err != nil {
+			logger.Errorf("install deps %s error %v", cmd, err)
+			return err
+		}
+	case common.CentOs, common.Fedora, common.RHEl:
+		cmd = "conntrack socat httpd-tools ntpdate net-tools make gcc openssh-server"
+		if _, _, err := host.Exec(fmt.Sprintf("%s install -y %s", constants.PkgManager, cmd), false, false); err != nil {
+			logger.Errorf("install deps %s error %v", cmd, err)
+			return err
+		}
 	}
+
 	return nil
 }
 
@@ -42,15 +64,47 @@ type SocatTask struct {
 }
 
 func (t *SocatTask) Execute(runtime connector.Runtime) error {
+	filePath, fileName, err := binaries.DownloadSocat(runtime.GetWorkDir(), kubekeyapiv1alpha2.DefaultSocatVersion, constants.OsArch, t.PipelineCache)
+	if err != nil {
+		logger.Errorf("failed to download socat: %v", err)
+		return err
+	}
+	f := path.Join(filePath, fileName)
+	if _, _, err := runtime.GetRunner().Host.Exec(fmt.Sprintf("tar xzvf %s", f), false, false); err != nil {
+		logger.Errorf("failed to extract %s %v", f, err)
+		return err
+	}
+	tp := path.Join(filePath, fmt.Sprintf("socat-%s", kubekeyapiv1alpha2.DefaultSocatVersion))
+	if _, _, err := runtime.GetRunner().Host.Exec(fmt.Sprintf("%s/configure --prefix=/usr && make -j4 && make install && strip socat", tp), false, false); err != nil {
+		logger.Errorf("failed to install socat %v", err)
+		return err
+	}
+
 	return nil
 }
 
 // ~ ContrackTask
-type ContrackTask struct {
+type ConntrackTask struct {
 	action.BaseAction
 }
 
-func (t *ContrackTask) Execute(runtime connector.Runtime) error {
+func (t *ConntrackTask) Execute(runtime connector.Runtime) error {
+	filePath, fileName, err := binaries.DownloadConntrack(runtime.GetWorkDir(), kubekeyapiv1alpha2.DefaultConntrackVersion, constants.OsArch, t.PipelineCache)
+	if err != nil {
+		logger.Errorf("failed to download conntrack: %v", err)
+		return err
+	}
+	f := path.Join(filePath, fileName)
+	if _, _, err := runtime.GetRunner().Host.Exec(fmt.Sprintf("tar xzvf %s", f), false, false); err != nil {
+		logger.Errorf("failed to extract %s %v", f, err)
+		return err
+	}
+	tp := path.Join(filePath, fmt.Sprintf("conntrack-tools-%s", kubekeyapiv1alpha2.DefaultConntrackVersion))
+	if _, _, err := runtime.GetRunner().Host.Exec(fmt.Sprintf("%s/configure --prefix=/usr && make -j4 && make install", tp), false, false); err != nil {
+		logger.Errorf("failed to install conntrack %v", err)
+		return err
+	}
+
 	return nil
 }
 
@@ -68,7 +122,7 @@ func (t *PatchDeps) Execute(runtime connector.Runtime) error {
 	}
 
 	socat := files.NewKubeBinary("socat", constants.OsArch, kubekeyapiv1alpha2.DefaultSocatVersion, runtime.GetDependDir())
-	contrack := files.NewKubeBinary("contrack", constants.OsArch, kubekeyapiv1alpha2.DefaultContrackVersion, runtime.GetDependDir())
+	contrack := files.NewKubeBinary("contrack", constants.OsArch, kubekeyapiv1alpha2.DefaultConntrackVersion, runtime.GetDependDir())
 
 	binaries := []*files.KubeBinary{socat, contrack}
 	binariesMap := make(map[string]*files.KubeBinary)

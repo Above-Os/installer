@@ -22,10 +22,29 @@ import (
 	"bytetrade.io/web3os/installer/pkg/bootstrap/os/templates"
 	"bytetrade.io/web3os/installer/pkg/common"
 	"bytetrade.io/web3os/installer/pkg/core/action"
+	"bytetrade.io/web3os/installer/pkg/core/module"
 	"bytetrade.io/web3os/installer/pkg/core/prepare"
 	"bytetrade.io/web3os/installer/pkg/core/task"
 	"bytetrade.io/web3os/installer/pkg/core/util"
 )
+
+// ~ ConfigSystemModule
+type ConfigSystemModule struct {
+	module.BaseTaskModule
+}
+
+func (c *ConfigSystemModule) Init() {
+	c.Name = "ConfigSystem"
+
+	timeSyncTask := &task.LocalTask{
+		Name:   "TimeSync",
+		Action: new(TimeSyncTask),
+	}
+
+	c.Tasks = []task.Interface{
+		timeSyncTask,
+	}
+}
 
 // ~ ConfigureOSModule
 type ConfigureOSModule struct {

@@ -146,5 +146,10 @@ const (
 )
 
 const (
-	CommandIptables = "iptables"
+	CommandIptables  = "iptables"
+	CommandGPG       = "gpg"
+	CommandSocat     = "socat"
+	CommandConntrack = "conntrack"
+	CommandNtpdate   = "ntpdate"
+	CommandHwclock   = "hwclock"
 )

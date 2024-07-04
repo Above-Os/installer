@@ -33,6 +33,10 @@ var (
 )
 
 var (
+	PkgManager string
+)
+
+var (
 	WorkDir                string
 	ApiServerListenAddress string
 	Proxy                  string

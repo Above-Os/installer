@@ -58,7 +58,7 @@ func (p *DownloadDepsExt) PreCheck(runtime connector.Runtime) (bool, error) {
 	apparmor := files.NewKubeBinary("apparmor", kubekeyapiv1alpha2.DefaultArch, kubekeyapiv1alpha2.DefaultUbuntu24AppArmonVersion, runtime.GetDependDir())
 	binaries = append(binaries, apparmor)
 	socat := files.NewKubeBinary("socat", kubekeyapiv1alpha2.DefaultArch, kubekeyapiv1alpha2.DefaultSocatVersion, runtime.GetDependDir())
-	contrack := files.NewKubeBinary("contrack", kubekeyapiv1alpha2.DefaultArch, kubekeyapiv1alpha2.DefaultContrackVersion, runtime.GetDependDir())
+	contrack := files.NewKubeBinary("contrack", kubekeyapiv1alpha2.DefaultArch, kubekeyapiv1alpha2.DefaultConntrackVersion, runtime.GetDependDir())
 	binaries = append(binaries, socat, contrack)
 
 	binariesMap := make(map[string]*files.KubeBinary)

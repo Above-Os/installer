@@ -59,7 +59,7 @@ const (
 	runc       = "runc"
 	apparmor   = "apparmor"
 	socat      = "socat"
-	contrack   = "contrack"
+	conntrack  = "conntrack"
 
 	// todo 安装包会进行拆分，可能不会再有 full 包了
 	// todo 所以我可以假设 f1.tar.gz f2.tar.gz f3.tar.gz ...
@@ -246,18 +246,19 @@ func NewKubeBinary(name, arch, version, prePath string) *KubeBinary {
 			component.Url = fmt.Sprintf("%s/28428840/+files/apparmor_%s-0ubuntu1_amd64.deb", parent, version)
 		}
 		component.CheckSum = false
+		component.BaseDir = filepath.Join(prePath, component.Type)
 	case socat:
 		component.Type = PATCH
 		component.FileName = fmt.Sprintf("socat-%s.tar.gz", version)
 		component.Url = fmt.Sprintf("http://www.dest-unreach.org/socat/download/socat-%s.tar.gz", version)
 		component.CheckSum = false
-		component.BaseDir = filepath.Join(prePath)
-	case contrack:
+		component.BaseDir = filepath.Join(prePath, component.Type)
+	case conntrack:
 		component.Type = PATCH
 		component.FileName = fmt.Sprintf("conntrack-tools-%s.tar.gz", version)
 		component.Url = fmt.Sprintf("https://github.com/fqrouter/conntrack-tools/archive/refs/tags/conntrack-tools-%s.tar.gz", version)
 		component.CheckSum = false
-		component.BaseDir = filepath.Join(prePath)
+		component.BaseDir = filepath.Join(prePath, component.Type)
 	case file1: // + test 这里是新增的文件类型，后面应该都是跟安装包有关
 		// todo 要区分内外网了，公网肯定是走 CDN
 		component.Type = INSTALLER

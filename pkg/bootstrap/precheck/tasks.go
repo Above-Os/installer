@@ -45,7 +45,7 @@ type RaspbianCheckTask struct {
 func (t *RaspbianCheckTask) Execute(runtime connector.Runtime) error {
 	// if util.IsExist(common.RaspbianCmdlineFile) || util.IsExist(common.RaspbianFirmwareFile) {
 	if constants.OsPlatform == common.Raspbian {
-		if err := runtime.GetRunner().Host.GetCommand(common.CommandIptables); err != nil {
+		if _, err := runtime.GetRunner().Host.GetCommand(common.CommandIptables); err != nil {
 			var cmd = "apt install -y iptables"
 			host := runtime.GetRunner().Host
 
@@ -178,6 +178,19 @@ func ConfigResolvConf(runtime connector.Runtime) error {
 	return nil
 }
 
+// ~ CopyPreInstallationDependencyFilesTask
+type CopyPreInstallationDependencyFilesTask struct {
+	action.BaseAction
+}
+
+func (t *CopyPreInstallationDependencyFilesTask) Execute(runtime connector.Runtime) error {
+	if runtime.GetRunner().Host.IsExists("/opt/deps/") {
+		// runtime.GetRunner().Host.Exec("")
+		// todo 拷贝预安装的依赖文件
+	}
+	return nil
+}
+
 // ~ GetSysInfoTask
 type GetSysInfoTask struct {
 	action.BaseAction
@@ -224,6 +237,17 @@ func (t *GetSysInfoTask) Execute(runtime connector.Runtime) error {
 		constants.CpuModel, constants.CpuLogicalCount, constants.CpuPhysicalCount)
 	logger.Infof("disk info, total: %s, free: %s", utils.FormatBytes(int64(constants.DiskTotal)), utils.FormatBytes(int64(constants.DiskFree)))
 	logger.Infof("mem info, total: %s, free: %s", utils.FormatBytes(int64(constants.MemTotal)), utils.FormatBytes(int64(constants.MemFree)))
+
+	switch constants.OsPlatform {
+	case common.Ubuntu, common.Debian, common.Raspbian:
+		constants.PkgManager = "apt-get"
+	case common.Fedora:
+		constants.PkgManager = "dnf"
+	case common.CentOs, common.RHEl:
+		constants.PkgManager = "yum"
+	default:
+		constants.PkgManager = "apt-get"
+	}
 
 	return nil
 }

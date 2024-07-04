@@ -158,9 +158,8 @@ func (b *BaseHost) SetCache(c *cache.Cache) {
 	b.Cache = c
 }
 
-func (b *BaseHost) GetCommand(c string) error {
-	_, err := exec.LookPath(c)
-	return err
+func (b *BaseHost) GetCommand(c string) (string, error) {
+	return exec.LookPath(c)
 }
 
 func (b *BaseHost) IsSymLink(path string) (bool, error) {

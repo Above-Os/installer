@@ -46,6 +46,7 @@ type ModuleRuntime interface {
 	SetObjName(name string)
 	GenerateWorkDir() error
 	GetHostWorkDir() string
+	GetRootDir() string
 	GetWorkDir() string
 	GetDependDir() string
 	GetPackageDir() string
@@ -96,7 +97,7 @@ type Host interface {
 	IsRole(role string) bool
 	GetCache() *cache.Cache
 	SetCache(c *cache.Cache)
-	GetCommand(c string) error
+	GetCommand(c string) (string, error)
 	GetServiceActive(s string) bool
 
 	IsExists(path string) bool

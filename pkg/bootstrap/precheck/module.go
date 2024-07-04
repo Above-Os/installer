@@ -80,26 +80,11 @@ type PreCheckOsModule struct {
 }
 
 func (m *PreCheckOsModule) Init() {
-	m.Name = "PreCheckOsModule"
+	m.Name = "PreCheckOs"
 
 	// var flag = "2" // ! debug
 	// if constants.OsPlatform == common.Ubuntu && strings.HasPrefix("24.", constants.OsVersion) {
 	// 	flag = "2"
-	// }
-
-	// preCheckOs := &task.LocalTask{
-	// 	Name: "PreCheckOs",
-	// 	Desc: "PreCheckOs",
-	// 	Prepare: &prepare.PrepareCollection{
-	// 		&DownloadDepsExt{},
-	// 	},
-	// 	Action: &action.Script{
-	// 		Name:        "PreCheckOs",
-	// 		File:        corecommon.PrecheckOsShell,
-	// 		Args:        []string{constants.LocalIp[0], constants.OsPlatform, flag},
-	// 		PrintOutput: true,
-	// 	},
-	// 	Retry: 0,
 	// }
 
 	patchAppArmor := &task.LocalTask{
@@ -123,24 +108,19 @@ func (m *PreCheckOsModule) Init() {
 		Retry:  0,
 	}
 
-	// installDeps := &task.LocalTask{
-	// 	Name: "InstallDeps",
-	// 	Desc: "InstallDeps",
-	// 	Action: &action.Script{
-	// 		Name:        "PreCheckOs",
-	// 		File:        corecommon.InstallDepsShell,
-	// 		Args:        []string{"aa"},
-	// 		PrintOutput: true,
-	// 	},
-	// 	Retry: 0,
-	// }
+	copyPreInstallationDependencyFiles := &task.LocalTask{
+		Name:   "CopyPreInstallationDependencyFiles",
+		Action: new(CopyPreInstallationDependencyFilesTask),
+		Retry:  0,
+	}
 
 	m.Tasks = []task.Interface{
 		patchAppArmor,
 		raspbianCheck,
 		disableDNS,
-		// installDeps,
+		copyPreInstallationDependencyFiles,
 	}
+
 }
 
 // ~ TerminusGreetingsModule

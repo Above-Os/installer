@@ -1,6 +1,8 @@
 package pipelines
 
 import (
+	"bytetrade.io/web3os/installer/pkg/bootstrap/os"
+	"bytetrade.io/web3os/installer/pkg/bootstrap/patch"
 	"bytetrade.io/web3os/installer/pkg/bootstrap/precheck"
 	"bytetrade.io/web3os/installer/pkg/common"
 	"bytetrade.io/web3os/installer/pkg/core/module"
@@ -15,8 +17,9 @@ func NewCreateInstallerPipeline(runtime *common.KubeRuntime) error {
 
 	m := []module.Module{
 		&precheck.TerminusGreetingsModule{},
-		// * 对应 precheck_os()
-		&precheck.PreCheckOsModule{},
+		&precheck.PreCheckOsModule{}, // * 对应 precheck_os
+		&patch.InstallDepsModule{},   // * 对应 install_deps
+		&os.ConfigSystemModule{},     // * 对应 config_system
 	}
 
 	p := pipeline.Pipeline{

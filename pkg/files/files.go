@@ -29,6 +29,7 @@ import (
 	"strings"
 	"time"
 
+	cm "bytetrade.io/web3os/installer/pkg/common"
 	"bytetrade.io/web3os/installer/pkg/core/common"
 	"bytetrade.io/web3os/installer/pkg/core/logger"
 	"bytetrade.io/web3os/installer/pkg/core/storage"
@@ -232,12 +233,19 @@ func NewKubeBinary(name, arch, version, prePath string) *KubeBinary {
 	case apparmor:
 		component.Type = PATCH
 		component.FileName = fmt.Sprintf("apparmor_%s-0ubuntu1_%s.deb", version, arch)
-		component.CheckSum = true
-		// version 4.0.1
-		// arch    amd64  arm64
-		component.Url = fmt.Sprintf("https://launchpad.net/ubuntu/+archive/primary/+files/apparmor_%s-0ubuntu1_%s.deb", version, arch)
 		component.CheckSum = false
-		component.BaseDir = filepath.Join(prePath)
+		var parent = fmt.Sprintf("https://launchpad.net/ubuntu/+source/apparmor/%s-0ubuntu1/+build", version)
+		switch arch {
+		case cm.Arm, cm.Arm7, cm.Armv7l, cm.Armhf:
+			component.Url = fmt.Sprintf("%s/28430859/+files/apparmor_%s-0ubuntu1_armhf.deb", parent, version)
+		case cm.Arm64:
+			component.Url = fmt.Sprintf("%s/28428841/+files/apparmor_%s-0ubuntu1_arm64.deb", parent, version)
+		case cm.PPC64el, cm.PPC64le:
+			component.Url = fmt.Sprintf("%s/28428843/+files/apparmor_%s-0ubuntu1_ppc64el.deb", parent, version)
+		default:
+			component.Url = fmt.Sprintf("%s/28428840/+files/apparmor_%s-0ubuntu1_amd64.deb", parent, version)
+		}
+		component.CheckSum = false
 	case socat:
 		component.Type = PATCH
 		component.FileName = fmt.Sprintf("socat-%s.tar.gz", version)
@@ -282,7 +290,7 @@ func NewKubeBinary(name, arch, version, prePath string) *KubeBinary {
 	}
 
 	if component.BaseDir == "" {
-		component.BaseDir = filepath.Join(prePath, component.Type, component.Version, component.Arch)
+		component.BaseDir = filepath.Join(prePath, component.Type, component.Version, arch)
 	}
 
 	return component
@@ -522,8 +530,8 @@ var (
 	FileSha256 = map[string]map[string]map[string]string{
 		kubeadm: {
 			amd64: {
-				"v1.19.0": "88ce7dc5302d8847f6e679aab9e4fa642a819e8a33d70731fb7bc8e110d8659f",
-				"v1.19.8": "9c6646cdf03efc3194afc178647205195da4a43f58d0b70954953f566fa15c76",
+				"v1.19.0":  "88ce7dc5302d8847f6e679aab9e4fa642a819e8a33d70731fb7bc8e110d8659f",
+				"v1.19.8":  "9c6646cdf03efc3194afc178647205195da4a43f58d0b70954953f566fa15c76",
 				"v1.19.9":  "917712bbd38b625aca456ffa78bf134d64f0efb186cc5772c9844ba6d74fd920",
 				"v1.20.4":  "dcc5629da2c31a000b9b50db077b1cd51a6840e08233fd64b67e37f3f098c392",
 				"v1.20.6":  "ff6fca46edeccd8a4dbf162079d0b3d27841b04885b3f47f80377b3a93ab1533",
@@ -573,8 +581,8 @@ var (
 				"v1.24.3":  "406d5a80712c45d21cdbcc51aab298f0a43170df9477259443d48eac116998ff",
 			},
 			arm64: {
-				"v1.19.0": "db1c432646e6e6484989b6f7191f3610996ac593409f12574290bfc008ea11f5",
-				"v1.19.8": "dfb838ffb88d79e4d881326f611ae5e5999accb54cdd666c75664da264b5d58e",
+				"v1.19.0":  "db1c432646e6e6484989b6f7191f3610996ac593409f12574290bfc008ea11f5",
+				"v1.19.8":  "dfb838ffb88d79e4d881326f611ae5e5999accb54cdd666c75664da264b5d58e",
 				"v1.19.9":  "403c767bef0d681aebc45d5643787fc8c0b9344866cbd339368637a05ea1d11c",
 				"v1.20.4":  "c3ff7f944826889a23a002c85e8f9f9d9a8bc95e9083fbdda59831e3e34245a7",
 				"v1.20.6":  "33837e290bd76fcb16af27db0e814ec023c25e6c41f25a0907b48756d4a2ffc2",
@@ -626,8 +634,8 @@ var (
 		},
 		kubelet: {
 			amd64: {
-				"v1.19.0": "3f03e5c160a8b658d30b34824a1c00abadbac96e62c4d01bf5c9271a2debc3ab",
-				"v1.19.8": "f5cad5260c29584dd370ec13e525c945866957b1aaa719f1b871c31dc30bcb3f",
+				"v1.19.0":  "3f03e5c160a8b658d30b34824a1c00abadbac96e62c4d01bf5c9271a2debc3ab",
+				"v1.19.8":  "f5cad5260c29584dd370ec13e525c945866957b1aaa719f1b871c31dc30bcb3f",
 				"v1.19.9":  "296e72c395f030209e712167fc5f6d2fdfe3530ca4c01bcd9bfb8c5e727c3d8d",
 				"v1.20.4":  "a9f28ac492b3cbf75dee284576b2e1681e67170cd36f3f5cdc31495f1bdbf809",
 				"v1.20.6":  "7688a663dd06222d337c8fdb5b05e1d9377e6d64aa048c6acf484bc3f2a596a8",
@@ -677,8 +685,8 @@ var (
 				"v1.24.3":  "da575ceb7c44fddbe7d2514c16798f39f8c10e54b5dbef3bcee5ac547637db11",
 			},
 			arm64: {
-				"v1.19.0": "d8fa5a9739ecc387dfcc55afa91ac6f4b0ccd01f1423c423dbd312d787bbb6bf",
-				"v1.19.8": "a00146c16266d54f961c40fc67f92c21967596c2d730fa3dc95868d4efb44559",
+				"v1.19.0":  "d8fa5a9739ecc387dfcc55afa91ac6f4b0ccd01f1423c423dbd312d787bbb6bf",
+				"v1.19.8":  "a00146c16266d54f961c40fc67f92c21967596c2d730fa3dc95868d4efb44559",
 				"v1.19.9":  "796f080c53ec50b11152558b4a744432349b800e37b80516bcdc459152766a4f",
 				"v1.20.4":  "66bcdc7521e226e4acaa93c08e5ea7b2f57829e1a5b9decfd2b91d237e216e1d",
 				"v1.20.6":  "6e7b44d1ca65f970b0646f7d093dcf0cfefc44d4a67f29d542fe1b7ca6dcf715",
@@ -730,8 +738,8 @@ var (
 		},
 		kubectl: {
 			amd64: {
-				"v1.19.0": "79bb0d2f05487ff533999a639c075043c70a0a1ba25c1629eb1eef6ebe3ba70f",
-				"v1.19.8": "a0737d3a15ca177816b6fb1fd59bdd5a3751bfdc66de4e08dffddba84e38bf3f",
+				"v1.19.0":  "79bb0d2f05487ff533999a639c075043c70a0a1ba25c1629eb1eef6ebe3ba70f",
+				"v1.19.8":  "a0737d3a15ca177816b6fb1fd59bdd5a3751bfdc66de4e08dffddba84e38bf3f",
 				"v1.19.9":  "7128c9e38ab9c445a3b02d3d0b3f0f15fe7fbca56fd87b84e575d7b29e999ad9",
 				"v1.20.4":  "98e8aea149b00f653beeb53d4bd27edda9e73b48fed156c4a0aa1dabe4b1794c",
 				"v1.20.6":  "89ae000df6bbdf38ae4307cc4ecc0347d5c871476862912c0a765db9bf05284e",
@@ -781,8 +789,8 @@ var (
 				"v1.24.3":  "8a45348bdaf81d46caf1706c8bf95b3f431150554f47d444ffde89e8cdd712c1",
 			},
 			arm64: {
-				"v1.19.0": "d4adf1b6b97252025cb2f7febf55daa3f42dc305822e3da133f77fd33071ec2f",
-				"v1.19.8": "8f037ab2aa798bbc66ebd1d52653f607f223b07813bcf98d9c1d0c0e136910ec",
+				"v1.19.0":  "d4adf1b6b97252025cb2f7febf55daa3f42dc305822e3da133f77fd33071ec2f",
+				"v1.19.8":  "8f037ab2aa798bbc66ebd1d52653f607f223b07813bcf98d9c1d0c0e136910ec",
 				"v1.19.9":  "628627d01c9eaf624ffe3cf1195947a256ea5f842851e42682057e4233a9e283",
 				"v1.20.4":  "0fd64b3e5d3fda4637c174a5aea0119b46d6cbede591a4dc9130a81481fc952f",
 				"v1.20.6":  "1d0a29420c4488b15adb44044b193588989b95515cd6c8c03907dafe9b3d53f3",
@@ -865,15 +873,15 @@ var (
 		},
 		k3s: {
 			amd64: {
-				"v1.20.2": "ce3055783cf115ee68fc00bb8d25421d068579ece2fafa4ee1d09f3415aaeabf",
-				"v1.20.4": "1c7b68b0b7d54f21a9c1727545a7db181668115f161a3986bc137261dd817e98",
+				"v1.20.2":  "ce3055783cf115ee68fc00bb8d25421d068579ece2fafa4ee1d09f3415aaeabf",
+				"v1.20.4":  "1c7b68b0b7d54f21a9c1727545a7db181668115f161a3986bc137261dd817e98",
 				"v1.21.4":  "47e686ad5390670da79a467ba94399d72e472364bc064a20fecd3937a8d928b5",
 				"v1.21.6":  "89eb5f3d12524d0a9d5b56ba3e2707b106e1731dd0e6d2e7b898ac585f4959df",
 				"v1.22.16": "8ba7fc7397a0a0b5e76b85380de95c569fa2ada54f5b9756cb1bc6a573548f12",
 			},
 			arm64: {
-				"v1.21.4": "b7f8c026c5346b3e894d731f1dc2490cd7281687549f34c28a849f58c62e3e48",
-				"v1.21.6": "1f06a2da0e1e8596220a5504291ce69237979ebf520e2458c2d72573945a9c1d",
+				"v1.21.4":  "b7f8c026c5346b3e894d731f1dc2490cd7281687549f34c28a849f58c62e3e48",
+				"v1.21.6":  "1f06a2da0e1e8596220a5504291ce69237979ebf520e2458c2d72573945a9c1d",
 				"v1.22.16": "b8f3109f87309d6ac9aca331216f959f74ad57d522e0c08ca65ce778b19e28bb",
 			},
 		},

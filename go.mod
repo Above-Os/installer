@@ -14,7 +14,6 @@ require (
 	github.com/emicklei/go-restful/v3 v3.12.1
 	github.com/estesp/manifest-tool/v2 v2.1.6
 	github.com/go-openapi/spec v0.21.0
-	github.com/go-playground/universal-translator v0.18.1
 	github.com/go-playground/validator/v10 v10.22.0
 	github.com/jmoiron/sqlx v1.4.0
 	github.com/lithammer/dedent v1.1.0
@@ -96,6 +95,7 @@ require (
 	github.com/go-openapi/strfmt v0.23.0 // indirect
 	github.com/go-openapi/validate v0.24.0 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
+	github.com/go-playground/universal-translator v0.18.1 // indirect
 	github.com/gobwas/glob v0.2.3 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect

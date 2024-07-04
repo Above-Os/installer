@@ -17,19 +17,19 @@
 package precheck
 
 import (
+	"bufio"
 	"fmt"
-	"os/exec"
+	"os"
 	"regexp"
+	"strconv"
 	"strings"
 
-	kubekeyapiv1alpha2 "bytetrade.io/web3os/installer/apis/kubekey/v1alpha2"
 	"bytetrade.io/web3os/installer/pkg/common"
 	"bytetrade.io/web3os/installer/pkg/constants"
 	"bytetrade.io/web3os/installer/pkg/core/action"
 	"bytetrade.io/web3os/installer/pkg/core/connector"
 	"bytetrade.io/web3os/installer/pkg/core/logger"
 	"bytetrade.io/web3os/installer/pkg/core/util"
-	"bytetrade.io/web3os/installer/pkg/files"
 	"bytetrade.io/web3os/installer/pkg/utils"
 	"bytetrade.io/web3os/installer/pkg/version/kubernetes"
 	"bytetrade.io/web3os/installer/pkg/version/kubesphere"
@@ -37,48 +37,144 @@ import (
 	versionutil "k8s.io/apimachinery/pkg/util/version"
 )
 
-// ~ PatchDeps
-// install socat and contrack on other systemc
-type PatchDeps struct {
+// ~ RaspbianCheckTask
+type RaspbianCheckTask struct {
 	action.BaseAction
 }
 
-func (t *PatchDeps) Execute(runtime connector.Runtime) error {
-	// 如果是特殊的系统，需要通过源代码来安装 socat 和 contrack
-	switch constants.OsPlatform {
-	case common.Ubuntu, common.Debian, common.Raspbian, common.CentOs, common.Fedora, common.RHEl:
-		return nil
-	}
+func (t *RaspbianCheckTask) Execute(runtime connector.Runtime) error {
+	// if util.IsExist(common.RaspbianCmdlineFile) || util.IsExist(common.RaspbianFirmwareFile) {
+	if constants.OsPlatform == common.Raspbian {
+		if err := runtime.GetRunner().Host.GetCommand(common.CommandIptables); err != nil {
+			var cmd = "apt install -y iptables"
+			host := runtime.GetRunner().Host
 
-	socat := files.NewKubeBinary("socat", constants.OsArch, kubekeyapiv1alpha2.DefaultSocatVersion, runtime.GetDependDir())
-	contrack := files.NewKubeBinary("contrack", constants.OsArch, kubekeyapiv1alpha2.DefaultContrackVersion, runtime.GetDependDir())
+			_, _, err = host.Exec(cmd, true, true)
+			if err != nil {
+				logger.Errorf("%s install iptables error %v", common.Raspbian, err)
+				return err
+			}
+			cmd = "systemctl disable --user gvfs-udisks2-volume-monitor"
+			_, _, err = host.Exec(cmd, true, true)
+			if err != nil {
+				logger.Errorf("%s exec %s error %v", common.Raspbian, cmd, err)
+				return err
+			}
 
-	binaries := []*files.KubeBinary{socat, contrack}
-	binariesMap := make(map[string]*files.KubeBinary)
+			cmd = "systemctl stop --user gvfs-udisks2-volume-monitor"
+			_, _, err = host.Exec(cmd, true, true)
+			if err != nil {
+				logger.Errorf("%s exec %s error %v", common.Raspbian, cmd, err)
+				return err
+			}
 
-	for _, binary := range binaries {
-		if err := binary.CreateBaseDir(); err != nil {
-			return errors.Wrapf(errors.WithStack(err), "create file %s base dir failed", binary.FileName)
-		}
-
-		logger.Infof("%s downloading %s %s %s ...", common.LocalHost, constants.OsArch, binary.ID, binary.Version)
-
-		binariesMap[binary.ID] = binary
-		if util.IsExist(binary.Path()) {
-			p := binary.Path()
-			if err := binary.SHA256Check(); err != nil {
-				_ = exec.Command("/bin/sh", "-c", fmt.Sprintf("rm -f %s", p)).Run()
-			} else {
-				continue
+			if constants.CgroupCpuEnabled == 0 || constants.CgroupMemoryEnabled == 0 {
+				return fmt.Errorf("cpu or memory cgroups disabled, please edit /boot/cmdline.txt or /boot/firmware/cmdline.txt and reboot to enable it")
 			}
 		}
+	}
 
-		if err := binary.Download(); err != nil {
-			return fmt.Errorf("Failed to download %s binary: %s error: %w ", binary.ID, binary.Url, err)
+	return nil
+}
+
+// ~ DisableLocalDNSTask
+type DisableLocalDNSTask struct {
+	action.BaseAction
+}
+
+func (t *DisableLocalDNSTask) Execute(runtime connector.Runtime) error {
+	var cmd string
+	var host = runtime.GetRunner().Host
+	switch constants.OsPlatform {
+	case common.Ubuntu, common.Debian, common.Raspbian:
+		if ok := runtime.GetRunner().Host.GetServiceActive("systemd-resolved"); ok {
+			cmd = "systemctl stop systemd-resolved.service"
+			if _, _, err := host.Exec(cmd, true, true); err != nil {
+				logger.Errorf("exec %s error %v", cmd, err)
+				return err
+			}
+			cmd = "systemctl disable systemd-resolved.service"
+			if _, _, err := host.Exec(cmd, true, true); err != nil {
+				logger.Errorf("exec %s error %v", cmd, err)
+				return err
+			}
+			if host.IsExists("/usr/bin/systemd-resolve") {
+				if err := host.Move("/usr/bin/systemd-resolve", "/usr/bin/systemd-resolve.bak"); err != nil {
+					logger.Errorf("move /usr/bin/systemd-resolve error %v", err)
+					return err
+				}
+			}
+			ok, err := host.IsSymLink("/etc/resolv.conf")
+			if err != nil {
+				logger.Errorf("check /etc/resolv.conf error %v", err)
+				return err
+			}
+			if ok {
+				if _, _, err := host.Exec("unlink /etc/resolv.conf && touch /etc/resolv.conf", true, true); err != nil {
+					logger.Errorf("unlink /etc/resolv.conf error %v", err)
+					return err
+				}
+			}
+
+			if err = ConfigResolvConf(runtime); err != nil {
+				logger.Errorf("config /etc/resolv.conf error %v", err)
+				return err
+			}
+		} else {
+			if _, _, err := host.Exec("cat /etc/resolv.conf > /etc/resolv.conf.bak", true, true); err != nil {
+				logger.Errorf("backup /etc/resolv.conf error %v", err)
+				return err
+			}
 		}
 	}
 
-	t.PipelineCache.Set(common.KubeBinaries+"-"+constants.OsArch, binariesMap)
+	if stdout, _, _ := host.Exec("hostname -i &>/dev/null", false, false); stdout == "" {
+		if _, _, err := host.Exec(fmt.Sprintf("echo %s $HOSTNAME >> /etc/hosts", constants.LocalIp[0]), true, true); err != nil {
+			return err
+		}
+	}
+
+	httpCode, _ := utils.GetHttpStatus("https://download.docker.com/linux/ubuntu")
+	if httpCode != 200 {
+		if err := ConfigResolvConf(runtime); err != nil {
+			logger.Errorf("config /etc/resolv.conf error %v", err)
+			return err
+		}
+		if host.IsExists("/etc/resolv.conf.bak") {
+			if err := host.Remove("/etc/resolv.conf.bak"); err != nil {
+				logger.Errorf("remove /etc/resolv.conf.bak error %v", err)
+				return err
+			}
+		}
+	}
+
+	return nil
+}
+
+func ConfigResolvConf(runtime connector.Runtime) error {
+	var err error
+	var cmd string
+	var host = runtime.GetRunner().Host
+
+	if constants.CloudVendor == common.AliYun {
+		cmd = `echo "nameserver 100.100.2.136" > /etc/resolv.conf`
+		if _, _, err = host.Exec(cmd, true, true); err != nil {
+			logger.Errorf("exec %s error %v", cmd, err)
+			return err
+		}
+	}
+
+	cmd = `echo "nameserver 1.0.0.1" >> /etc/resolv.conf`
+	if _, _, err = host.Exec(cmd, true, true); err != nil {
+		logger.Errorf("exec %s error %v", cmd, err)
+		return err
+	}
+
+	cmd = `echo "nameserver 1.1.1.1" >> /etc/resolv.conf`
+	if _, _, err = host.Exec(cmd, true, true); err != nil {
+		logger.Errorf("exec %s error %v", cmd, err)
+		return err
+	}
 	return nil
 }
 
@@ -92,6 +188,7 @@ func (t *GetSysInfoTask) Execute(runtime connector.Runtime) error {
 	if err != nil {
 		return err
 	}
+
 	constants.HostName = host[0]
 	constants.HostId = host[1]
 	constants.OsType = host[2]
@@ -121,17 +218,55 @@ func (t *GetSysInfoTask) Execute(runtime connector.Runtime) error {
 	constants.MemTotal = memTotal
 	constants.MemFree = memFree
 
-	logger.Debugf("MACHINE, hostname: %s, cpu: %d, mem: %s, disk: %s",
-		constants.HostName, constants.CpuPhysicalCount, utils.FormatBytes(int64(constants.MemTotal)), utils.FormatBytes(int64(constants.DiskTotal)))
-	logger.Debugf("SYSTEM, os: %s, platform: %s, arch: %s, version: %s",
-		constants.OsType, constants.OsPlatform, constants.OsArch, constants.OsVersion)
-
 	logger.Infof("host info, user: %s, hostname: %s, hostid: %s, os: %s, platform: %s, version: %s, arch: %s",
-		constants.CurrentUser,constants.HostName, constants.HostId, constants.OsType, constants.OsPlatform, constants.OsVersion, constants.OsArch)
+		constants.CurrentUser, constants.HostName, constants.HostId, constants.OsType, constants.OsPlatform, constants.OsVersion, constants.OsArch)
 	logger.Infof("cpu info, model: %s, logical count: %d, physical count: %d",
 		constants.CpuModel, constants.CpuLogicalCount, constants.CpuPhysicalCount)
 	logger.Infof("disk info, total: %s, free: %s", utils.FormatBytes(int64(constants.DiskTotal)), utils.FormatBytes(int64(constants.DiskFree)))
 	logger.Infof("mem info, total: %s, free: %s", utils.FormatBytes(int64(constants.MemTotal)), utils.FormatBytes(int64(constants.MemFree)))
+
+	return nil
+}
+
+// ~ GetCGroupsTask
+type GetCGroupsTask struct {
+	action.BaseAction
+}
+
+func (t *GetCGroupsTask) Execute(runtime connector.Runtime) error {
+	file, err := os.Open("/proc/cgroups")
+	if err != nil {
+		logger.Errorf("error opening /proc/cgroups error %v", err)
+		return err
+	}
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		line := scanner.Text()
+		if strings.HasPrefix(line, "#") {
+			continue
+		}
+		fields := strings.Fields(line)
+		if len(fields) < 4 {
+			continue
+		}
+		switch fields[0] {
+		case "cpu":
+			cpuEnabled, _ := strconv.ParseInt(fields[3], 10, 64)
+			constants.CgroupCpuEnabled = int(cpuEnabled)
+		case "memory":
+			memoryEnabled, _ := strconv.ParseInt(fields[3], 10, 64)
+			constants.CgroupMemoryEnabled = int(memoryEnabled)
+		default:
+			continue
+		}
+	}
+
+	if err := scanner.Err(); err != nil {
+		logger.Errorf("error reading /proc/cgroups error %v", err)
+		return err
+	}
 
 	return nil
 }
@@ -153,7 +288,7 @@ func (t *GetLocalIpTask) Execute(runtime connector.Runtime) error {
 		return err
 	}
 
-	logger.Debugf("GetLocalIpHook, local ip: %s", pingIps)
+	logger.Infof("GetLocalIpHook, local ip: %s", pingIps)
 	constants.LocalIp = pingIps
 
 	return nil

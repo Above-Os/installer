@@ -103,7 +103,7 @@ func (b *BaseRuntime) GenerateWorkDir() error {
 		return errors.Wrap(err, "get current dir failed")
 	}
 
-	rootPath := filepath.Join(currentDir, common.KubeKey)
+	rootPath := filepath.Join(currentDir, common.Pkg)
 	if err := util.CreateDir(rootPath); err != nil {
 		return errors.Wrap(err, "create work dir failed")
 	}

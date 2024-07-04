@@ -11,6 +11,7 @@ import (
 	"bytetrade.io/web3os/installer/pkg/constants"
 	"bytetrade.io/web3os/installer/pkg/core/logger"
 	"bytetrade.io/web3os/installer/pkg/phase/startup"
+	"bytetrade.io/web3os/installer/pkg/utils"
 	"github.com/spf13/cobra"
 )
 
@@ -82,6 +83,15 @@ func GetMachineInfo() error {
 	if err := startup.GetMachineInfo(); err != nil {
 		return err
 	}
+
+	fmt.Printf("MACHINE, hostname: %s, cpu: %d, mem: %s, disk: %s, local-ip: %v\n",
+		constants.HostName, constants.CpuPhysicalCount, utils.FormatBytes(int64(constants.MemTotal)),
+		utils.FormatBytes(int64(constants.DiskTotal)),
+		constants.LocalIp)
+	fmt.Printf("SYSTEM, os: %s, platform: %s, arch: %s, version: %s\nCGROUP, cpu-enabled: %d, memory-enabled: %d\n",
+		constants.OsType, constants.OsPlatform, constants.OsArch, constants.OsVersion,
+		constants.CgroupCpuEnabled, constants.CgroupMemoryEnabled,
+	)
 	return nil
 }
 

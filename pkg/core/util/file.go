@@ -26,6 +26,7 @@ import (
 	"io/fs"
 	"io/ioutil"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 
@@ -62,6 +63,13 @@ func RemoveDir(path string) error {
 		if err != nil {
 			return err
 		}
+	}
+	return nil
+}
+
+func RemoveFile(path string) error {
+	if IsExist(path) {
+		return os.Remove(path)
 	}
 	return nil
 }
@@ -162,6 +170,14 @@ func CopyFile(src, dst string) error {
 
 	_, err = io.Copy(dstFile, srcFile)
 	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func MoveFile(src, dst string) error {
+	cmd := exec.Command("mv", src, dst)
+	if err := cmd.Run(); err != nil {
 		return err
 	}
 	return nil

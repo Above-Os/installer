@@ -15,6 +15,7 @@ func NewCreateInstallerPipeline(runtime *common.KubeRuntime) error {
 
 	m := []module.Module{
 		&precheck.TerminusGreetingsModule{},
+		// * 对应 precheck_os()
 		&precheck.PreCheckOsModule{},
 	}
 

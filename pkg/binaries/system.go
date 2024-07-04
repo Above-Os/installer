@@ -3,6 +3,7 @@ package binaries
 import (
 	"fmt"
 	"os/exec"
+	pathx "path"
 
 	"bytetrade.io/web3os/installer/pkg/common"
 	"bytetrade.io/web3os/installer/pkg/core/cache"
@@ -12,11 +13,11 @@ import (
 	"github.com/pkg/errors"
 )
 
-func DownloadUbutun24AppArmor(path, version, arch string, pipelineCache *cache.Cache) error {
+func DownloadUbutun24AppArmor(path, version, arch string, pipelineCache *cache.Cache) (string, error) {
 	apparmor := files.NewKubeBinary("apparmor", arch, version, path)
 
 	if err := apparmor.CreateBaseDir(); err != nil {
-		return errors.Wrapf(errors.WithStack(err), "create file %s base dir failed", apparmor.FileName)
+		return "", errors.Wrapf(errors.WithStack(err), "create file %s base dir failed", apparmor.FileName)
 	}
 
 	logger.Infof("%s downloading %s %s %s ...", common.LocalHost, arch, apparmor.ID, apparmor.Version)
@@ -33,11 +34,11 @@ func DownloadUbutun24AppArmor(path, version, arch string, pipelineCache *cache.C
 	}
 
 	if err := apparmor.Download(); err != nil {
-		return fmt.Errorf("Failed to download %s binary: %s error: %w ", apparmor.ID, apparmor.Url, err)
+		return "", fmt.Errorf("Failed to download %s binary: %s error: %w ", apparmor.ID, apparmor.Url, err)
 	}
 
 	binariesMap := make(map[string]*files.KubeBinary)
 	binariesMap[apparmor.ID] = apparmor
 	pipelineCache.Set(common.KubeBinaries+"-"+arch, binariesMap)
-	return nil
+	return pathx.Join(apparmor.BaseDir, apparmor.FileName), nil
 }

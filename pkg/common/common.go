@@ -117,7 +117,15 @@ const (
 
 	Intel64 = "x86_64"
 	Amd64   = "amd64"
+	Arm     = "arm" // todo 这里要注意下，数据可能是 arm7  arm  armv7l ...
+	Arm7    = "arm7"
+	Armv7l  = "Armv7l"
+	Armhf   = "armhf"
 	Arm64   = "arm64"
+	PPC64el = "ppc64el"
+	PPC64le = "ppc64le"
+	S390x   = "s390x"
+	Riscv64 = "riscv64"
 
 	Ubuntu   = "ubuntu"
 	Debian   = "debian"
@@ -125,4 +133,18 @@ const (
 	Fedora   = "fedora"
 	RHEl     = "rhel"
 	Raspbian = "raspbian"
+)
+
+const (
+	AliYun = "aliyun"
+	AWS    = "aws"
+)
+
+const (
+	RaspbianCmdlineFile  = "/boot/cmdline.txt"
+	RaspbianFirmwareFile = "/boot/firmware/cmdline.txt"
+)
+
+const (
+	CommandIptables = "iptables"
 )

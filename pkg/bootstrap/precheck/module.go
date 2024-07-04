@@ -17,13 +17,10 @@
 package precheck
 
 import (
-	"strings"
 	"time"
 
+	"bytetrade.io/web3os/installer/pkg/binaries"
 	"bytetrade.io/web3os/installer/pkg/common"
-	"bytetrade.io/web3os/installer/pkg/constants"
-	"bytetrade.io/web3os/installer/pkg/core/action"
-	corecommon "bytetrade.io/web3os/installer/pkg/core/common"
 	"bytetrade.io/web3os/installer/pkg/core/module"
 	"bytetrade.io/web3os/installer/pkg/core/prepare"
 	"bytetrade.io/web3os/installer/pkg/core/task"
@@ -54,6 +51,11 @@ func (m *GetSysInfoModel) Init() {
 		Action: new(GetSysInfoTask),
 	}
 
+	getCgroupsEnabledTask := &task.LocalTask{
+		Name:   "GetCgroupsEnabled",
+		Action: new(GetCGroupsTask),
+	}
+
 	getLocalIpTask := &task.LocalTask{
 		Name:   "GetLocalIp",
 		Desc:   "GetLocalIp",
@@ -62,6 +64,7 @@ func (m *GetSysInfoModel) Init() {
 
 	m.Tasks = []task.Interface{
 		getSysInfoTask,
+		getCgroupsEnabledTask,
 		getLocalIpTask,
 	}
 
@@ -78,43 +81,65 @@ type PreCheckOsModule struct {
 
 func (m *PreCheckOsModule) Init() {
 	m.Name = "PreCheckOsModule"
-	m.Desc = "PreCheckOsModule"
 
-	var flag = "2" // ! debug
-	if constants.OsPlatform == common.Ubuntu && strings.HasPrefix("24.", constants.OsVersion) {
-		flag = "2"
-	}
+	// var flag = "2" // ! debug
+	// if constants.OsPlatform == common.Ubuntu && strings.HasPrefix("24.", constants.OsVersion) {
+	// 	flag = "2"
+	// }
 
-	preCheckOs := &task.LocalTask{
-		Name: "PreCheckOs",
-		Desc: "PreCheckOs",
+	// preCheckOs := &task.LocalTask{
+	// 	Name: "PreCheckOs",
+	// 	Desc: "PreCheckOs",
+	// 	Prepare: &prepare.PrepareCollection{
+	// 		&DownloadDepsExt{},
+	// 	},
+	// 	Action: &action.Script{
+	// 		Name:        "PreCheckOs",
+	// 		File:        corecommon.PrecheckOsShell,
+	// 		Args:        []string{constants.LocalIp[0], constants.OsPlatform, flag},
+	// 		PrintOutput: true,
+	// 	},
+	// 	Retry: 0,
+	// }
+
+	patchAppArmor := &task.LocalTask{
+		Name: "PatchAppArmor",
 		Prepare: &prepare.PrepareCollection{
-			&DownloadDepsExt{},
+			&binaries.Ubuntu24AppArmorCheck{},
 		},
-		Action: &action.Script{
-			Name:        "PreCheckOs",
-			File:        corecommon.PrecheckOsShell,
-			Args:        []string{constants.LocalIp[0], constants.OsPlatform, flag},
-			PrintOutput: true,
-		},
-		Retry: 0,
+		Action: new(binaries.InstallAppArmorTask),
+		Retry:  0,
 	}
 
-	installDeps := &task.LocalTask{
-		Name: "InstallDeps",
-		Desc: "InstallDeps",
-		Action: &action.Script{
-			Name:        "PreCheckOs",
-			File:        corecommon.InstallDepsShell,
-			Args:        []string{"aa"},
-			PrintOutput: true,
-		},
-		Retry: 0,
+	raspbianCheck := &task.LocalTask{
+		Name:   "RaspbianCheck",
+		Action: new(RaspbianCheckTask),
+		Retry:  0,
 	}
+
+	disableDNS := &task.LocalTask{
+		Name:   "DisableLocalDNS",
+		Action: new(DisableLocalDNSTask),
+		Retry:  0,
+	}
+
+	// installDeps := &task.LocalTask{
+	// 	Name: "InstallDeps",
+	// 	Desc: "InstallDeps",
+	// 	Action: &action.Script{
+	// 		Name:        "PreCheckOs",
+	// 		File:        corecommon.InstallDepsShell,
+	// 		Args:        []string{"aa"},
+	// 		PrintOutput: true,
+	// 	},
+	// 	Retry: 0,
+	// }
 
 	m.Tasks = []task.Interface{
-		preCheckOs,
-		installDeps,
+		patchAppArmor,
+		raspbianCheck,
+		disableDNS,
+		// installDeps,
 	}
 }
 
@@ -154,12 +179,12 @@ func (h *GreetingsModule) Init() {
 	}
 
 	hello := &task.RemoteTask{
-		Name:    "Greetings",
-		Desc:    "Greetings",
-		Hosts: 	 h.Runtime.GetAllHosts(),
-		Action:  new(GreetingsTask),
+		Name:     "Greetings",
+		Desc:     "Greetings",
+		Hosts:    h.Runtime.GetAllHosts(),
+		Action:   new(GreetingsTask),
 		Parallel: true,
-		Timeout: time.Duration(timeout) * time.Second,
+		Timeout:  time.Duration(timeout) * time.Second,
 	}
 
 	h.Tasks = []task.Interface{

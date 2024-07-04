@@ -9,5 +9,10 @@
   "[vue]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
-  "i18n-ally.localesPaths": ["src/i18n"]
+  "i18n-ally.localesPaths": [
+    "src/i18n"
+  ],
+  "[go]": {
+    "editor.defaultFormatter": "golang.go"
+  }
 }

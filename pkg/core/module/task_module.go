@@ -21,6 +21,7 @@ import (
 	"bytetrade.io/web3os/installer/pkg/core/ending"
 	"bytetrade.io/web3os/installer/pkg/core/logger"
 	"bytetrade.io/web3os/installer/pkg/core/task"
+	"bytetrade.io/web3os/installer/pkg/core/util"
 	"github.com/pkg/errors"
 )
 
@@ -48,7 +49,11 @@ func (b *BaseTaskModule) Run(result *ending.ModuleResult) {
 		res := t.Execute()
 		for j := range res.ActionResults {
 			ac := res.ActionResults[j]
-			logger.Infof("[Module] %s: %s %s", ac.Host.GetName(), b.Name, ac.Status.String())
+			// logger.Infof("[Module] %s: %s %s", ac.Host.GetName(), b.Name, ac.Status.String())
+			elapsed := ac.EndTime.Sub(ac.StartTime)
+			// logger.Infof("[Module] %s: %s %s", ac.Host.GetName(), b.Name, ac.Status.String())
+			logger.Debugf("[A] %s %s %s (%s)", t.GetName(), ac.Host.GetName(), ac.Status.String(), util.ShortDur(elapsed))
+
 			result.AppendHostResult(ac)
 
 			if _, ok := t.(*task.RemoteTask); ok {

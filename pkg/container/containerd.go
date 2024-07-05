@@ -320,18 +320,18 @@ func MigrateSelfNodeCriTasks(runtime connector.Runtime, kubeAction common.KubeAc
 		Parallel: false,
 	}
 	switch kubeAction.KubeConf.Cluster.Kubernetes.ContainerManager {
-	case common.Docker:
-		Uninstall := &task.RemoteTask{
-			Name:  "DisableDocker",
-			Desc:  "Disable docker",
-			Hosts: []connector.Host{host},
-			Prepare: &prepare.PrepareCollection{
-				&DockerExist{Not: false},
-			},
-			Action:   new(DisableDocker),
-			Parallel: false,
-		}
-		tasks = append(tasks, CordonNode, DrainNode, Uninstall)
+	// case common.Docker:
+	// 	Uninstall := &task.RemoteTask{
+	// 		Name:  "DisableDocker",
+	// 		Desc:  "Disable docker",
+	// 		Hosts: []connector.Host{host},
+	// 		Prepare: &prepare.PrepareCollection{
+	// 			&DockerExist{Not: false},
+	// 		},
+	// 		Action:   new(DisableDocker),
+	// 		Parallel: false,
+	// 	}
+	// 	tasks = append(tasks, CordonNode, DrainNode, Uninstall)
 	case common.Conatinerd:
 		Uninstall := &task.RemoteTask{
 			Name:  "UninstallContainerd",
@@ -345,80 +345,80 @@ func MigrateSelfNodeCriTasks(runtime connector.Runtime, kubeAction common.KubeAc
 		}
 		tasks = append(tasks, CordonNode, DrainNode, Uninstall)
 	}
-	if kubeAction.KubeConf.Arg.Type == common.Docker {
-		syncBinaries := &task.RemoteTask{
-			Name:  "SyncDockerBinaries",
-			Desc:  "Sync docker binaries",
-			Hosts: []connector.Host{host},
-			Prepare: &prepare.PrepareCollection{
-				// &kubernetes.NodeInCluster{Not: true},
-				&DockerExist{Not: true},
-			},
-			Action:   new(SyncDockerBinaries),
-			Parallel: false,
-		}
-		generateDockerService := &task.RemoteTask{
-			Name:  "GenerateDockerService",
-			Desc:  "Generate docker service",
-			Hosts: []connector.Host{host},
-			Prepare: &prepare.PrepareCollection{
-				// &kubernetes.NodeInCluster{Not: true},
-				&DockerExist{Not: true},
-			},
-			Action: &action.Template{
-				Name:     "GenerateDockerService",
-				Template: templates.DockerService,
-				Dst:      filepath.Join("/etc/systemd/system", templates.DockerService.Name()),
-			},
-			Parallel: false,
-		}
-		generateDockerConfig := &task.RemoteTask{
-			Name:  "GenerateDockerConfig",
-			Desc:  "Generate docker config",
-			Hosts: []connector.Host{host},
-			Prepare: &prepare.PrepareCollection{
-				// &kubernetes.NodeInCluster{Not: true},
-				&DockerExist{Not: true},
-			},
-			Action: &action.Template{
-				Name:     "GenerateDockerConfig",
-				Template: templates.DockerConfig,
-				Dst:      filepath.Join("/etc/docker/", templates.DockerConfig.Name()),
-				Data: util.Data{
-					"Mirrors":            templates.Mirrors(kubeAction.KubeConf),
-					"InsecureRegistries": templates.InsecureRegistries(kubeAction.KubeConf),
-					"DataRoot":           templates.DataRoot(kubeAction.KubeConf),
-				},
-			},
-			Parallel: false,
-		}
-		enableDocker := &task.RemoteTask{
-			Name:  "EnableDocker",
-			Desc:  "Enable docker",
-			Hosts: []connector.Host{host},
-			Prepare: &prepare.PrepareCollection{
-				// &kubernetes.NodeInCluster{Not: true},
-				&DockerExist{Not: true},
-			},
-			Action:   new(EnableDocker),
-			Parallel: false,
-		}
-		dockerLoginRegistry := &task.RemoteTask{
-			Name:  "Login PrivateRegistry",
-			Desc:  "Add auths to container runtime",
-			Hosts: []connector.Host{host},
-			Prepare: &prepare.PrepareCollection{
-				// &kubernetes.NodeInCluster{Not: true},
-				&DockerExist{},
-				&PrivateRegistryAuth{},
-			},
-			Action:   new(DockerLoginRegistry),
-			Parallel: false,
-		}
+	// if kubeAction.KubeConf.Arg.Type == common.Docker {
+	// 	syncBinaries := &task.RemoteTask{
+	// 		Name:  "SyncDockerBinaries",
+	// 		Desc:  "Sync docker binaries",
+	// 		Hosts: []connector.Host{host},
+	// 		Prepare: &prepare.PrepareCollection{
+	// 			// &kubernetes.NodeInCluster{Not: true},
+	// 			&DockerExist{Not: true},
+	// 		},
+	// 		Action:   new(SyncDockerBinaries),
+	// 		Parallel: false,
+	// 	}
+	// 	generateDockerService := &task.RemoteTask{
+	// 		Name:  "GenerateDockerService",
+	// 		Desc:  "Generate docker service",
+	// 		Hosts: []connector.Host{host},
+	// 		Prepare: &prepare.PrepareCollection{
+	// 			// &kubernetes.NodeInCluster{Not: true},
+	// 			&DockerExist{Not: true},
+	// 		},
+	// 		Action: &action.Template{
+	// 			Name:     "GenerateDockerService",
+	// 			Template: templates.DockerService,
+	// 			Dst:      filepath.Join("/etc/systemd/system", templates.DockerService.Name()),
+	// 		},
+	// 		Parallel: false,
+	// 	}
+	// 	generateDockerConfig := &task.RemoteTask{
+	// 		Name:  "GenerateDockerConfig",
+	// 		Desc:  "Generate docker config",
+	// 		Hosts: []connector.Host{host},
+	// 		Prepare: &prepare.PrepareCollection{
+	// 			// &kubernetes.NodeInCluster{Not: true},
+	// 			&DockerExist{Not: true},
+	// 		},
+	// 		Action: &action.Template{
+	// 			Name:     "GenerateDockerConfig",
+	// 			Template: templates.DockerConfig,
+	// 			Dst:      filepath.Join("/etc/docker/", templates.DockerConfig.Name()),
+	// 			Data: util.Data{
+	// 				"Mirrors":            templates.Mirrors(kubeAction.KubeConf),
+	// 				"InsecureRegistries": templates.InsecureRegistries(kubeAction.KubeConf),
+	// 				"DataRoot":           templates.DataRoot(kubeAction.KubeConf),
+	// 			},
+	// 		},
+	// 		Parallel: false,
+	// 	}
+	// 	enableDocker := &task.RemoteTask{
+	// 		Name:  "EnableDocker",
+	// 		Desc:  "Enable docker",
+	// 		Hosts: []connector.Host{host},
+	// 		Prepare: &prepare.PrepareCollection{
+	// 			// &kubernetes.NodeInCluster{Not: true},
+	// 			&DockerExist{Not: true},
+	// 		},
+	// 		Action:   new(EnableDocker),
+	// 		Parallel: false,
+	// 	}
+	// 	dockerLoginRegistry := &task.RemoteTask{
+	// 		Name:  "Login PrivateRegistry",
+	// 		Desc:  "Add auths to container runtime",
+	// 		Hosts: []connector.Host{host},
+	// 		Prepare: &prepare.PrepareCollection{
+	// 			// &kubernetes.NodeInCluster{Not: true},
+	// 			&DockerExist{},
+	// 			&PrivateRegistryAuth{},
+	// 		},
+	// 		Action:   new(DockerLoginRegistry),
+	// 		Parallel: false,
+	// 	}
 
-		tasks = append(tasks, syncBinaries, generateDockerService, generateDockerConfig, enableDocker, dockerLoginRegistry,
-			RestartCri, EditKubeletCri, RestartKubeletNode, UnCordonNode)
-	}
+	// 	tasks = append(tasks, syncBinaries, generateDockerService, generateDockerConfig, enableDocker, dockerLoginRegistry,
+	// 		RestartCri, EditKubeletCri, RestartKubeletNode, UnCordonNode)
+	// }
 	if kubeAction.KubeConf.Arg.Type == common.Conatinerd {
 		syncContainerd := &task.RemoteTask{
 			Name:  "SyncContainerd",

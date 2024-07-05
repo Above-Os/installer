@@ -290,6 +290,15 @@ func (t *GetCGroupsTask) Execute(runtime connector.Runtime) error {
 		return err
 	}
 
+	fmt.Printf("MACHINE, hostname: %s, cpu: %d, mem: %s, disk: %s, local-ip: %v\n",
+		constants.HostName, constants.CpuPhysicalCount, utils.FormatBytes(int64(constants.MemTotal)),
+		utils.FormatBytes(int64(constants.DiskTotal)),
+		constants.LocalIp)
+	fmt.Printf("SYSTEM, os: %s, platform: %s, arch: %s, version: %s\nCGROUP, cpu-enabled: %d, memory-enabled: %d\n",
+		constants.OsType, constants.OsPlatform, constants.OsArch, constants.OsVersion,
+		constants.CgroupCpuEnabled, constants.CgroupMemoryEnabled,
+	)
+
 	return nil
 }
 

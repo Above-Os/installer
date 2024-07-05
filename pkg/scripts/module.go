@@ -33,11 +33,11 @@ type CopyScriptsModule struct {
 
 func (m *CopyScriptsModule) Init() {
 	m.Name = "CopyScripts"
-	m.Desc = "Copy scripts"
+	m.Desc = "Copy scripts(module name)"
 
 	copyScripts := &task.LocalTask{
 		Name:   "CopyScripts",
-		Desc:   "Copy scripts",
+		Desc:   "Copy scripts(action name)",
 		Action: &Copy{},
 	}
 

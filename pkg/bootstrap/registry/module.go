@@ -161,17 +161,17 @@ func InstallRegistry(i *InstallRegistryModule) []task.Interface {
 
 func InstallHarbor(i *InstallRegistryModule) []task.Interface {
 	// Install docker
-	syncBinaries := &task.RemoteTask{
-		Name:  "SyncDockerBinaries",
-		Desc:  "Sync docker binaries",
-		Hosts: i.Runtime.GetHostsByRole(common.Registry),
-		Prepare: &prepare.PrepareCollection{
-			&container.DockerExist{Not: true},
-		},
-		Action:   new(container.SyncDockerBinaries),
-		Parallel: true,
-		Retry:    2,
-	}
+	// syncBinaries := &task.RemoteTask{
+	// 	Name:  "SyncDockerBinaries",
+	// 	Desc:  "Sync docker binaries",
+	// 	Hosts: i.Runtime.GetHostsByRole(common.Registry),
+	// 	Prepare: &prepare.PrepareCollection{
+	// 		&container.DockerExist{Not: true},
+	// 	},
+	// 	Action:   new(container.SyncDockerBinaries),
+	// 	Parallel: true,
+	// 	Retry:    2,
+	// }
 
 	generateDockerService := &task.RemoteTask{
 		Name:  "GenerateDockerService",
@@ -207,16 +207,16 @@ func InstallHarbor(i *InstallRegistryModule) []task.Interface {
 		Parallel: true,
 	}
 
-	enableDocker := &task.RemoteTask{
-		Name:  "EnableDocker",
-		Desc:  "Enable docker",
-		Hosts: i.Runtime.GetHostsByRole(common.Registry),
-		Prepare: &prepare.PrepareCollection{
-			&container.DockerExist{Not: true},
-		},
-		Action:   new(container.EnableDocker),
-		Parallel: true,
-	}
+	// enableDocker := &task.RemoteTask{
+	// 	Name:  "EnableDocker",
+	// 	Desc:  "Enable docker",
+	// 	Hosts: i.Runtime.GetHostsByRole(common.Registry),
+	// 	Prepare: &prepare.PrepareCollection{
+	// 		&container.DockerExist{Not: true},
+	// 	},
+	// 	Action:   new(container.EnableDocker),
+	// 	Parallel: true,
+	// }
 
 	// Install docker compose
 	installDockerCompose := &task.RemoteTask{
@@ -283,10 +283,10 @@ func InstallHarbor(i *InstallRegistryModule) []task.Interface {
 	}
 
 	return []task.Interface{
-		syncBinaries,
+		// syncBinaries,
 		generateDockerService,
 		generateDockerConfig,
-		enableDocker,
+		// enableDocker,
 		installDockerCompose,
 		syncHarborPackage,
 		generateHarborService,

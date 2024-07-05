@@ -84,9 +84,8 @@ func (s *APIServer) installAPIDocs() {
 func (s *APIServer) installStaticResources() {
 	ws := &restful.WebService{}
 
-	ws.Route(ws.GET("/").To(staticFromPathParam)) // staticFromQueryParam
-	ws.Route(ws.GET("/{subpath:*}").To(staticFromPathParam))  // staticFromPathParam
-	
+	ws.Route(ws.GET("/").To(staticFromPathParam))            // staticFromQueryParam
+	ws.Route(ws.GET("/{subpath:*}").To(staticFromPathParam)) // staticFromPathParam
 
 	s.container.Add(ws)
 }
@@ -101,7 +100,6 @@ func (s *APIServer) installStorage() {
 		logger.Errorf("db connect failed: %v", err)
 		panic(err)
 	}
-	logger.Debugf("db connect successful ...")
 }
 
 func (s *APIServer) installModuleAPI() {

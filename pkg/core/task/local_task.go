@@ -53,6 +53,10 @@ type LocalTask struct {
 	TaskResult    *ending.TaskResult
 }
 
+func (l *LocalTask) GetName() string {
+	return l.Name
+}
+
 func (l *LocalTask) GetDesc() string {
 	return l.Desc
 }

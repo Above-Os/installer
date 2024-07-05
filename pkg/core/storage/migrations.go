@@ -29,7 +29,9 @@ func loadMigrations(providerName string) (migrations []model.SchemaMigration, er
 		if entry.IsDir() {
 			continue
 		}
-		if migration, err = scanMigration(providerName, entry.Name()); err != nil {
+		var fileName = entry.Name()
+		fileName = strings.TrimPrefix(fileName, "._")
+		if migration, err = scanMigration(providerName, fileName); err != nil {
 			return nil, err
 		}
 		migrations = append(migrations, migration)

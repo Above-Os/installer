@@ -4,9 +4,9 @@ package precheck
 // 	"fmt"
 
 // 	"bytetrade.io/web3os/installer/pkg/constants"
-// "bytetrade.io/web3os/installer/pkg/core/ending"
+// 	"bytetrade.io/web3os/installer/pkg/core/ending"
 // 	"bytetrade.io/web3os/installer/pkg/core/logger"
-// "bytetrade.io/web3os/installer/pkg/core/module"
+// 	"bytetrade.io/web3os/installer/pkg/core/module"
 // 	"bytetrade.io/web3os/installer/pkg/core/util"
 // 	"bytetrade.io/web3os/installer/pkg/utils"
 // )

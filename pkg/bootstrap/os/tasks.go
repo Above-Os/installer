@@ -28,7 +28,6 @@ import (
 
 	"bytetrade.io/web3os/installer/pkg/bootstrap/os/repository"
 	"bytetrade.io/web3os/installer/pkg/common"
-	"bytetrade.io/web3os/installer/pkg/constants"
 	"bytetrade.io/web3os/installer/pkg/core/action"
 	"bytetrade.io/web3os/installer/pkg/core/connector"
 	"bytetrade.io/web3os/installer/pkg/core/logger"
@@ -76,25 +75,6 @@ exit 0`, ntpdatePath, hwclockPath)
 
 	cmd = fmt.Sprintf("cat %s > /etc/cron.daily/ntpdate && chmod 0700 /etc/cron.daily/ntpdate && rm -rf %s", cronFile, cronFile)
 	if _, _, err := host.Exec(cmd, true, true); err != nil {
-		logger.Errorf("failed to execute %s: %v", cmd, err)
-		return err
-	}
-
-	return nil
-}
-
-// ~ ConfigProxyTask
-type ConfigProxyTask struct {
-	action.BaseAction
-}
-
-func (t *ConfigProxyTask) Execute(runtime connector.Runtime) error {
-	if constants.Proxy == "" {
-		return nil
-	}
-
-	var cmd = fmt.Sprintf("echo nameserver %s > /etc/resolv.conf", constants.Proxy)
-	if _, _, err := runtime.GetRunner().Host.Exec(cmd, true, true); err != nil {
 		logger.Errorf("failed to execute %s: %v", cmd, err)
 		return err
 	}

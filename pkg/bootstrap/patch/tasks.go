@@ -17,7 +17,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-// ~ PatchTask
+// ~ PatchTask apt-get install
 type PatchTask struct {
 	action.BaseAction
 }
@@ -83,7 +83,7 @@ func (t *SocatTask) Execute(runtime connector.Runtime) error {
 	return nil
 }
 
-// ~ ContrackTask
+// ~ ConntrackTask
 type ConntrackTask struct {
 	action.BaseAction
 }
@@ -122,9 +122,9 @@ func (t *PatchDeps) Execute(runtime connector.Runtime) error {
 	}
 
 	socat := files.NewKubeBinary("socat", constants.OsArch, kubekeyapiv1alpha2.DefaultSocatVersion, runtime.GetDependDir())
-	contrack := files.NewKubeBinary("contrack", constants.OsArch, kubekeyapiv1alpha2.DefaultConntrackVersion, runtime.GetDependDir())
+	conntrack := files.NewKubeBinary("conntrack", constants.OsArch, kubekeyapiv1alpha2.DefaultConntrackVersion, runtime.GetDependDir())
 
-	binaries := []*files.KubeBinary{socat, contrack}
+	binaries := []*files.KubeBinary{socat, conntrack}
 	binariesMap := make(map[string]*files.KubeBinary)
 
 	for _, binary := range binaries {

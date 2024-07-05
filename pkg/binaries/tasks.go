@@ -30,7 +30,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-// ~ InstallAppArmor
+// ~ InstallAppArmorTask
 type InstallAppArmorTask struct {
 	action.BaseAction
 }
@@ -40,7 +40,6 @@ func (t *InstallAppArmorTask) Execute(runtime connector.Runtime) error {
 		constants.OsArch, t.PipelineCache)
 	if err != nil {
 		logger.Errorf("failed to download apparmor: %v", err)
-		return err
 	}
 
 	if _, _, err := runtime.GetRunner().Host.Exec(fmt.Sprintf("dpkg -i %s", fileName), true, true); err != nil {
@@ -48,6 +47,16 @@ func (t *InstallAppArmorTask) Execute(runtime connector.Runtime) error {
 		return err
 	}
 
+	return nil
+}
+
+// ~ AppArmorInstall
+type AppArmorInstall struct {
+	common.KubeAction
+}
+
+func (t *AppArmorInstall) Execute(runtime connector.Runtime) error {
+	logger.Debugf("[A] AppArmorInstall")
 	return nil
 }
 

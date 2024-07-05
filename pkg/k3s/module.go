@@ -185,7 +185,7 @@ func (i *InitClusterModule) Init() {
 		},
 		Action:   new(PreloadImagesService),
 		Parallel: false,
-	}
+	}	
 
 	copyKubeConfig := &task.RemoteTask{
 		Name:  "CopyKubeConfig",

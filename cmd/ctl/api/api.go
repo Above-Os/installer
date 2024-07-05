@@ -110,5 +110,6 @@ func Run(option *options.ApiOptions) error {
 	if err = s.PrepareRun(); err != nil {
 		return err
 	}
+
 	return s.Run()
 }

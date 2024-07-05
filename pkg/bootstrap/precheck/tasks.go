@@ -73,7 +73,6 @@ func (t *RaspbianCheckTask) Execute(runtime connector.Runtime) error {
 			}
 		}
 	}
-
 	return nil
 }
 
@@ -201,7 +200,6 @@ func (t *GetSysInfoTask) Execute(runtime connector.Runtime) error {
 	if err != nil {
 		return err
 	}
-
 	constants.HostName = host[0]
 	constants.HostId = host[1]
 	constants.OsType = host[2]

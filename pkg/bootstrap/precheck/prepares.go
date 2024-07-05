@@ -51,14 +51,14 @@ func (p *DownloadDepsExt) PreCheck(runtime connector.Runtime) (bool, error) {
 	// case common.Debian, common.Raspbian, common.CentOs, common.Fedora, common.RHEl:
 	// default:
 	// 	socat := files.NewKubeBinary("socat", kubekeyapiv1alpha2.DefaultArch, kubekeyapiv1alpha2.DefaultSocatVersion, runtime.GetDependDir())
-	// 	contrack := files.NewKubeBinary("contrack", kubekeyapiv1alpha2.DefaultArch, kubekeyapiv1alpha2.DefaultContrackVersion, runtime.GetDependDir())
+	// 	contrack := files.NewKubeBinary("contrack", kubekeyapiv1alpha2.DefaultArch, kubekeyapiv1alpha2.DefaultConntrackVersion, runtime.GetDependDir())
 	// 	binaries = append(binaries, socat, contrack)
 	// }
 
 	apparmor := files.NewKubeBinary("apparmor", kubekeyapiv1alpha2.DefaultArch, kubekeyapiv1alpha2.DefaultUbuntu24AppArmonVersion, runtime.GetDependDir())
 	binaries = append(binaries, apparmor)
 	socat := files.NewKubeBinary("socat", kubekeyapiv1alpha2.DefaultArch, kubekeyapiv1alpha2.DefaultSocatVersion, runtime.GetDependDir())
-	contrack := files.NewKubeBinary("contrack", kubekeyapiv1alpha2.DefaultArch, kubekeyapiv1alpha2.DefaultConntrackVersion, runtime.GetDependDir())
+	contrack := files.NewKubeBinary("conntrack", kubekeyapiv1alpha2.DefaultArch, kubekeyapiv1alpha2.DefaultConntrackVersion, runtime.GetDependDir())
 	binaries = append(binaries, socat, contrack)
 
 	binariesMap := make(map[string]*files.KubeBinary)

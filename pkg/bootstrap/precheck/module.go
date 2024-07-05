@@ -82,11 +82,6 @@ type PreCheckOsModule struct {
 func (m *PreCheckOsModule) Init() {
 	m.Name = "PreCheckOs"
 
-	// var flag = "2" // ! debug
-	// if constants.OsPlatform == common.Ubuntu && strings.HasPrefix("24.", constants.OsVersion) {
-	// 	flag = "2"
-	// }
-
 	patchAppArmor := &task.LocalTask{
 		Name: "PatchAppArmor",
 		Prepare: &prepare.PrepareCollection{
@@ -120,7 +115,6 @@ func (m *PreCheckOsModule) Init() {
 		disableDNS,
 		copyPreInstallationDependencyFiles,
 	}
-
 }
 
 // ~ TerminusGreetingsModule

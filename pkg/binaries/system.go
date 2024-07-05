@@ -3,7 +3,7 @@ package binaries
 import (
 	"fmt"
 	"os/exec"
-	pathx "path"
+	"path"
 
 	"bytetrade.io/web3os/installer/pkg/common"
 	"bytetrade.io/web3os/installer/pkg/core/cache"
@@ -73,8 +73,8 @@ func DownloadConntrack(path, version, arch string, pipelineCache *cache.Cache) (
 	return conntrack.BaseDir, conntrack.FileName, nil
 }
 
-func DownloadUbutun24AppArmor(path, version, arch string, pipelineCache *cache.Cache) (string, error) {
-	apparmor := files.NewKubeBinary("apparmor", arch, version, path)
+func DownloadUbutun24AppArmor(prePath, version, arch string, pipelineCache *cache.Cache) (string, error) {
+	apparmor := files.NewKubeBinary("apparmor", arch, version, prePath)
 
 	if err := apparmor.CreateBaseDir(); err != nil {
 		return "", errors.Wrapf(errors.WithStack(err), "create file %s base dir failed", apparmor.FileName)
@@ -100,5 +100,6 @@ func DownloadUbutun24AppArmor(path, version, arch string, pipelineCache *cache.C
 	binariesMap := make(map[string]*files.KubeBinary)
 	binariesMap[apparmor.ID] = apparmor
 	pipelineCache.Set(common.KubeBinaries+"-"+arch, binariesMap)
-	return pathx.Join(apparmor.BaseDir, apparmor.FileName), nil
+	return path.Join(apparmor.BaseDir, apparmor.FileName), nil
+
 }

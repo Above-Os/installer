@@ -34,6 +34,7 @@ func New(db storage.Provider) *Handler {
 }
 
 // + install
+// ~ 先下载完整包进行安装，需要提取日志写入数据库
 func (h *Handler) handlerInstall(req *restful.Request, resp *restful.Response) {
 	logger.Infof("handler install req: %s", req.Request.Method)
 

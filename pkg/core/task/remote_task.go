@@ -55,10 +55,6 @@ type RemoteTask struct {
 	TaskResult    *ending.TaskResult
 }
 
-func (t *RemoteTask) GetName() string {
-	return t.Name
-}
-
 func (t *RemoteTask) GetDesc() string {
 	return t.Desc
 }

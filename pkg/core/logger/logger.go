@@ -52,7 +52,6 @@ func InitLog(logDir string) {
 		return lvl >= zapcore.DebugLevel
 	})
 
-
 	fileEncoder := zapcore.EncoderConfig{
 		TimeKey:        "time",
 		LevelKey:       "level",

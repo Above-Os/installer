@@ -39,18 +39,10 @@ func (c *ConfigSystemModule) Init() {
 	timeSyncTask := &task.LocalTask{
 		Name:   "TimeSync",
 		Action: new(TimeSyncTask),
-		Retry:  0,
-	}
-
-	configProxyTask := &task.LocalTask{
-		Name:   "ConfigProxy",
-		Action: new(ConfigProxyTask),
-		Retry:  0,
 	}
 
 	c.Tasks = []task.Interface{
 		timeSyncTask,
-		configProxyTask,
 	}
 }
 

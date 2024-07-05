@@ -23,7 +23,6 @@ import (
 )
 
 type Interface interface {
-	GetName() string
 	GetDesc() string
 	Init(runtime connector.Runtime, moduleCache *cache.Cache, pipelineCache *cache.Cache)
 	Execute() *ending.TaskResult

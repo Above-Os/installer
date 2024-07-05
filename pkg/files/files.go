@@ -233,7 +233,6 @@ func NewKubeBinary(name, arch, version, prePath string) *KubeBinary {
 	case apparmor:
 		component.Type = PATCH
 		component.FileName = fmt.Sprintf("apparmor_%s-0ubuntu1_%s.deb", version, arch)
-		component.CheckSum = false
 		var parent = fmt.Sprintf("https://launchpad.net/ubuntu/+source/apparmor/%s-0ubuntu1/+build", version)
 		switch arch {
 		case cm.Arm, cm.Arm7, cm.Armv7l, cm.Armhf:

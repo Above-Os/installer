@@ -45,7 +45,7 @@ func logRequestAndResponse(req *restful.Request, resp *restful.Response, chain *
 func cors(req *restful.Request, resp *restful.Response, chain *restful.FilterChain) {
 	resp.AddHeader("Access-Control-Allow-Origin", "*")
 
-	resp.AddHeader("Content-Type", "application/json, application/x-www-form-urlencoded, text/html") // ;charset=utf-8
+	resp.AddHeader("Content-Type", "application/json, application/x-www-form-urlencoded, text/html;charset=utf-8")
 	resp.AddHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
 	resp.AddHeader("Access-Control-Allow-Headers", "Accept, Content-Type, Accept-Encoding, X-Authorization")
 

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"path/filepath"
+	"strings"
 
 	ctrl "bytetrade.io/web3os/installer/controllers"
 	"bytetrade.io/web3os/installer/pkg/bootstrap/os"
@@ -36,8 +37,13 @@ func InstallTerminusPipeline(args common.Argument) error {
 		&os.ConfigSystemModule{},     // * 对应 config_system
 	}
 
-	modules := cluster.NewK3sCreateClusterPhase(runtime)
-	m = append(m, modules...)
+	var kubeModules []module.Module
+	kubeModules = cluster.NewCreateClusterPhase(runtime)
+	if strings.Contains(args.KubernetesVersion, "k3s") {
+		kubeModules = cluster.NewK3sCreateClusterPhase(runtime)
+	}
+
+	m = append(m, kubeModules...)
 
 	p := pipeline.Pipeline{
 		Name:    "Install Terminus",

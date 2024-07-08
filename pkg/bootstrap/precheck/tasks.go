@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"os"
 	"regexp"
+	rtime "runtime"
 	"strconv"
 	"strings"
 
@@ -202,10 +203,10 @@ func (t *GetSysInfoTask) Execute(runtime connector.Runtime) error {
 	}
 	constants.HostName = host[0]
 	constants.HostId = host[1]
-	constants.OsType = host[2]
+	constants.OsType = rtime.GOOS
 	constants.OsPlatform = host[3]
 	constants.OsVersion = host[4]
-	constants.OsArch = host[5]
+	constants.OsArch = rtime.GOARCH
 
 	cpuModel, cpuLogicalCount, cpuPhysicalCount, err := util.GetCpu()
 	if err != nil {
@@ -292,8 +293,7 @@ func (t *GetCGroupsTask) Execute(runtime connector.Runtime) error {
 
 	fmt.Printf("MACHINE, hostname: %s, cpu: %d, mem: %s, disk: %s, local-ip: %v\n",
 		constants.HostName, constants.CpuPhysicalCount, utils.FormatBytes(int64(constants.MemTotal)),
-		utils.FormatBytes(int64(constants.DiskTotal)),
-		constants.LocalIp)
+		utils.FormatBytes(int64(constants.DiskTotal)), constants.LocalIp)
 	fmt.Printf("SYSTEM, os: %s, platform: %s, arch: %s, version: %s\nCGROUP, cpu-enabled: %d, memory-enabled: %d\n",
 		constants.OsType, constants.OsPlatform, constants.OsArch, constants.OsVersion,
 		constants.CgroupCpuEnabled, constants.CgroupMemoryEnabled,

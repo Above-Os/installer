@@ -26,11 +26,11 @@ import (
 	"os/user"
 	"path/filepath"
 	"regexp"
-	"runtime"
 	"strings"
 	"time"
 
 	kubekeyapiv1alpha2 "bytetrade.io/web3os/installer/apis/kubekey/v1alpha2"
+	"bytetrade.io/web3os/installer/pkg/constants"
 	"bytetrade.io/web3os/installer/pkg/core/util"
 	"bytetrade.io/web3os/installer/pkg/version/kubesphere"
 	"github.com/pkg/errors"
@@ -128,7 +128,7 @@ func (c *CommandLineLoader) Load() (*kubekeyapiv1alpha2.Cluster, error) {
 		Port:            c.arg.LocalSSHPort,
 		User:            u.Name,
 		PrivateKeyPath:  fmt.Sprintf("%s/.ssh/id_rsa", u.HomeDir),
-		Arch:            runtime.GOARCH,
+		Arch:            constants.OsArch, //runtime.GOARCH,
 	})
 
 	cluster.Spec.RoleGroups = map[string][]string{
@@ -142,7 +142,7 @@ func (c *CommandLineLoader) Load() (*kubekeyapiv1alpha2.Cluster, error) {
 		InternalAddress: c.arg.MasterHost,
 		Port:            c.arg.MasterSSHPort,
 		User:            c.arg.MasterSSHUser,
-		Arch:            runtime.GOARCH,
+		Arch:            constants.OsArch, //runtime.GOARCH,
 	}
 	if c.arg.MasterSSHPassword != "" {
 		masterHostCfg.Password = c.arg.MasterSSHPassword
@@ -205,7 +205,7 @@ func (d *DefaultLoader) Load() (*kubekeyapiv1alpha2.Cluster, error) {
 		User:            u.Name,
 		Password:        "",
 		PrivateKeyPath:  fmt.Sprintf("%s/.ssh/id_rsa", u.HomeDir),
-		Arch:            runtime.GOARCH,
+		Arch:            constants.OsArch, //runtime.GOARCH,
 	})
 
 	allInOne.Spec.RoleGroups = map[string][]string{

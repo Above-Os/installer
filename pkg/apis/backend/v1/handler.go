@@ -13,6 +13,7 @@ import (
 	"bytetrade.io/web3os/installer/pkg/phase/download"
 	"bytetrade.io/web3os/installer/pkg/phase/mock"
 	"bytetrade.io/web3os/installer/pkg/pipelines"
+	"bytetrade.io/web3os/installer/pkg/version/kubesphere"
 	"github.com/emicklei/go-restful/v3"
 	"github.com/go-playground/validator/v10"
 )
@@ -58,9 +59,21 @@ func (h *Handler) handlerInstall(req *restful.Request, resp *restful.Response) {
 	}
 
 	arg := common.Argument{
-		Provider: h.StorageProvider,
-		Request:  reqModel,
+		KsEnable:        true,
+		KsVersion:       kubesphere.Stabled().Version,
+		Provider:        h.StorageProvider,
+		Request:         reqModel,
+		InstallPackages: false,
+		SKipPushImages:  false,
 	}
+
+	switch reqModel.Config.KubeType {
+	case common.K3s:
+		arg.KubernetesVersion = "v1.22.16-k3s"
+	case common.K8s:
+		arg.KubernetesVersion = "v1.22.10"
+	}
+
 	if err := pipelines.InstallTerminusPipeline(arg); err != nil {
 		response.HandleError(resp, err)
 		return
@@ -88,14 +101,13 @@ func (h *Handler) handlerStatus(req *restful.Request, resp *restful.Response) {
 	}
 
 	var res = make(map[string]interface{})
-	var msgs =make([]map[string]interface{},0)
+	var msgs = make([]map[string]interface{}, 0)
 
 	if data == nil || len(data) == 0 {
 		response.HandleError(resp, fmt.Errorf("get status failed"))
 		return
 	}
 
-	
 	var last = data[len(data)-1]
 
 	for _, d := range data {
@@ -117,7 +129,6 @@ func (h *Handler) handlerStatus(req *restful.Request, resp *restful.Response) {
 
 	response.Success(resp, res)
 }
-
 
 // - test func
 func (h *Handler) handlerTest(req *restful.Request, resp *restful.Response) {

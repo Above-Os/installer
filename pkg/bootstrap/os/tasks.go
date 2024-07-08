@@ -340,6 +340,7 @@ func (g *GetOSData) Execute(runtime connector.Runtime) error {
 	if err != nil {
 		return err
 	}
+	fmt.Println("---1---", osReleaseStr)
 	osrData := osrelease.Parse(strings.Replace(osReleaseStr, "\r\n", "\n", -1))
 
 	host := runtime.RemoteHost()

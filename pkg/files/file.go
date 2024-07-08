@@ -162,6 +162,8 @@ func NewKubeBinary(name, arch, version, prePath string) *KubeBinary {
 		if component.Zone == "cn" {
 			component.Url = fmt.Sprintf("https://kubernetes-helm.pek3b.qingstor.com/linux-%s/%s/helm", arch, version)
 		}
+		fmt.Println("---helm zone / 1---", component.Zone)
+		fmt.Println("---helm url / 2---", component.Url)
 	case docker:
 		component.Type = DOCKER
 		component.FileName = fmt.Sprintf("docker-%s.tgz", version)
@@ -318,14 +320,17 @@ func (b *KubeBinary) Path() string {
 func (b *KubeBinary) UntarCmd() error {
 	untarCmd := b.GetTarCmd()
 	if untarCmd != "" {
+		fmt.Println("---untarCmd / 1---", untarCmd)
 		cmd := exec.Command("/bin/sh", "-c", untarCmd)
 		stdout, err := cmd.StdoutPipe()
 		if err != nil {
+			fmt.Println("---untarCmd / 2---", err)
 			return err
 		}
 		cmd.Stderr = cmd.Stdout
 
 		if err = cmd.Start(); err != nil {
+			fmt.Println("---untarCmd / 3---", err)
 			return err
 		}
 
@@ -335,12 +340,14 @@ func (b *KubeBinary) UntarCmd() error {
 			if errors.Is(err, io.EOF) {
 				break
 			} else if err != nil {
+				fmt.Println("---untarCmd / 4---", err)
 				logger.Error(err)
 				break
 			}
 		}
 
 		if err = cmd.Wait(); err != nil {
+			fmt.Println("---untarCmd / 5---", err)
 			if os.Getenv("KKZONE") != "cn" {
 				logger.Warn("Having a problem with accessing https://storage.googleapis.com? You can try again after setting environment 'export KKZONE=cn'")
 			}
@@ -356,7 +363,7 @@ func (b *KubeBinary) GetTarCmd() string {
 		cmd = fmt.Sprintf("cd %s && tar -zxf helm-%s-linux-%s.tar.gz && mv linux-%s/helm . && rm -rf *linux-%s*",
 			b.BaseDir, b.Version, b.Arch, b.Arch, b.Arch)
 	}
-	if b.ID == kubekey {
+	if b.ID == kubekey { // ! 这是测试的，不用管
 		cmd = fmt.Sprintf("cd %s && tar -zxf kubekey-ext-v%s-linux-%s.tar.gz",
 			b.BaseDir, b.Version, b.Arch)
 	}

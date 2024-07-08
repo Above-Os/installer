@@ -185,7 +185,7 @@ func (i *InitClusterModule) Init() {
 		},
 		Action:   new(PreloadImagesService),
 		Parallel: false,
-	}	
+	}
 
 	copyKubeConfig := &task.RemoteTask{
 		Name:  "CopyKubeConfig",
@@ -291,7 +291,17 @@ func (j *JoinNodesModule) Init() {
 			&NodeInCluster{Not: true},
 		},
 		Action:   new(EnableK3sService),
-		Parallel: true,
+		Parallel: false,
+	}
+
+	// preload image
+	preloadImages := &task.RemoteTask{
+		Name:     "PreloadImagesService",
+		Desc:     "Preload Images",
+		Hosts:    j.Runtime.GetHostsByRole(common.Master),
+		Prepare:  &prepare.PrepareCollection{},
+		Action:   new(PreloadImagesService),
+		Parallel: false,
 	}
 
 	copyKubeConfigForMaster := &task.RemoteTask{
@@ -350,6 +360,7 @@ func (j *JoinNodesModule) Init() {
 		k3sEnv,
 		k3sRegistryConfig,
 		enableK3s,
+		preloadImages,
 		copyKubeConfigForMaster,
 		syncKubeConfigToWorker,
 		addMasterTaint,

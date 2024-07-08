@@ -15,12 +15,12 @@ type CheckDepsPrepare struct {
 func (p *CheckDepsPrepare) PreCheck(runtime connector.Runtime) (bool, error) {
 	switch constants.OsPlatform {
 	case common.Ubuntu, common.Debian, common.Raspbian, common.CentOs, common.Fedora, common.RHEl:
-		return true, nil
+		return false, nil
 	}
 
 	if _, err := runtime.GetRunner().Host.GetCommand(p.Command); err == nil {
-		return true, nil
+		return false, nil
 	}
 
-	return false, nil
+	return true, nil
 }

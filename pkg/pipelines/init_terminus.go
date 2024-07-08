@@ -18,6 +18,7 @@ import (
 	"bytetrade.io/web3os/installer/pkg/storage"
 )
 
+// + 这里是正式的代码
 func InstallTerminusPipeline(args common.Argument) error {
 	runtime, err := common.NewKubeRuntime(common.AllInOne, args) // 后续拆解 install_cmd.sh，会用到 KubeRuntime
 	if err != nil {
@@ -30,20 +31,19 @@ func InstallTerminusPipeline(args common.Argument) error {
 		// &packages.PackagesModule{},
 		// &scripts.CopyUninstallScriptModule{},
 		// &install.InstallTerminusModule{},
-
 		&precheck.PreCheckOsModule{}, // * 对应 precheck_os()
 		&patch.InstallDepsModule{},   // * 对应 install_deps
 		&os.ConfigSystemModule{},     // * 对应 config_system
 	}
+
+	modules := cluster.NewK3sCreateClusterPhase(runtime)
+	m = append(m, modules...)
 
 	p := pipeline.Pipeline{
 		Name:    "Install Terminus",
 		Modules: m,
 		Runtime: runtime,
 	}
-
-	modules := cluster.NewK3sCreateClusterPhase(runtime)
-	m = append(m, modules...)
 
 	go func() {
 		if err := p.Start(); err != nil {

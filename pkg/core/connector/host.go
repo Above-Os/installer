@@ -182,12 +182,20 @@ func (b *BaseHost) IsExists(path string) bool {
 	return util.IsExist(path)
 }
 
+func (b *BaseHost) ChangeDir(path string) error {
+	return util.ChangeDir(path)
+}
+
 func (b *BaseHost) Move(src, dst string) error {
 	return util.MoveFile(src, dst)
 }
 
 func (b *BaseHost) Remove(path string) error {
 	return util.RemoveFile(path)
+}
+
+func (b *BaseHost) Untar(src, dst string) error {
+	return util.Untar(src, dst)
 }
 
 func (b *BaseHost) Exec(name string, printOutput bool, printLine bool) (stdout string, code int, err error) {

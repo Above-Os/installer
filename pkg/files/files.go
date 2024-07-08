@@ -59,6 +59,7 @@ const (
 	runc       = "runc"
 	apparmor   = "apparmor"
 	socat      = "socat"
+	flex       = "flex"
 	conntrack  = "conntrack"
 
 	// todo 安装包会进行拆分，可能不会再有 full 包了
@@ -250,6 +251,13 @@ func NewKubeBinary(name, arch, version, prePath string) *KubeBinary {
 		component.Type = PATCH
 		component.FileName = fmt.Sprintf("socat-%s.tar.gz", version)
 		component.Url = fmt.Sprintf("http://www.dest-unreach.org/socat/download/socat-%s.tar.gz", version)
+		component.CheckSum = false
+		component.BaseDir = filepath.Join(prePath, component.Type)
+		component.PrintOutput = true
+	case flex:
+		component.Type = PATCH
+		component.FileName = fmt.Sprintf("flex-%s.tar.gz", version)
+		component.Url = fmt.Sprintf("https://github.com/westes/flex/archive/refs/tags/v%s.tar.gz", version)
 		component.CheckSum = false
 		component.BaseDir = filepath.Join(prePath, component.Type)
 	case conntrack:

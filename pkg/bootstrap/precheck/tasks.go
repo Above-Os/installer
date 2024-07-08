@@ -127,7 +127,7 @@ func (t *DisableLocalDNSTask) Execute(runtime connector.Runtime) error {
 		}
 	}
 
-	if stdout, _, _ := host.Exec("hostname -i &>/dev/null", false, false); stdout == "" {
+	if stdout, _, _ := host.Exec("hostname -i &>/dev/null", false, true); stdout == "" {
 		if _, _, err := host.Exec(fmt.Sprintf("echo %s $HOSTNAME >> /etc/hosts", constants.LocalIp[0]), true, true); err != nil {
 			return err
 		}

@@ -22,25 +22,60 @@ func DownloadSocat(path, version, arch string, pipelineCache *cache.Cache) (stri
 
 	logger.Infof("%s downloading %s %s ...", common.LocalHost, socat.ID, socat.Version)
 
-	if util.IsExist(socat.Path()) {
+	var exists = util.IsExist(socat.Path())
+	if exists {
 		// download it again if it's incorrect
 		if err := socat.SHA256Check(); err != nil {
 			p := socat.Path()
 			_ = exec.Command("/bin/sh", "-c", fmt.Sprintf("rm -f %s", p)).Run()
 		} else {
-			logger.Infof("%s %s is existed", common.LocalHost, socat.ID)
-
+			logger.Debugf("%s %s is existed", common.LocalHost, socat.ID)
 		}
 	}
 
-	if err := socat.Download(); err != nil {
-		return "", "", fmt.Errorf("Failed to download %s binary: %s error: %w ", socat.ID, socat.Url, err)
+	if !exists || socat.OverWrite {
+		if err := socat.Download(); err != nil {
+			return "", "", fmt.Errorf("Failed to download %s binary: %s error: %w ", socat.ID, socat.Url, err)
+		}
 	}
 
 	binariesMap := make(map[string]*files.KubeBinary)
 	binariesMap[socat.ID] = socat
 	pipelineCache.Set(common.KubeBinaries+"-"+arch, binariesMap)
 	return socat.BaseDir, socat.FileName, nil
+}
+
+func DownloadFlex(path, version, arch string, pipelineCache *cache.Cache) (string, string, error) {
+	flex := files.NewKubeBinary("flex", arch, version, path)
+
+	if err := flex.CreateBaseDir(); err != nil {
+		return "", "", errors.Wrapf(errors.WithStack(err), "create file %s base dir failed", flex.FileName)
+	}
+
+	logger.Infof("%s downloading %s %s ...", common.LocalHost, flex.ID, flex.Version)
+
+	var exists = util.IsExist(flex.Path())
+	if exists {
+		// download it again if it's incorrect
+		if err := flex.SHA256Check(); err != nil {
+			p := flex.Path()
+			_ = exec.Command("/bin/sh", "-c", fmt.Sprintf("rm -f %s", p)).Run()
+		} else {
+			logger.Infof("%s %s is existed", common.LocalHost, flex.ID)
+		}
+	}
+
+	if !exists || flex.OverWrite {
+		if err := flex.Download(); err != nil {
+			return "", "", fmt.Errorf("Failed to download %s binary: %s error: %w ", flex.ID, flex.Url, err)
+		}
+	}
+
+	binariesMap := make(map[string]*files.KubeBinary)
+	binariesMap[flex.ID] = flex
+	pipelineCache.Set(common.KubeBinaries+"-"+arch, binariesMap)
+	return flex.BaseDir, flex.FileName, nil
+
 }
 
 func DownloadConntrack(path, version, arch string, pipelineCache *cache.Cache) (string, string, error) {
@@ -52,19 +87,21 @@ func DownloadConntrack(path, version, arch string, pipelineCache *cache.Cache) (
 
 	logger.Infof("%s downloading %s %s ...", common.LocalHost, conntrack.ID, conntrack.Version)
 
-	if util.IsExist(conntrack.Path()) {
+	var exists = util.IsExist(conntrack.Path())
+	if exists {
 		// download it again if it's incorrect
 		if err := conntrack.SHA256Check(); err != nil {
 			p := conntrack.Path()
 			_ = exec.Command("/bin/sh", "-c", fmt.Sprintf("rm -f %s", p)).Run()
 		} else {
 			logger.Infof("%s %s is existed", common.LocalHost, conntrack.ID)
-
 		}
 	}
 
-	if err := conntrack.Download(); err != nil {
-		return "", "", fmt.Errorf("Failed to download %s binary: %s error: %w ", conntrack.ID, conntrack.Url, err)
+	if !exists || conntrack.OverWrite {
+		if err := conntrack.Download(); err != nil {
+			return "", "", fmt.Errorf("Failed to download %s binary: %s error: %w ", conntrack.ID, conntrack.Url, err)
+		}
 	}
 
 	binariesMap := make(map[string]*files.KubeBinary)

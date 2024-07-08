@@ -58,6 +58,7 @@ const (
 	DefaultHarborVersion           = "v2.5.3"
 	DefaultUbuntu24AppArmonVersion = "4.0.1"
 	DefaultSocatVersion            = "1.7.3.4"
+	DefaultFlexVersion             = "2.6.4"
 	DefaultConntrackVersion        = "1.4.1"
 
 	DefaultMaxPods             = 200

@@ -17,23 +17,23 @@ type Ubuntu24AppArmorCheck struct {
 
 func (p *Ubuntu24AppArmorCheck) PreCheck(runtime connector.Runtime) (bool, error) {
 	if constants.OsType != common.Linux || constants.OsPlatform != common.Ubuntu {
-		return true, nil
+		return false, nil
 	}
 
 	if !strings.HasPrefix(constants.OsVersion, "24.") {
-		return true, nil
+		return false, nil
 	}
 
 	cmd := "apparmor_parser --version"
 	stdout, _, err := util.Exec(cmd, true, true)
 	if err != nil {
 		logger.Errorf("check apparmor version error %v", err)
-		return true, nil
+		return false, nil
 	}
 
 	if strings.Index(stdout, "4.0.1") < 0 {
-		return false, nil // need to install
+		return true, nil // need to install
 	}
 
-	return true, nil
+	return false, nil
 }

@@ -47,6 +47,10 @@ func IsExist(path string) bool {
 	return true
 }
 
+func ChangeDir(path string) error {
+	return os.Chdir(path)
+}
+
 func CreateDir(path string) error {
 	if IsExist(path) == false {
 		err := os.MkdirAll(path, os.ModePerm)

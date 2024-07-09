@@ -156,7 +156,7 @@ func (i LocalImages) LoadImages(runtime connector.Runtime, kubeConf *common.Kube
 		switch {
 		case host.IsRole(common.Master):
 
-			logger.Debugf("%s preloading image: %s", host.GetName(), image.Filename)
+			// logger.Debugf("%s preloading image: %s", host.GetName(), image.Filename)
 			start := time.Now()
 
 			if HasSuffixI(image.Filename, ".tar.gz", ".tgz") {

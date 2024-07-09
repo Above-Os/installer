@@ -5,11 +5,8 @@ import (
 	"fmt"
 	"io/ioutil"
 	"path/filepath"
-	"strings"
 
 	ctrl "bytetrade.io/web3os/installer/controllers"
-	"bytetrade.io/web3os/installer/pkg/bootstrap/os"
-	"bytetrade.io/web3os/installer/pkg/bootstrap/patch"
 	"bytetrade.io/web3os/installer/pkg/bootstrap/precheck"
 	"bytetrade.io/web3os/installer/pkg/common"
 	"bytetrade.io/web3os/installer/pkg/core/logger"
@@ -32,15 +29,17 @@ func InstallTerminusPipeline(args common.Argument) error {
 		// &packages.PackagesModule{},
 		// &scripts.CopyUninstallScriptModule{},
 		// &install.InstallTerminusModule{},
-		&precheck.PreCheckOsModule{}, // * 对应 precheck_os()
-		&patch.InstallDepsModule{},   // * 对应 install_deps
-		&os.ConfigSystemModule{},     // * 对应 config_system
+		// + 这里开始
+		// &precheck.PreCheckOsModule{}, // * 对应 precheck_os()
+		// &patch.InstallDepsModule{},   // * 对应 install_deps
+		// &os.ConfigSystemModule{},     // * 对应 config_system
 	}
 
 	var kubeModules []module.Module
-	kubeModules = cluster.NewCreateClusterPhase(runtime)
-	if strings.Contains(args.KubernetesVersion, "k3s") {
-		kubeModules = cluster.NewK3sCreateClusterPhase(runtime)
+	if runtime.Cluster.Kubernetes.Type == common.K3s {
+		kubeModules = cluster.NewK3sCreateClusterPhase(runtime) // + 这里开发
+	} else {
+		kubeModules = cluster.NewCreateClusterPhase(runtime)
 	}
 
 	m = append(m, kubeModules...)

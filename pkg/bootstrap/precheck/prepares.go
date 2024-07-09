@@ -96,11 +96,7 @@ type LocalIpCheck struct {
 }
 
 func (p *LocalIpCheck) PreCheck(runtime connector.Runtime) (bool, error) {
-	if constants.LocalIp == nil || len(constants.LocalIp) == 0 {
-		return false, fmt.Errorf("failed to get local ip")
-	}
-
-	var localIp = constants.LocalIp[0]
+	var localIp = constants.LocalIp
 	ip := net.ParseIP(localIp)
 	if ip == nil {
 		return false, fmt.Errorf("invalid local ip %s", localIp)

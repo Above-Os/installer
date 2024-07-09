@@ -61,6 +61,7 @@ const (
 	socat      = "socat"
 	flex       = "flex"
 	conntrack  = "conntrack"
+	velero     = "velero"
 
 	// todo 安装包会进行拆分，可能不会再有 full 包了
 	// todo 所以我可以假设 f1.tar.gz f2.tar.gz f3.tar.gz ...
@@ -88,6 +89,7 @@ const (
 	RUNC       = "runc"
 	// todo installer package
 	INSTALLER = "installer"
+	COMPONENT = "component"
 	PATCH     = "patch"
 )
 
@@ -234,7 +236,7 @@ func NewKubeBinary(name, arch, version, prePath string) *KubeBinary {
 			component.Url = fmt.Sprintf("https://kubernetes-release.pek3b.qingstor.com/opencontainers/runc/releases/download/%s/runc.%s", version, arch)
 		}
 	case apparmor:
-		component.Type = PATCH
+		component.Type = COMPONENT
 		component.FileName = fmt.Sprintf("apparmor_%s-0ubuntu1_%s.deb", version, arch)
 		var parent = fmt.Sprintf("https://launchpad.net/ubuntu/+source/apparmor/%s-0ubuntu1/+build", version)
 		switch arch {
@@ -248,7 +250,7 @@ func NewKubeBinary(name, arch, version, prePath string) *KubeBinary {
 			component.Url = fmt.Sprintf("%s/28428840/+files/apparmor_%s-0ubuntu1_amd64.deb", parent, version)
 		}
 		component.CheckSum = false
-		component.BaseDir = filepath.Join(prePath, component.Type)
+		component.BaseDir = filepath.Join(prePath)
 	case socat:
 		component.Type = PATCH
 		component.FileName = fmt.Sprintf("socat-%s.tar.gz", version)

@@ -63,6 +63,7 @@ type Argument struct {
 
 	// Registry mirrors
 	RegistryMirrors string
+	Proxy           string
 
 	// master node ssh config
 	MasterHost              string
@@ -78,6 +79,7 @@ type Argument struct {
 	// db
 	Provider storage.Provider
 	// request
+	Params  map[string]interface{}
 	Request any
 }
 

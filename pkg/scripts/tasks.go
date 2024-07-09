@@ -40,7 +40,7 @@ type Copy struct {
 }
 
 func (t *Copy) Execute(runtime connector.Runtime) error {
-	p := fmt.Sprintf("%s/%s", constants.WorkDir, common.Scripts)
+	p := path.Join(runtime.GetRootDir(), common.Scripts)
 	if ok := util.IsExist(p); !ok {
 		if err := util.CreateDir(p); err != nil {
 			return err

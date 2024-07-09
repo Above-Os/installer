@@ -62,10 +62,10 @@ func Exec(name string, printOutput bool, printLine bool) (stdout string, code in
 	res = strings.TrimSpace(res)
 
 	if printOutput {
-		fmt.Printf("[exec] CMD: %s, OUTPUT: \n%s", cmd.String(), res)
+		fmt.Printf("[exec] CMD: %s, OUTPUT: \n%s\n", cmd.String(), res)
 	}
 
-	logger.Infof("[exec] CMD: %s, OUTPUT: \n%s", cmd.String(), res)
+	logger.Infof("[exec] CMD: %s, OUTPUT: %s", cmd.String(), res)
 	return res, exitCode, errors.Wrapf(err, "Failed to exec command: %s \n%s", cmd, res)
 }
 

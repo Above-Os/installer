@@ -1,8 +1,6 @@
 package cluster
 
 import (
-	"fmt"
-
 	kubekeyapiv1alpha2 "bytetrade.io/web3os/installer/apis/kubekey/v1alpha2"
 
 	"bytetrade.io/web3os/installer/pkg/addons"
@@ -37,15 +35,6 @@ func NewK3sCreateClusterPhase(runtime *common.KubeRuntime) []module.Module {
 	} else if runtime.Cluster.KubeSphere.Enabled {
 		skipLocalStorage = false
 	}
-
-	fmt.Println("---noArtifact---", noArtifact)
-	fmt.Println("---skipPushImages---", skipPushImages)
-	fmt.Println("---skipLocalStorage---", skipLocalStorage)
-	fmt.Println("---runtime.Cluster.KubeSphere.Enabled---", runtime.Cluster.KubeSphere.Enabled)
-	fmt.Println("---runtime.Cluster.Kubernetes.EnableAutoRenewCerts()---", runtime.Cluster.Kubernetes.EnableAutoRenewCerts())
-	fmt.Println("---runtime.Arg.InstallPackages---", runtime.Arg.InstallPackages)
-	fmt.Println("---kubekeyapiv1alpha2.KubeKey---", kubekeyapiv1alpha2.KubeKey)
-	fmt.Println("---runtime.Cluster.ControlPlaneEndpoint.IsInternalLBEnabledVip()---", runtime.Cluster.ControlPlaneEndpoint.IsInternalLBEnabledVip())
 
 	m := []module.Module{
 		&precheck.GreetingsModule{},

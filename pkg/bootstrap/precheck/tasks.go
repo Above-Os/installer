@@ -129,7 +129,7 @@ func (t *DisableLocalDNSTask) Execute(runtime connector.Runtime) error {
 	}
 
 	if stdout, _, _ := host.Exec("hostname -i &>/dev/null", false, true); stdout == "" {
-		if _, _, err := host.Exec(fmt.Sprintf("echo %s $HOSTNAME >> /etc/hosts", constants.LocalIp[0]), true, true); err != nil {
+		if _, _, err := host.Exec(fmt.Sprintf("echo %s $HOSTNAME >> /etc/hosts", constants.LocalIp), true, true); err != nil {
 			return err
 		}
 	}
@@ -291,7 +291,7 @@ func (t *GetCGroupsTask) Execute(runtime connector.Runtime) error {
 		return err
 	}
 
-	fmt.Printf("MACHINE, hostname: %s, cpu: %d, mem: %s, disk: %s, local-ip: %v\n",
+	fmt.Printf("MACHINE, hostname: %s, cpu: %d, mem: %s, disk: %s, local-ip: %s\n",
 		constants.HostName, constants.CpuPhysicalCount, utils.FormatBytes(int64(constants.MemTotal)),
 		utils.FormatBytes(int64(constants.DiskTotal)), constants.LocalIp)
 	fmt.Printf("SYSTEM, os: %s, platform: %s, arch: %s, version: %s\nCGROUP, cpu-enabled: %d, memory-enabled: %d\n",
@@ -308,19 +308,10 @@ type GetLocalIpTask struct {
 }
 
 func (t *GetLocalIpTask) Execute(runtime connector.Runtime) error {
-	pingCmd := fmt.Sprintf("ping -c 1 %s", constants.HostName)
-	pingCmdRes, _, err := runtime.GetRunner().Host.Exec(pingCmd, false, false)
-	if err != nil {
-		return err
-	}
+	ip := util.LocalIP()
 
-	pingIps, err := utils.ExtractIP(pingCmdRes)
-	if err != nil {
-		return err
-	}
-
-	logger.Infof("GetLocalIpHook, local ip: %s", pingIps)
-	constants.LocalIp = pingIps
+	logger.Infof("GetLocalIpHook, local ip: %s", ip)
+	constants.LocalIp = ip
 
 	return nil
 }
@@ -345,11 +336,11 @@ type GreetingsTask struct {
 }
 
 func (h *GreetingsTask) Execute(runtime connector.Runtime) error {
-	hello, err := runtime.GetRunner().SudoCmd("echo 'Greetings, KubeKey!!!!! hahahaha!!!!'", false)
+	_, err := runtime.GetRunner().SudoCmd("echo 'Greetings, KubeKey!!!!! hahahaha!!!!'", true)
 	if err != nil {
 		return err
 	}
-	logger.Infof("%s %s", runtime.RemoteHost().GetName(), hello)
+
 	return nil
 }
 

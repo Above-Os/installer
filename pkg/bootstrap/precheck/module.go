@@ -157,7 +157,7 @@ func (h *GreetingsModule) Init() {
 		Desc:     "Greetings",
 		Hosts:    h.Runtime.GetAllHosts(),
 		Action:   new(GreetingsTask),
-		Parallel: true,
+		Parallel: false,
 		Timeout:  time.Duration(timeout) * time.Second,
 	}
 

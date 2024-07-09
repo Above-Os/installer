@@ -156,7 +156,3 @@ func DevRelease(version string) (*KsInstaller, bool) {
 func Latest() *KsInstaller {
 	return VersionMap[VersionList[len(VersionList)-1].String()]
 }
-
-func Stabled() *KsInstaller {
-	return VersionMap[VersionList[len(VersionList)-2].String()]
-}

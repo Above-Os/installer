@@ -19,6 +19,7 @@ package binaries
 import (
 	"bytetrade.io/web3os/installer/pkg/common"
 	"bytetrade.io/web3os/installer/pkg/core/logger"
+	"bytetrade.io/web3os/installer/pkg/core/prepare"
 	"bytetrade.io/web3os/installer/pkg/core/task"
 	"github.com/pkg/errors"
 )
@@ -53,8 +54,11 @@ func (k *K3sNodeBinariesModule) Init() {
 	k.Desc = "Download installation binaries"
 
 	download := &task.LocalTask{
-		Name:   "DownloadBinaries",
-		Desc:   "Download installation binaries",
+		Name: "DownloadBinaries",
+		Desc: "Download installation binaries",
+		Prepare: &prepare.PrepareCollection{
+			&common.Stop{},
+		},
 		Action: new(K3sDownload),
 	}
 

@@ -199,8 +199,8 @@ func (d *DefaultLoader) Load() (*kubekeyapiv1alpha2.Cluster, error) {
 
 	allInOne.Spec.Hosts = append(allInOne.Spec.Hosts, kubekeyapiv1alpha2.HostCfg{
 		Name:            hostname,
-		Address:         util.LocalIP(),
-		InternalAddress: util.LocalIP(),
+		Address:         constants.LocalIp, //util.LocalIP(),
+		InternalAddress: constants.LocalIp, //util.LocalIP(),
 		Port:            kubekeyapiv1alpha2.DefaultSSHPort,
 		User:            u.Name,
 		Password:        "",

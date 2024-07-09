@@ -155,5 +155,80 @@ system_service_active() {
 }
 
 
+is_debian() {
+    lsb_release=$(lsb_release -d 2>&1 | awk -F'\t' '{print $2}')
+    if [ -z "$lsb_release" ]; then
+        echo 0
+        return
+    fi
+    if [[ ${lsb_release} == *Debian* ]]; then
+        case "$lsb_release" in
+            *12* | *11*)
+                echo 1
+                ;;
+            *)
+                echo 0
+                ;;
+        esac
+    else
+        echo 0
+    fi
+}
+
+is_ubuntu() {
+    lsb_release=$(lsb_release -d 2>&1 | awk -F'\t' '{print $2}')
+    if [ -z "$lsb_release" ]; then
+        echo 0
+        return
+    fi
+    if [[ ${lsb_release} == *Ubuntu* ]];then 
+        case "$lsb_release" in
+            *24.*)
+                echo 2
+                ;;
+            *22.* | *20.*)
+                echo 1
+                ;;
+            *)
+                echo 0
+                ;;
+        esac
+    else
+        echo 0
+    fi
+}
+
+is_raspbian(){
+    lsb_release=$(lsb_release -d 2>&1 | awk -F'\t' '{print $2}')
+    if [ -z "$lsb_release" ]; then
+        echo 0
+        return
+    fi
+    if [[ ${lsb_release} == *Raspbian* ]];then 
+        case "$lsb_release" in
+            *11* | *12*)
+                echo 1
+                ;;
+            *)
+                echo 0
+                ;;
+        esac
+    else
+        echo 0
+    fi
+}
+
+is_wsl(){
+    wsl=$(uname -a 2>&1)
+    if [[ ${wsl} == *WSL* ]]; then
+        echo 1
+        return
+    fi
+
+    echo 0
+}
+
+
+
 get_distribution
 get_shell_exec

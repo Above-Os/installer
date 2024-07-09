@@ -2,6 +2,7 @@ package v1
 
 import (
 	"fmt"
+	"os"
 	"strconv"
 
 	"bytetrade.io/web3os/installer/pkg/api/response"
@@ -13,7 +14,6 @@ import (
 	"bytetrade.io/web3os/installer/pkg/phase/download"
 	"bytetrade.io/web3os/installer/pkg/phase/mock"
 	"bytetrade.io/web3os/installer/pkg/pipelines"
-	"bytetrade.io/web3os/installer/pkg/version/kubesphere"
 	"github.com/emicklei/go-restful/v3"
 	"github.com/go-playground/validator/v10"
 )
@@ -60,18 +60,20 @@ func (h *Handler) handlerInstall(req *restful.Request, resp *restful.Response) {
 
 	arg := common.Argument{
 		KsEnable:        true,
-		KsVersion:       kubesphere.Stabled().Version,
+		KsVersion:       common.DefaultKubeSphereVersion,
 		Provider:        h.StorageProvider,
 		Request:         reqModel,
 		InstallPackages: false,
 		SKipPushImages:  false,
+		RegistryMirrors: GetEnv("REGISTRY_MIRRORS", reqModel.Config.RegistryMirrors),
+		Proxy:           GetEnv("PROXY", reqModel.Config.Proxy),
 	}
 
 	switch reqModel.Config.KubeType {
 	case common.K3s:
-		arg.KubernetesVersion = "v1.22.16-k3s"
+		arg.KubernetesVersion = common.DefaultK3sVersion
 	case common.K8s:
-		arg.KubernetesVersion = "v1.22.10"
+		arg.KubernetesVersion = common.DefaultK8sVersion
 	}
 
 	if err := pipelines.InstallTerminusPipeline(arg); err != nil {
@@ -194,4 +196,11 @@ func (h *Handler) handlerInstallTerminus(req *restful.Request, resp *restful.Res
 	// }
 
 	response.SuccessNoData(resp)
+}
+
+func GetEnv(key string, arg string) string {
+	if value, ok := os.LookupEnv(key); ok {
+		return value
+	}
+	return arg
 }

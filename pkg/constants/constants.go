@@ -29,7 +29,7 @@ var (
 
 	CloudVendor string
 
-	LocalIp  []string
+	LocalIp  string
 	PublicIp []string
 )
 

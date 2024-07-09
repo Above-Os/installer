@@ -19,7 +19,7 @@ package common
 const (
 	// KubeKey = "kubekey"
 	KubeKey           = "pkg"
-	Pkg = "pkg"
+	Pkg               = "pkg"
 	Components        = "components"
 	Packages          = "packages"
 	InstallDir        = "install-wizard"

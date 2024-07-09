@@ -40,19 +40,18 @@ func (r *Runner) Exec(cmd string, printOutput bool) (string, int, error) {
 	}
 
 	stdout, code, err := r.Conn.Exec(cmd, r.Host)
-	logger.Debugf("command: [%s]\n%s", r.Host.GetName(), cmd)
-	if stdout != "" {
-		logger.Debugf("stdout: [%s]\n%s", r.Host.GetName(), stdout)
-	}
 	if err != nil {
-		logger.Debugf("stderr: [%s]\n%s", r.Host.GetName(), err)
+		logger.Errorf("[exec] %s CMD: %s, ERROR: %s", r.Host.GetName(), cmd, err)
 	}
 
-	if printOutput {
-		if stdout != "" {
-			logger.Infof("stdout: [%s]\n%s", r.Host.GetName(), stdout)
+	if stdout != "" {
+		if printOutput {
+			logger.Debugf("[exec] %s CMD: %s, OUTPUT: \n%s", r.Host.GetName(), cmd, stdout)
 		}
 	}
+
+	logger.Infof("[exec] %s CMD: %s, OUTPUT: %s", r.Host.GetName(), cmd, stdout)
+
 	return stdout, code, err
 }
 

@@ -193,7 +193,7 @@ func (t *RemoteTask) When(runtime connector.Runtime) (bool, error) {
 
 func (t *RemoteTask) WhenWithRetry(runtime connector.Runtime) (bool, error) {
 	pass := false
-	err := fmt.Errorf("pre-check exec failed after %d retires", t.Retry)
+	err := fmt.Errorf("pre-check exec failed after %d retires ", t.Retry)
 	for i := 0; i < t.Retry; i++ {
 		if res, e := t.When(runtime); e != nil {
 			logger.Errorf("%s %s", runtime.RemoteHost().GetName(), e.Error())

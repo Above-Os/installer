@@ -76,7 +76,7 @@ func (d *DeployModule) Init() {
 			new(NotEqualDesiredVersion),
 		},
 		Action:   new(AddInstallerConfig),
-		Parallel: true,
+		Parallel: false,
 	}
 
 	createNamespace := &task.RemoteTask{
@@ -88,7 +88,7 @@ func (d *DeployModule) Init() {
 			new(NotEqualDesiredVersion),
 		},
 		Action:   new(CreateNamespace),
-		Parallel: true,
+		Parallel: false,
 	}
 
 	setup := &task.RemoteTask{
@@ -100,7 +100,7 @@ func (d *DeployModule) Init() {
 			new(NotEqualDesiredVersion),
 		},
 		Action:   new(Setup),
-		Parallel: true,
+		Parallel: false,
 	}
 
 	apply := &task.RemoteTask{
@@ -112,7 +112,7 @@ func (d *DeployModule) Init() {
 			new(NotEqualDesiredVersion),
 		},
 		Action:   new(Apply),
-		Parallel: true,
+		Parallel: false,
 	}
 
 	d.Tasks = []task.Interface{

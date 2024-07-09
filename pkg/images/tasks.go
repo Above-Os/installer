@@ -19,22 +19,69 @@ package images
 import (
 	"encoding/json"
 	"fmt"
+	"io/fs"
 	"io/ioutil"
+	"path"
 	"path/filepath"
 	"strings"
 
+	"bytetrade.io/web3os/installer/pkg/core/util"
 	coreutil "bytetrade.io/web3os/installer/pkg/core/util"
 	"bytetrade.io/web3os/installer/pkg/registry"
 	manifesttypes "github.com/estesp/manifest-tool/v2/pkg/types"
 
 	kubekeyv1alpha2 "bytetrade.io/web3os/installer/apis/kubekey/v1alpha2"
 	"bytetrade.io/web3os/installer/pkg/common"
+	corecommon "bytetrade.io/web3os/installer/pkg/core/common"
 	"bytetrade.io/web3os/installer/pkg/core/connector"
 	"bytetrade.io/web3os/installer/pkg/core/logger"
 	manifestregistry "github.com/estesp/manifest-tool/v2/pkg/registry"
 	"github.com/pkg/errors"
 	versionutil "k8s.io/apimachinery/pkg/util/version"
 )
+
+// ~ PreloadK3sImages
+type PreloadK3sImages struct {
+	common.KubeAction
+}
+
+func (t *PreloadK3sImages) Execute(runtime connector.Runtime) error {
+	if t.KubeConf.Cluster.Kubernetes.Type != common.K3s {
+		return nil
+	}
+
+	if err := util.CreateDir(common.PreloadK3sImageDir); err != nil {
+		logger.Errorf("create dir %s failed: %v", common.PreloadK3sImageDir, err)
+		return err
+	}
+
+	var cmd = fmt.Sprintf("rm -rf %s/*", common.PreloadK3sImageDir)
+	_, _, err := runtime.GetRunner().Host.Exec(cmd, false, false)
+	if err != nil {
+		logger.Errorf("delete %s files failed: %v", common.PreloadK3sImageDir, err)
+		return err
+	}
+
+	var imagesPath = path.Join(runtime.GetRootDir(), corecommon.ImagesDir)
+	if err := filepath.Walk(imagesPath, func(filePath string, info fs.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		fileName := info.Name()
+		if strings.Contains(fileName, ".tar.gz") {
+			cmd = fmt.Sprintf("ln -s %s %s/%s", filePath, common.PreloadK3sImageDir, fileName)
+			if _, _, err := runtime.GetRunner().Host.Exec(cmd, false, true); err != nil {
+				logger.Errorf("link %s failed: %v", fileName, err)
+			}
+		}
+
+		return nil
+	}); err != nil {
+		return nil
+	}
+
+	return nil
+}
 
 // ~ PullImage
 type PullImage struct {

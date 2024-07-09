@@ -47,7 +47,7 @@ func K8sFilesDownloadHTTP(kubeConf *common.KubeConf, path, version, arch string,
 
 	if kubeConf.Cluster.Kubernetes.ContainerManager == kubekeyapiv1alpha2.Docker {
 		binaries = append(binaries, docker)
-	} else if kubeConf.Cluster.Kubernetes.ContainerManager == kubekeyapiv1alpha2.Conatinerd {
+	} else if kubeConf.Cluster.Kubernetes.ContainerManager == kubekeyapiv1alpha2.Containerd {
 		binaries = append(binaries, containerd, runc)
 	}
 
@@ -143,7 +143,7 @@ func CriDownloadHTTP(kubeConf *common.KubeConf, path, arch string, pipelineCache
 	case common.Docker:
 		docker := files.NewKubeBinary("docker", arch, kubekeyapiv1alpha2.DefaultDockerVersion, path)
 		binaries = append(binaries, docker)
-	case common.Conatinerd:
+	case common.Containerd:
 		containerd := files.NewKubeBinary("containerd", arch, kubekeyapiv1alpha2.DefaultContainerdVersion, path)
 		runc := files.NewKubeBinary("runc", arch, kubekeyapiv1alpha2.DefaultRuncVersion, path)
 		crictl := files.NewKubeBinary("crictl", arch, kubekeyapiv1alpha2.DefaultCrictlVersion, path)

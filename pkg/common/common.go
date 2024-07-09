@@ -53,6 +53,7 @@ const (
 	KubeManifestDir              = "/etc/kubernetes/manifests"
 	KubeScriptDir                = "/usr/local/bin/kube-scripts"
 	KubeletFlexvolumesPluginsDir = "/usr/libexec/kubernetes/kubelet-plugins/volume/exec"
+	PreloadK3sImageDir           = "/var/lib/images"
 
 	InstallerScriptsDir = "scripts"
 
@@ -71,7 +72,7 @@ const (
 
 	Docker     = "docker"
 	Crictl     = "crictl"
-	Conatinerd = "containerd"
+	Containerd = "containerd"
 	Crio       = "crio"
 	Isula      = "isula"
 	Runc       = "runc"

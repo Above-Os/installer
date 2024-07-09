@@ -22,6 +22,7 @@ const (
 	Pkg               = "pkg"
 	Packages          = "packages"
 	InstallDir        = "install-wizard"
+	ImagesDir         = "images"
 	Scripts           = "scripts"
 	GreetingShell     = "greeting.sh"
 	PrecheckOsShell   = "precheck_os.sh"

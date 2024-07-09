@@ -22,6 +22,26 @@ import (
 	"bytetrade.io/web3os/installer/pkg/core/task"
 )
 
+// ~ PreloadImagesModule
+type PreloadImagesModule struct {
+	common.KubeModule
+}
+
+func (p *PreloadImagesModule) Init() {
+	p.Name = "PreloadImages"
+
+	preload := &task.LocalTask{
+		Name:   "PreloadK3sImages",
+		Action: new(PreloadK3sImages),
+		Retry:  0,
+	}
+
+	p.Tasks = []task.Interface{
+		preload,
+	}
+}
+
+// ~ PullModule
 type PullModule struct {
 	common.KubeModule
 	Skip bool
@@ -51,6 +71,7 @@ func (p *PullModule) Init() {
 	}
 }
 
+// ~ CopyImagesToLocalModule
 type CopyImagesToLocalModule struct {
 	common.ArtifactModule
 }

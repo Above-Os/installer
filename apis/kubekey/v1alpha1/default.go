@@ -73,7 +73,7 @@ const (
 	DefaultDNSAddress          = "114.114.114.114"
 
 	Docker     = "docker"
-	Conatinerd = "containerd"
+	Containerd = "containerd"
 	Crio       = "crio"
 	Isula      = "isula"
 )
@@ -262,7 +262,7 @@ func SetDefaultClusterCfg(cfg *ClusterSpec) Kubernetes {
 			cfg.Kubernetes.ContainerRuntimeEndpoint = ""
 		case Crio:
 			cfg.Kubernetes.ContainerRuntimeEndpoint = DefaultCrioEndpoint
-		case Conatinerd:
+		case Containerd:
 			cfg.Kubernetes.ContainerRuntimeEndpoint = DefaultContainerdEndpoint
 		case Isula:
 			cfg.Kubernetes.ContainerRuntimeEndpoint = DefaultIsulaEndpoint

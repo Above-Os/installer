@@ -62,8 +62,8 @@ func NewK3sCreateClusterPhase(runtime *common.KubeRuntime) []module.Module {
 		&k3s.SaveKubeConfigModule{},
 		&addons.AddonsModule{},
 		&storage.DeployLocalVolumeModule{Skip: skipLocalStorage},
-		&kubesphere.DeployModule{Skip: !runtime.Cluster.KubeSphere.Enabled},
-		&kubesphere.CheckResultModule{Skip: !runtime.Cluster.KubeSphere.Enabled},
+		&kubesphere.DeployModule{Skip: !runtime.Cluster.KubeSphere.Enabled},      // todo ks-installer 相关
+		&kubesphere.CheckResultModule{Skip: !runtime.Cluster.KubeSphere.Enabled}, // todo ks-installer 状态检测
 	}
 
 	return m
@@ -113,7 +113,7 @@ func NewCreateClusterPhase(runtime *common.KubeRuntime) []module.Module {
 		&plugins.DeployPluginsModule{},
 		&addons.AddonsModule{},
 		&storage.DeployLocalVolumeModule{Skip: skipLocalStorage},
-		&kubesphere.DeployModule{Skip: !runtime.Cluster.KubeSphere.Enabled},
+		&kubesphere.DeployModule{Skip: !runtime.Cluster.KubeSphere.Enabled}, // todo 这里这么延后？
 		&kubesphere.CheckResultModule{Skip: !runtime.Cluster.KubeSphere.Enabled},
 	}
 

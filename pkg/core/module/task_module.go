@@ -52,7 +52,7 @@ func (b *BaseTaskModule) Run(result *ending.ModuleResult) {
 			// logger.Infof("[Module] %s: %s %s", ac.Host.GetName(), b.Name, ac.Status.String())
 			elapsed := ac.EndTime.Sub(ac.StartTime)
 			// logger.Infof("[Module] %s: %s %s", ac.Host.GetName(), b.Name, ac.Status.String())
-			logger.Debugf("[A] %s %s %s (%s)", t.GetName(), ac.Host.GetName(), ac.Status.String(), util.ShortDur(elapsed))
+			logger.Debugf("[A] %s: %s %s (%s)", ac.Host.GetName(), t.GetName(), ac.Status.String(), util.ShortDur(elapsed))
 
 			result.AppendHostResult(ac)
 

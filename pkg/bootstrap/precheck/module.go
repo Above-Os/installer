@@ -123,12 +123,10 @@ type TerminusGreetingsModule struct {
 }
 
 func (h *TerminusGreetingsModule) Init() {
-	h.Name = "TerminusGreetingsModule"
-	h.Desc = "Greetings"
+	h.Name = "TerminusGreeting"
 
 	hello := &task.LocalTask{
 		Name:   "Greetings",
-		Desc:   "Greetings",
 		Action: new(TerminusGreetingsTask),
 	}
 
@@ -144,7 +142,6 @@ type GreetingsModule struct {
 
 func (h *GreetingsModule) Init() {
 	h.Name = "GreetingsModule"
-	h.Desc = "Greetings"
 
 	var timeout int64
 
@@ -154,7 +151,6 @@ func (h *GreetingsModule) Init() {
 
 	hello := &task.RemoteTask{
 		Name:     "Greetings",
-		Desc:     "Greetings",
 		Hosts:    h.Runtime.GetAllHosts(),
 		Action:   new(GreetingsTask),
 		Parallel: false,

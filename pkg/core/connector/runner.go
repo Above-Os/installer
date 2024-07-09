@@ -44,10 +44,8 @@ func (r *Runner) Exec(cmd string, printOutput bool) (string, int, error) {
 		logger.Errorf("[exec] %s CMD: %s, ERROR: %s", r.Host.GetName(), cmd, err)
 	}
 
-	if stdout != "" {
-		if printOutput {
-			logger.Debugf("[exec] %s CMD: %s, OUTPUT: \n%s", r.Host.GetName(), cmd, stdout)
-		}
+	if printOutput {
+		logger.Debugf("[exec] %s CMD: %s, OUTPUT: \n%s", r.Host.GetName(), cmd, stdout)
 	}
 
 	logger.Infof("[exec] %s CMD: %s, OUTPUT: %s", r.Host.GetName(), cmd, stdout)

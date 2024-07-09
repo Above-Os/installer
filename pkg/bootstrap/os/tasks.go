@@ -41,7 +41,7 @@ type TimeSyncTask struct {
 func (t *TimeSyncTask) Execute(runtime connector.Runtime) error {
 	var host = runtime.GetRunner().Host
 	var cmd = `sysctl -w kernel.printk="3 3 1 7"`
-	if _, _, err := host.Exec(cmd, true, true); err != nil {
+	if _, _, err := host.Exec(cmd, true, false); err != nil {
 		logger.Errorf("failed to execute %s: %v", cmd, err)
 		return err
 	}

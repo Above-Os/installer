@@ -71,7 +71,28 @@ Building dependency tree...
 Reading state information...
 0 upgraded, 0 newly installed, 0 to remove and 1 not upgraded.
 Selecting previously unselected package apt-transport-https.
-(Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 65320 files and directories currently installed.)
+(Reading database ... 
+(Reading database ... 5%
+(Reading database ... 10%
+(Reading database ... 15%
+(Reading database ... 20%
+(Reading database ... 25%
+(Reading database ... 30%
+(Reading database ... 35%
+(Reading database ... 40%
+(Reading database ... 45%
+(Reading database ... 50%
+(Reading database ... 55%
+(Reading database ... 60%
+(Reading database ... 65%
+(Reading database ... 70%
+(Reading database ... 75%
+(Reading database ... 80%
+(Reading database ... 85%
+(Reading database ... 90%
+(Reading database ... 95%
+(Reading database ... 100%
+(Reading database ... 65320 files and directories currently installed.)
 Preparing to unpack .../apt-transport-https_2.4.12_all.deb ...
 Unpacking apt-transport-https (2.4.12) ...
 Setting up apt-transport-https (2.4.12) ...
@@ -165,7 +186,28 @@ Get:49 http://us-west-1.ec2.archive.ubuntu.com/ubuntu jammy/universe amd64 ntpda
 Get:50 http://us-west-1.ec2.archive.ubuntu.com/ubuntu jammy/main amd64 socat amd64 1.7.4.1-3ubuntu4 [349 kB]
 Fetched 51.1 MB in 2s (32.5 MB/s)
 Selecting previously unselected package m4.
-(Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 65324 files and directories currently installed.)
+(Reading database ... 
+(Reading database ... 5%
+(Reading database ... 10%
+(Reading database ... 15%
+(Reading database ... 20%
+(Reading database ... 25%
+(Reading database ... 30%
+(Reading database ... 35%
+(Reading database ... 40%
+(Reading database ... 45%
+(Reading database ... 50%
+(Reading database ... 55%
+(Reading database ... 60%
+(Reading database ... 65%
+(Reading database ... 70%
+(Reading database ... 75%
+(Reading database ... 80%
+(Reading database ... 85%
+(Reading database ... 90%
+(Reading database ... 95%
+(Reading database ... 100%
+(Reading database ... 65324 files and directories currently installed.)
 Preparing to unpack .../00-m4_1.4.18-5ubuntu2_amd64.deb ...
 Unpacking m4 (1.4.18-5ubuntu2) ...
 Selecting previously unselected package flex.
@@ -1144,7 +1186,11 @@ clusterrolebinding.rbac.authorization.k8s.io/openebs-maya-operator created
 deployment.apps/openebs-localpv-provisioner created
 2024-07-08T10:02:21.713Z	[A] DeployOpenEBS ip-172-31-6-4 success (1.489494853s)
 2024-07-08T10:02:21.713Z	[Module] DeployKubeSphereModule
+
+
 2024-07-08T10:02:21.713Z	[A] Remote: GenerateKsInstallerCRD
+# 这个 action 好像仅仅就是渲染、拷贝文件，见下面的部分，一个 mv 命令
+# 文件是 kubesphere.yaml
 0
 886a74598f7970141453444cd28591c5
 2024-07-08T10:02:21.772Z	scp local file /project/pkg/ip-172-31-6-4/kubesphere.yaml to remote /tmp/kubekey/etc/kubernetes/addons/kubesphere.yaml success
@@ -1152,6 +1198,16 @@ deployment.apps/openebs-localpv-provisioner created
 sudo -E /bin/bash -c "mv -f /tmp/kubekey/etc/kubernetes/addons/kubesphere.yaml /etc/kubernetes/addons/kubesphere.yaml"
 2024-07-08T10:02:21.819Z	command: [ip-172-31-6-4]
 sudo -E /bin/bash -c "rm -rf /tmp/kubekey/*"
+
+
+################################################################################################
+#
+#   ks-installer
+#   [A] Remote: ApplyKsInstaller
+#   需要注意，这里有几个都是并行执行的。所以顺序会不同
+#
+################################################################################################
+
 2024-07-08T10:02:21.819Z	[A] GenerateKsInstallerCRD ip-172-31-6-4 success (106.225074ms)
 2024-07-08T10:02:21.819Z	[A] Remote: ApplyKsInstaller
 namespace/kubesphere-system created
@@ -1169,6 +1225,13 @@ customresourcedefinition.apiextensions.k8s.io/clusterconfigurations.installer.ku
 clusterrole.rbac.authorization.k8s.io/ks-installer created
 clusterrolebinding.rbac.authorization.k8s.io/ks-installer created
 deployment.apps/ks-installer created
+
+################################################################################################
+#
+#   ks-installer
+#   [A] Remote: AddKsInstallerConfig
+#
+################################################################################################
 2024-07-08T10:02:22.288Z	[A] ApplyKsInstaller ip-172-31-6-4 success (468.697894ms)
 2024-07-08T10:02:22.288Z	[A] Remote: AddKsInstallerConfig
 2024-07-08T10:02:22.310Z	command: [ip-172-31-6-4]
@@ -1230,6 +1293,13 @@ clusterrolebinding.rbac.authorization.k8s.io/ks-installer unchanged
 deployment.apps/ks-installer unchanged
 clusterconfiguration.installer.kubesphere.io/ks-installer created
 2024-07-08T10:02:24.515Z	[A] ApplyKsInstaller ip-172-31-6-4 success (1.392227411s)
+
+
+################################################################################################
+#
+#   这里就是持续的状态检测？
+#
+################################################################################################
 2024-07-08T10:02:24.515Z	[Module] CheckResultModule
 2024-07-08T10:02:24.515Z	[A] Remote: CheckKsInstallerResult
 2024-07-08T10:02:24.798Z	command: [ip-172-31-6-4]
@@ -2344,6 +2414,16 @@ command terminated with exit code 1
 Failed to exec command: sudo -E /bin/bash -c "/usr/local/bin/kubectl exec -n kubesphere-system $(kubectl get pod -n kubesphere-system -l app=ks-installer -o jsonpath='{.items[0].metadata.name}') -- ls /kubesphere/playbooks/kubesphere_running" 
 ls: /kubesphere/playbooks/kubesphere_running: No such file or directory
 command terminated with exit code 1: Process exited with status 1
+
+################################################################################################################################################################
+#
+#
+#   ks-installer 的日志
+#
+#
+################################################################################################################################################################
+
+
 2024-07-08T10:03:12Z INFO     : shell-operator latest
 2024-07-08T10:03:12Z INFO     : HTTP SERVER Listening on 0.0.0.0:9115
 2024-07-08T10:03:12Z INFO     : Use temporary dir: /tmp/shell-operator

@@ -64,7 +64,7 @@ func (p *Pipeline) Init() error {
 }
 
 func (p *Pipeline) Start() error {
-	logger.Debugf("[Job] %s start ...", p.Name)
+	logger.Debugf("[Job] [%s] start ...", p.Name)
 	if err := p.Init(); err != nil {
 		logger.Errorf("[Job] %s execute failed %v", p.Name, err)
 		return errors.Wrapf(err, "Job %s execute failed", p.Name)

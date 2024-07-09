@@ -23,6 +23,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	kubekeyapiv1alpha2 "bytetrade.io/web3os/installer/apis/kubekey/v1alpha2"
 	"bytetrade.io/web3os/installer/pkg/common"
@@ -46,7 +47,7 @@ func (a *AddInstallerConfig) Execute(runtime connector.Runtime) error {
 	configurationBase64 := base64.StdEncoding.EncodeToString([]byte(a.KubeConf.Cluster.KubeSphere.Configurations))
 	if _, err := runtime.GetRunner().SudoCmd(
 		fmt.Sprintf("echo %s | base64 -d >> /etc/kubernetes/addons/kubesphere.yaml", configurationBase64),
-		false); err != nil {
+		true); err != nil {
 		return errors.Wrap(errors.WithStack(err), "add config to ks-installer manifests failed")
 	}
 	return nil
@@ -69,7 +70,7 @@ kind: Namespace
 metadata:
   name: kubesphere-monitoring-system
 EOF
-`, false)
+`, true)
 	if err != nil {
 		return errors.Wrap(errors.WithStack(err), "create namespace: kubesphere-system and kubesphere-monitoring-system")
 	}
@@ -364,6 +365,7 @@ func CheckKubeSphereStatus(ctx context.Context, runtime connector.Runtime, stopC
 		case <-ctx.Done():
 			stopChan <- ""
 		default:
+			time.Sleep(5 * time.Second)
 			_, err := runtime.GetRunner().SudoCmd(
 				"/usr/local/bin/kubectl exec -n kubesphere-system "+
 					"$(kubectl get pod -n kubesphere-system -l app=ks-installer -o jsonpath='{.items[0].metadata.name}') "+

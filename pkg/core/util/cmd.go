@@ -38,7 +38,7 @@ func Exec(name string, printOutput bool, printLine bool) (stdout string, code in
 		line, err := r.ReadString('\n')
 		if err != nil {
 			if err.Error() != "EOF" {
-				fmt.Println("read error:", err)
+				logger.Errorf("[exec] read error: %s", err)
 			}
 			break
 		}

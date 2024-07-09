@@ -60,6 +60,7 @@ func (k *K3sNodeBinariesModule) Init() {
 			&common.Stop{},
 		},
 		Action: new(K3sDownload),
+		Retry:  0,
 	}
 
 	k.Tasks = []task.Interface{

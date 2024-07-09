@@ -48,7 +48,6 @@ type ModuleRuntime interface {
 	GetHostWorkDir() string
 	GetRootDir() string
 	GetWorkDir() string
-	GetDependDir() string
 	GetPackageDir() string
 	GetIgnoreErr() bool
 	GetAllHosts() []Host

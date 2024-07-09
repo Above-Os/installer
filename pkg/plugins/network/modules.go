@@ -90,7 +90,7 @@ func deployMultus(d *DeployNetworkPluginModule) []task.Interface {
 }
 
 func deployCalico(d *DeployNetworkPluginModule) []task.Interface {
-	generateCalicoOld := &task.RemoteTask{
+	generateCalicoOld := &task.RemoteTask{ // ! abandon
 		Name:  "GenerateCalico",
 		Desc:  "Generate calico",
 		Hosts: d.Runtime.GetHostsByRole(common.Master),

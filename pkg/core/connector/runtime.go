@@ -35,7 +35,6 @@ type BaseRuntime struct {
 	storage         storage.Provider
 	rootDir         string
 	workDir         string
-	dependDir       string
 	packageDir      string
 	verbose         bool
 	ignoreErr       bool
@@ -111,12 +110,6 @@ func (b *BaseRuntime) GenerateWorkDir() error {
 	}
 	b.workDir = rootPath
 
-	depsPath := filepath.Join(currentDir, common.Components)
-	if err := util.CreateDir(depsPath); err != nil {
-		return errors.Wrap(err, "create depend dir failed")
-	}
-	b.dependDir = depsPath
-
 	pkgsPath := filepath.Join(currentDir, common.Packages)
 	if err := util.CreateDir(pkgsPath); err != nil {
 		return errors.Wrap(err, "create package dir failed")
@@ -142,10 +135,6 @@ func (b *BaseRuntime) GetRootDir() string {
 
 func (b *BaseRuntime) GetWorkDir() string {
 	return b.workDir
-}
-
-func (b *BaseRuntime) GetDependDir() string {
-	return b.dependDir
 }
 
 func (b *BaseRuntime) GetPackageDir() string {

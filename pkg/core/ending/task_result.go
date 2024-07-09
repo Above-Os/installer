@@ -128,7 +128,7 @@ func (t *TaskResult) CombineErr() error {
 			if t.ActionResults[i].Status != FAILED {
 				continue
 			}
-			str += fmt.Sprintf("\nfailed: [%s] %s", t.ActionResults[i].Host.GetName(), t.ActionResults[i].Error.Error())
+			str += fmt.Sprintf("\nfailed - %s: %s", t.ActionResults[i].Host.GetName(), t.ActionResults[i].Error.Error())
 		}
 		return errors.New(str)
 	}

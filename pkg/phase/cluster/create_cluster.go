@@ -36,6 +36,11 @@ func NewK3sCreateClusterPhase(runtime *common.KubeRuntime) []module.Module {
 		skipLocalStorage = false
 	}
 
+	if skipLocalStorage {
+	}
+	if skipPushImages {
+	}
+
 	m := []module.Module{
 		&precheck.GreetingsModule{},
 		&artifact.UnArchiveModule{Skip: noArtifact},                            // skip
@@ -63,8 +68,8 @@ func NewK3sCreateClusterPhase(runtime *common.KubeRuntime) []module.Module {
 		&addons.AddonsModule{},
 		&storage.DeployLocalVolumeModule{Skip: skipLocalStorage},
 		// 下面去掉
-		&kubesphere.DeployModule{Skip: !runtime.Cluster.KubeSphere.Enabled},      // todo ks-installer 相关
-		&kubesphere.CheckResultModule{Skip: !runtime.Cluster.KubeSphere.Enabled}, // todo ks-installer 状态检测
+		// &kubesphere.DeployModule{Skip: !runtime.Cluster.KubeSphere.Enabled},      // todo ks-installer 相关
+		// &kubesphere.CheckResultModule{Skip: !runtime.Cluster.KubeSphere.Enabled}, // todo ks-installer 状态检测
 	}
 
 	return m

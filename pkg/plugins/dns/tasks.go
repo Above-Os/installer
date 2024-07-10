@@ -17,16 +17,44 @@
 package dns
 
 import (
+	"fmt"
 	"path/filepath"
 	"strings"
 
 	"bytetrade.io/web3os/installer/pkg/common"
 	"bytetrade.io/web3os/installer/pkg/core/action"
 	"bytetrade.io/web3os/installer/pkg/core/connector"
+	"bytetrade.io/web3os/installer/pkg/core/logger"
 	"bytetrade.io/web3os/installer/pkg/core/util"
 	"bytetrade.io/web3os/installer/pkg/plugins/dns/templates"
+	"bytetrade.io/web3os/installer/pkg/utils"
 	"github.com/pkg/errors"
 )
+
+// ~ SetProxyNameServer
+type SetProxyNameServer struct {
+	common.KubeAction
+}
+
+func (s *SetProxyNameServer) Execute(runtime connector.Runtime) error {
+	var host = runtime.RemoteHost()
+	proxy, ok := s.PipelineCache.Get(common.CacheProxy)
+	if !ok || proxy == nil {
+		return nil
+	}
+	if addr := proxy.(string); len(addr) != 0 {
+		if !utils.IsValidIP(addr) {
+			// todo set nameserver
+			return nil
+		}
+
+		host.Exec("cat /etc/resolv.conf > /etc/resolv.conf.bak", false, false)
+		if _, _, err := host.Exec(fmt.Sprintf("echo nameserver %s > /etc/resolv.conf", addr), false, true); err != nil {
+			logger.Errorf("set nameserver %s failed: %v", addr, err)
+		}
+	}
+	return nil
+}
 
 // ~ OverrideCoreDNS
 type OverrideCoreDNS struct {

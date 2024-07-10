@@ -25,32 +25,3 @@ func (m *CopyUninstallScriptModule) Init() {
 		copyUninstallScript,
 	}
 }
-
-// ~ CopyScriptsModule
-type CopyScriptsModule struct {
-	module.BaseTaskModule
-}
-
-func (m *CopyScriptsModule) Init() {
-	m.Name = "CopyScripts"
-	m.Desc = "Copy scripts(module name)"
-
-	copyScripts := &task.LocalTask{
-		Name:   "CopyScripts",
-		Desc:   "Copy scripts(action name)",
-		Action: &Copy{},
-	}
-
-	greeting := &task.LocalTask{
-		Name:        "Greeting",
-		Desc:        "Greeting",
-		Action:      &Greeting{},
-		Retry:       0,
-		IgnoreError: true,
-	}
-
-	m.Tasks = []task.Interface{
-		copyScripts,
-		greeting,
-	}
-}

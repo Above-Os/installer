@@ -158,3 +158,7 @@ func ExtractIP(host string) ([]string, error) {
 
 	return ips, nil
 }
+
+func IsValidIP(ip string) bool {
+	return net.ParseIP(ip) != nil
+}

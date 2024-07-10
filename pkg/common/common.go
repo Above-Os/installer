@@ -108,15 +108,6 @@ const (
 	SkipMasterNodePullImages = "skipMasterNodePullImages"
 )
 
-// todo
-const (
-	FullPackage = "fullPackage"
-	MiniPackage = "miniPackage"
-
-	DefaultFullPackageName = "full"
-	DefaultMiniPackageName = "mini"
-)
-
 const (
 	Linux   = "linux"
 	Darwin  = "darwin"
@@ -159,4 +150,15 @@ const (
 	CommandConntrack = "conntrack"
 	CommandNtpdate   = "ntpdate"
 	CommandHwclock   = "hwclock"
+	CommandKubectl   = "kubectl"
+)
+
+const (
+	CacheKubectlKey = "cmd_kubectl"
+
+	CacheSTSAccessKey = "sts_access_key"
+	CacheSTSSecretKey = "sts_secret_key"
+	CacheSTSToken     = "sts_token"
+	CacheSTSClusterId = "sts_cluster_id"
+	CacheProxy        = "proxy"
 )

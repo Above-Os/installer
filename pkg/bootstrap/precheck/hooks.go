@@ -1,5 +1,14 @@
 package precheck
 
+import (
+	"fmt"
+
+	"bytetrade.io/web3os/installer/pkg/constants"
+	"bytetrade.io/web3os/installer/pkg/core/ending"
+	"bytetrade.io/web3os/installer/pkg/core/module"
+	"bytetrade.io/web3os/installer/pkg/utils"
+)
+
 // import (
 // 	"fmt"
 
@@ -10,6 +19,38 @@ package precheck
 // 	"bytetrade.io/web3os/installer/pkg/core/util"
 // 	"bytetrade.io/web3os/installer/pkg/utils"
 // )
+
+type PrintMachineInfoHook struct {
+	Module module.Module
+	Result *ending.ModuleResult
+}
+
+func (h *PrintMachineInfoHook) Init(module module.Module, result *ending.ModuleResult) {
+	h.Module = module
+	h.Result = result
+}
+
+func (h *PrintMachineInfoHook) Try() error {
+	fmt.Printf("MACHINE, hostname: %s, cpu: %d, mem: %s, disk: %s, local-ip: %s\n",
+		constants.HostName, constants.CpuPhysicalCount, utils.FormatBytes(int64(constants.MemTotal)),
+		utils.FormatBytes(int64(constants.DiskTotal)), constants.LocalIp)
+	fmt.Printf("SYSTEM, os: %s, platform: %s, arch: %s, version: %s\nCGROUP, cpu-enabled: %d, memory-enabled: %d\n",
+		constants.OsType, constants.OsPlatform, constants.OsArch, constants.OsVersion,
+		constants.CgroupCpuEnabled, constants.CgroupMemoryEnabled,
+	)
+	if constants.InstalledKubeVersion != "" {
+		fmt.Printf("KUBE, version: %s\n", constants.InstalledKubeVersion)
+	}
+
+	return nil
+}
+
+func (h *PrintMachineInfoHook) Catch(err error) error {
+	return err
+}
+
+func (h *PrintMachineInfoHook) Finally() {
+}
 
 // // ~ hook GetSysInfoHook
 // type GetSysInfoHook struct {

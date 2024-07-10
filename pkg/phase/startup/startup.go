@@ -5,24 +5,23 @@ import (
 	"bytetrade.io/web3os/installer/pkg/common"
 	"bytetrade.io/web3os/installer/pkg/core/module"
 	"bytetrade.io/web3os/installer/pkg/core/pipeline"
-	"bytetrade.io/web3os/installer/pkg/scripts"
 )
 
 func GetMachineInfo() error {
-	runtime, err := common.NewLocalRuntime(false, false)
+	// runtime, err := common.NewLocalRuntime(false, false)
+	runtime, err := common.NewKubeRuntime(common.AllInOne, common.Argument{})
 	if err != nil {
 		return err
 	}
 
 	m := []module.Module{
 		&precheck.GetSysInfoModel{},
-		&scripts.CopyScriptsModule{},
 	}
 
 	p := pipeline.Pipeline{
 		Name:    "Startup",
 		Modules: m,
-		Runtime: &runtime,
+		Runtime: runtime,
 	}
 
 	return p.Start()

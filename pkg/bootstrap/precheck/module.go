@@ -26,16 +26,6 @@ import (
 	"bytetrade.io/web3os/installer/pkg/core/task"
 )
 
-// ~ CliUninstallOsModule
-type CliUninstallOsModule struct {
-	module.BaseTaskModule
-}
-
-func (m *CliUninstallOsModule) Init() {
-	m.Name = "UninstallOS"
-	m.Desc = "UninstallOS"
-}
-
 // ~ GetSysInfoModel
 type GetSysInfoModel struct {
 	module.BaseTaskModule
@@ -43,12 +33,18 @@ type GetSysInfoModel struct {
 
 func (m *GetSysInfoModel) Init() {
 	m.Name = "GetMachineInfo"
-	m.Desc = "GetMachineInfo"
 
 	getSysInfoTask := &task.LocalTask{
 		Name:   "GetMachineInfo",
-		Desc:   "GetMachineInfo",
 		Action: new(GetSysInfoTask),
+	}
+
+	getInstalledVersionTask := &task.LocalTask{
+		Name: "GetInstalledVersion",
+		Prepare: &prepare.PrepareCollection{
+			&common.GetCommandKubectl{},
+		},
+		Action: new(GetKubeVersionTask),
 	}
 
 	getCgroupsEnabledTask := &task.LocalTask{
@@ -64,8 +60,13 @@ func (m *GetSysInfoModel) Init() {
 
 	m.Tasks = []task.Interface{
 		getSysInfoTask,
+		getInstalledVersionTask,
 		getCgroupsEnabledTask,
 		getLocalIpTask,
+	}
+
+	m.PostHook = []module.PostHookInterface{
+		&PrintMachineInfoHook{},
 	}
 
 	// m.PostHook = []module.PostHookInterface{

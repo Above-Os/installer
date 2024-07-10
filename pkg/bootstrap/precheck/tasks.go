@@ -191,6 +191,47 @@ func (t *CopyPreInstallationDependencyFilesTask) Execute(runtime connector.Runti
 	return nil
 }
 
+// ~ CheckKubeVersionTask
+type GetKubeVersionTask struct {
+	common.KubeAction
+}
+
+func (t *GetKubeVersionTask) Execute(runtime connector.Runtime) error {
+	var host = runtime.RemoteHost()
+
+	if !host.IsRole(common.Master) {
+		return nil
+	}
+
+	var f = "/etc/kke/version"
+	if ok := host.IsExists(f); ok {
+		stdout, _, err := host.Exec("awk -F '=' '/KUBE/{printf \"%s\",$2}' "+f, false, true)
+		if err != nil {
+			logger.Errorf("get kube version error %v", err)
+		}
+		if stdout != "" {
+			constants.InstalledKubeVersion = stdout
+		}
+	}
+
+	cmd, ok := t.PipelineCache.Get(common.CacheKubectlKey)
+	if !ok || cmd == nil {
+		return nil
+	}
+
+	kubectl := cmd.(string)
+
+	stdout, _, err := host.Exec(fmt.Sprintf("%s get nodes -o jsonpath='{.items[0].status.nodeInfo.kubeletVersion}'", kubectl), false, true)
+	if err != nil {
+		return nil
+	}
+	if stdout != "" {
+		constants.InstalledKubeVersion = stdout
+	}
+
+	return nil
+}
+
 // ~ GetSysInfoTask
 type GetSysInfoTask struct {
 	action.BaseAction
@@ -290,14 +331,6 @@ func (t *GetCGroupsTask) Execute(runtime connector.Runtime) error {
 		logger.Errorf("error reading /proc/cgroups error %v", err)
 		return err
 	}
-
-	fmt.Printf("MACHINE, hostname: %s, cpu: %d, mem: %s, disk: %s, local-ip: %s\n",
-		constants.HostName, constants.CpuPhysicalCount, utils.FormatBytes(int64(constants.MemTotal)),
-		utils.FormatBytes(int64(constants.DiskTotal)), constants.LocalIp)
-	fmt.Printf("SYSTEM, os: %s, platform: %s, arch: %s, version: %s\nCGROUP, cpu-enabled: %d, memory-enabled: %d\n",
-		constants.OsType, constants.OsPlatform, constants.OsArch, constants.OsVersion,
-		constants.CgroupCpuEnabled, constants.CgroupMemoryEnabled,
-	)
 
 	return nil
 }
@@ -622,5 +655,45 @@ func (g *GetKubernetesNodesStatus) Execute(runtime connector.Runtime) error {
 		return err
 	}
 	g.PipelineCache.Set(common.ClusterNodeCRIRuntimes, cri)
+	return nil
+}
+
+// ~ GetStorageKeyTask
+type GetStorageKeyTask struct {
+	common.KubeAction
+}
+
+func (t *GetStorageKeyTask) Execute(runtime connector.Runtime) error {
+	var host = runtime.RemoteHost()
+	if !host.IsRole(common.Master) {
+		return nil
+	}
+
+	kubectl, ok := t.PipelineCache.Get(common.CacheKubectlKey)
+	if !ok {
+		return fmt.Errorf("get kubectl command failed by pipeline cache")
+	}
+
+	var cmd string
+	cmd = fmt.Sprintf("%s get terminus terminus -o jsonpath='{.metadata.annotations.bytetrade\\.io/s3-ak}'", kubectl)
+	if stdout, _, err := host.Exec(cmd, false, true); err == nil && stdout != "" {
+		t.PipelineCache.Set(common.CacheSTSAccessKey, stdout)
+	}
+
+	cmd = fmt.Sprintf("%s get terminus terminus -o jsonpath='{.metadata.annotations.bytetrade\\.io/s3-sk}'", kubectl)
+	if stdout, _, err := host.Exec(cmd, false, true); err == nil && stdout != "" {
+		t.PipelineCache.Set(common.CacheSTSSecretKey, stdout)
+	}
+
+	cmd = fmt.Sprintf("%s get terminus terminus -o jsonpath='{.metadata.annotations.bytetrade\\.io/s3-sts}'", kubectl)
+	if stdout, _, err := host.Exec(cmd, false, true); err == nil && stdout != "" {
+		t.PipelineCache.Set(common.CacheSTSToken, stdout)
+	}
+
+	cmd = fmt.Sprintf("%s get terminus terminus -o jsonpath='{.metadata.annotations.bytetrade\\.io/cluster-id}'", kubectl)
+	if stdout, _, err := host.Exec(cmd, false, true); err == nil && stdout != "" {
+		t.PipelineCache.Set(common.CacheSTSClusterId, stdout)
+	}
+
 	return nil
 }

@@ -28,6 +28,15 @@ import (
 	"bytetrade.io/web3os/installer/pkg/plugins/dns/templates"
 )
 
+// ~ SetProxyModule
+type SetProxyModule struct {
+	common.KubeModule
+}
+
+func (s *SetProxyModule) Init() {
+	s.Name = "SetProxy"
+}
+
 // ~ ClusterDNSModule
 type ClusterDNSModule struct {
 	common.KubeModule

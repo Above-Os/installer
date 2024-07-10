@@ -28,7 +28,6 @@ func Uninstall(o *options.CliTerminusUninstallOptions) error {
 	}
 
 	p.PipelineCache.Set("proxy", o.Proxy)
-	p.PipelineCache.Set("kube_type", o.KubeType)
 
 	return p.Start()
 }

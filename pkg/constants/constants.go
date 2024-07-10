@@ -31,6 +31,8 @@ var (
 
 	LocalIp  string
 	PublicIp []string
+
+	InstalledKubeVersion string
 )
 
 var (

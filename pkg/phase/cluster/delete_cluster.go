@@ -43,8 +43,12 @@ func GetCurrentKubeVersion() string {
 		if err != nil {
 			goto SKIP
 		}
-		if stdout != "" && strings.Contains(stdout, "+k3s1") {
-			stdout = strings.ReplaceAll(stdout, "+k3s1", "-k3s")
+		if stdout != "" {
+			if strings.Contains(stdout, "+k3s1") {
+				stdout = strings.ReplaceAll(stdout, "+k3s1", "-k3s")
+			} else if strings.Contains(stdout, "+k3s2") {
+				stdout = strings.ReplaceAll(stdout, "+k3s2", "-k3s")
+			}
 		}
 
 		if fileVersion != "" {

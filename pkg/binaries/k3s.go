@@ -44,10 +44,9 @@ func K3sFilesDownloadHTTP(kubeConf *common.KubeConf, path, version, arch string,
 			return errors.Wrapf(errors.WithStack(err), "create file %s base dir failed", binary.FileName)
 		}
 
-		logger.Infof("%s downloading %s %s %s ...", common.LocalHost, arch, binary.ID, binary.Version)
-
 		binariesMap[binary.ID] = binary
 		var exists = util.IsExist(binary.Path())
+		fmt.Println("---1---", binary.ID, binary.FileName, exists)
 		if exists {
 			// download it again if it's incorrect
 			p := binary.Path()
@@ -59,6 +58,8 @@ func K3sFilesDownloadHTTP(kubeConf *common.KubeConf, path, version, arch string,
 		}
 
 		if !exists || binary.OverWrite {
+			fmt.Println("---2---", binary.ID, binary.FileName, exists)
+			logger.Infof("%s downloading %s %s %s ...", common.LocalHost, arch, binary.ID, binary.Version)
 			if err := binary.Download(); err != nil {
 				return fmt.Errorf("Failed to download %s binary: %s error: %w ", binary.ID, binary.Url, err)
 			}

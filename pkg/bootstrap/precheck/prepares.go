@@ -94,3 +94,15 @@ func (k *KubeSphereExist) PreCheck(runtime connector.Runtime) (bool, error) {
 	}
 	return false, nil
 }
+
+// ~ KubeExist
+type KubeExist struct {
+	common.KubePrepare
+}
+
+func (k *KubeExist) PreCheck(runtime connector.Runtime) (bool, error) {
+	if constants.InstalledKubeVersion == "" {
+		return false, nil
+	}
+	return true, nil
+}

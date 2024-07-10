@@ -54,7 +54,7 @@ func InstallTerminusPipeline(args common.Argument) error {
 
 	go func() {
 		if err := p.Start(); err != nil {
-			logger.Errorf("install k3s failed %v", err)
+			logger.Errorf("install terminus failed %v", err)
 			return
 		}
 

@@ -74,7 +74,6 @@ func (t *RemoteTask) Execute() *ending.TaskResult {
 	if t.TaskResult.IsFailed() {
 		return t.TaskResult
 	}
-
 	routinePool := make(chan struct{}, DefaultCon)
 	defer close(routinePool)
 
@@ -107,7 +106,6 @@ func (t *RemoteTask) Execute() *ending.TaskResult {
 
 func (t *RemoteTask) RunWithTimeout(ctx context.Context, runtime connector.Runtime, host connector.Host, index int,
 	wg *sync.WaitGroup, pool chan struct{}) {
-
 	pool <- struct{}{}
 
 	resCh := make(chan error)

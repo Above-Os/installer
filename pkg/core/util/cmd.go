@@ -40,6 +40,12 @@ func Exec(name string, printOutput bool, printLine bool) (stdout string, code in
 			if err.Error() != "EOF" {
 				logger.Errorf("[exec] read error: %s", err)
 			}
+
+			if printLine {
+				fmt.Println(strings.TrimSuffix(line, "\n"))
+			}
+			outputBuffer.WriteString(line)
+
 			break
 		}
 
@@ -101,6 +107,10 @@ func ExecWithChannel(name string, printOutput bool, printLine bool, output chan 
 			if err.Error() != "EOF" {
 				fmt.Println("read error:", err)
 			}
+			if printLine {
+				fmt.Println(strings.TrimSuffix(line, "\n"))
+			}
+			outputBuffer.WriteString(line)
 			break
 		}
 		l := strings.TrimSuffix(line, "\n")

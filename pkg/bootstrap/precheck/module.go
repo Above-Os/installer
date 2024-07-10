@@ -26,6 +26,29 @@ import (
 	"bytetrade.io/web3os/installer/pkg/core/task"
 )
 
+// ~ GetStorageKeyModule
+type GetStorageKeyModule struct {
+	common.KubeModule
+}
+
+func (m *GetStorageKeyModule) Init() {
+	m.Name = "GetStorageKey"
+
+	getStorageKeyTask := &task.LocalTask{
+		Name: "GetStorageKey",
+		Prepare: &prepare.PrepareCollection{
+			&common.GetCommandKubectl{},
+		},
+		Action: new(GetStorageKeyTask),
+	}
+	m.Tasks = []task.Interface{getStorageKeyTask}
+}
+
+// ~ GetKubeVersionModule
+type GetKubeVersionModule struct {
+	module.BaseTaskModule
+}
+
 // ~ GetSysInfoModel
 type GetSysInfoModel struct {
 	module.BaseTaskModule
@@ -69,10 +92,6 @@ func (m *GetSysInfoModel) Init() {
 		&PrintMachineInfoHook{},
 	}
 
-	// m.PostHook = []module.PostHookInterface{
-	// 	&GetSysInfoHook{},
-	// 	&GetLocalIpHook{},
-	// }
 }
 
 // ~ PrecheckOs
@@ -151,8 +170,11 @@ func (h *GreetingsModule) Init() {
 	}
 
 	hello := &task.RemoteTask{
-		Name:     "Greetings",
-		Hosts:    h.Runtime.GetAllHosts(),
+		Name:  "Greetings",
+		Hosts: h.Runtime.GetAllHosts(),
+		Prepare: &prepare.PrepareCollection{
+			&KubeExist{},
+		},
 		Action:   new(GreetingsTask),
 		Parallel: false,
 		Timeout:  time.Duration(timeout) * time.Second,

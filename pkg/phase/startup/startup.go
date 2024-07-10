@@ -8,7 +8,6 @@ import (
 )
 
 func GetMachineInfo() error {
-	// runtime, err := common.NewLocalRuntime(false, false)
 	runtime, err := common.NewKubeRuntime(common.AllInOne, common.Argument{})
 	if err != nil {
 		return err

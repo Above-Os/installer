@@ -19,12 +19,7 @@ type GetCommandKubectl struct {
 }
 
 func (p *GetCommandKubectl) PreCheck(runtime connector.Runtime) (bool, error) {
-	var host = runtime.RemoteHost()
-	if !host.IsRole(Master) {
-		return true, nil
-	}
-
-	cmd, err := host.GetCommand(CommandKubectl)
+	cmd, err := runtime.GetRunner().Host.GetCommand(CommandKubectl)
 	if err != nil {
 		return true, nil
 	}

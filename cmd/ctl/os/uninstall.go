@@ -8,7 +8,7 @@ import (
 	"bytetrade.io/web3os/installer/cmd/ctl/options"
 	"bytetrade.io/web3os/installer/pkg/constants"
 	"bytetrade.io/web3os/installer/pkg/core/logger"
-	"bytetrade.io/web3os/installer/pkg/phase/cli"
+	"bytetrade.io/web3os/installer/pkg/pipelines"
 	"bytetrade.io/web3os/installer/pkg/utils"
 	"github.com/spf13/cobra"
 )
@@ -44,8 +44,8 @@ func NewCmdUninstallOs() *cobra.Command {
 				os.Exit(1)
 			}
 
-			if err := cli.Uninstall(o.UninstallOptions); err != nil {
-				logger.Errorf("uninstall terminus error %v", err)
+			if err := pipelines.UninstallTerminusPipeline(); err != nil {
+				logger.Errorf("delete terminus error %v", err)
 			}
 		},
 	}

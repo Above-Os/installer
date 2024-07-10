@@ -214,6 +214,7 @@ func (d *DefaultLoader) Load() (*kubekeyapiv1alpha2.Cluster, error) {
 		Worker:   {hostname},
 		Registry: {hostname},
 	}
+
 	if ver := normalizedBuildVersion(d.KubernetesVersion); ver != "" {
 		s := strings.Split(ver, "-")
 		if len(s) > 1 {
@@ -469,11 +470,17 @@ func localSSH() error {
 // defaultCommonClusterConfig kubernetes version, registry mirrors, container manager, etc.
 func defaultCommonClusterConfig(cluster *kubekeyapiv1alpha2.Cluster, arg Argument) error {
 	if ver := normalizedBuildVersion(arg.KubernetesVersion); ver != "" {
-		s := strings.Split(ver, "-")
+		var s []string
+		if strings.Contains(ver, "+") {
+			s = strings.Split(ver, "+")
+		} else {
+			s = strings.Split(ver, "-")
+		}
 		if len(s) > 1 {
+			var t = strings.ReplaceAll(s[1], "k3s1", "k3s")
 			cluster.Spec.Kubernetes = kubekeyapiv1alpha2.Kubernetes{
 				Version: s[0],
-				Type:    s[1],
+				Type:    t,
 			}
 		} else {
 			cluster.Spec.Kubernetes = kubekeyapiv1alpha2.Kubernetes{

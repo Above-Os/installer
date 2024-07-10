@@ -75,17 +75,10 @@ func (m *GetSysInfoModel) Init() {
 		Action: new(GetCGroupsTask),
 	}
 
-	getLocalIpTask := &task.LocalTask{
-		Name:   "GetLocalIp",
-		Desc:   "GetLocalIp",
-		Action: new(GetLocalIpTask),
-	}
-
 	m.Tasks = []task.Interface{
 		getSysInfoTask,
 		getInstalledVersionTask,
 		getCgroupsEnabledTask,
-		getLocalIpTask,
 	}
 
 	m.PostHook = []module.PostHookInterface{

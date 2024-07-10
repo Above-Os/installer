@@ -26,6 +26,7 @@ import (
 	"os/user"
 	"path/filepath"
 	"regexp"
+	"runtime"
 	"strings"
 	"time"
 
@@ -120,15 +121,22 @@ func (c *CommandLineLoader) Load() (*kubekeyapiv1alpha2.Cluster, error) {
 
 	cluster := &kubekeyapiv1alpha2.Cluster{}
 
+	if constants.LocalIp == "" {
+		constants.LocalIp = util.LocalIP()
+	}
+	if constants.OsArch == "" {
+		constants.OsArch = runtime.GOARCH
+	}
+
 	// current node
 	cluster.Spec.Hosts = append(cluster.Spec.Hosts, kubekeyapiv1alpha2.HostCfg{
 		Name:            c.hostname,
-		Address:         util.LocalIP(),
-		InternalAddress: util.LocalIP(),
+		Address:         constants.LocalIp,
+		InternalAddress: constants.LocalIp,
 		Port:            c.arg.LocalSSHPort,
 		User:            u.Name,
 		PrivateKeyPath:  fmt.Sprintf("%s/.ssh/id_rsa", u.HomeDir),
-		Arch:            constants.OsArch, //runtime.GOARCH,
+		Arch:            constants.OsArch,
 	})
 
 	cluster.Spec.RoleGroups = map[string][]string{
@@ -142,7 +150,7 @@ func (c *CommandLineLoader) Load() (*kubekeyapiv1alpha2.Cluster, error) {
 		InternalAddress: c.arg.MasterHost,
 		Port:            c.arg.MasterSSHPort,
 		User:            c.arg.MasterSSHUser,
-		Arch:            constants.OsArch, //runtime.GOARCH,
+		Arch:            constants.OsArch,
 	}
 	if c.arg.MasterSSHPassword != "" {
 		masterHostCfg.Password = c.arg.MasterSSHPassword
@@ -197,15 +205,22 @@ func (d *DefaultLoader) Load() (*kubekeyapiv1alpha2.Cluster, error) {
 		return nil, errors.New(fmt.Sprintf("Failed to get hostname: %v\n", err))
 	}
 
+	if constants.LocalIp == "" {
+		constants.LocalIp = util.LocalIP()
+	}
+	if constants.OsArch == "" {
+		constants.OsArch = runtime.GOARCH
+	}
+
 	allInOne.Spec.Hosts = append(allInOne.Spec.Hosts, kubekeyapiv1alpha2.HostCfg{
 		Name:            hostname,
-		Address:         constants.LocalIp, //util.LocalIP(),
-		InternalAddress: constants.LocalIp, //util.LocalIP(),
+		Address:         constants.LocalIp,
+		InternalAddress: constants.LocalIp,
 		Port:            kubekeyapiv1alpha2.DefaultSSHPort,
 		User:            u.Name,
 		Password:        "",
 		PrivateKeyPath:  fmt.Sprintf("%s/.ssh/id_rsa", u.HomeDir),
-		Arch:            constants.OsArch, //runtime.GOARCH,
+		Arch:            constants.OsArch,
 	})
 
 	allInOne.Spec.RoleGroups = map[string][]string{
@@ -470,17 +485,11 @@ func localSSH() error {
 // defaultCommonClusterConfig kubernetes version, registry mirrors, container manager, etc.
 func defaultCommonClusterConfig(cluster *kubekeyapiv1alpha2.Cluster, arg Argument) error {
 	if ver := normalizedBuildVersion(arg.KubernetesVersion); ver != "" {
-		var s []string
-		if strings.Contains(ver, "+") {
-			s = strings.Split(ver, "+")
-		} else {
-			s = strings.Split(ver, "-")
-		}
+		s := strings.Split(ver, "-")
 		if len(s) > 1 {
-			var t = strings.ReplaceAll(s[1], "k3s1", "k3s")
 			cluster.Spec.Kubernetes = kubekeyapiv1alpha2.Kubernetes{
 				Version: s[0],
-				Type:    t,
+				Type:    s[1],
 			}
 		} else {
 			cluster.Spec.Kubernetes = kubekeyapiv1alpha2.Kubernetes{

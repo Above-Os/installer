@@ -39,7 +39,6 @@ func (d *Dialer) Connect(host Host) (Connection, error) {
 
 	d.lock.Lock()
 	defer d.lock.Unlock()
-
 	conn, ok := d.connections[host.GetName()]
 	if !ok {
 		opts := Cfg{

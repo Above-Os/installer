@@ -329,20 +329,6 @@ func (t *GetCGroupsTask) Execute(runtime connector.Runtime) error {
 	return nil
 }
 
-// ~ GetLocalIpTask
-type GetLocalIpTask struct {
-	action.BaseAction
-}
-
-func (t *GetLocalIpTask) Execute(runtime connector.Runtime) error {
-	ip := util.LocalIP()
-
-	logger.Infof("GetLocalIpHook, local ip: %s", ip)
-	constants.LocalIp = ip
-
-	return nil
-}
-
 // ~ TerminusGreetingsTask
 type TerminusGreetingsTask struct {
 	action.BaseAction

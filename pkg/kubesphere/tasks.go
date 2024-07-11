@@ -70,7 +70,7 @@ kind: Namespace
 metadata:
   name: kubesphere-monitoring-system
 EOF
-`, true, false)
+`, false, true)
 	if err != nil {
 		return errors.Wrap(errors.WithStack(err), "create namespace: kubesphere-system and kubesphere-monitoring-system")
 	}

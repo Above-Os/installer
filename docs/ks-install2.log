@@ -135,6 +135,10 @@ skipping: [localhost]
 
 PLAY RECAP *********************************************************************
 localhost                  : ok=1    changed=0    unreachable=0    failed=0    skipped=10   rescued=0    ignored=0   
+
+
+
+---->>>>>> 进入第三个 playbook：common.yaml
 [WARNING]: No inventory was parsed, only implicit localhost is available
 [WARNING]: provided hosts list is empty, only localhost is available. Note that
 the implicit localhost does not match 'all'
@@ -200,7 +204,7 @@ changed: [localhost]
 TASK [common : KubeSphere | Setting master num] ********************************
 ok: [localhost]
 
-TASK [KubeSphere | Getting common component installation files] ****************
+TASK [KubeSphere | Getting common component installation files] ****************  ---->>>>>>>>>> 这是干嘛的？？？？？
 changed: [localhost] => (item=common)
 
 TASK [common : KubeSphere | Checking Kubernetes version] ***********************

@@ -17,8 +17,11 @@
 package kubernetes
 
 import (
+	"fmt"
+
 	"bytetrade.io/web3os/installer/pkg/common"
 	"bytetrade.io/web3os/installer/pkg/core/connector"
+	"bytetrade.io/web3os/installer/pkg/core/logger"
 	"github.com/pkg/errors"
 )
 
@@ -128,5 +131,22 @@ func (n *NotEqualDesiredVersion) PreCheck(runtime connector.Runtime) (bool, erro
 	if n.KubeConf.Cluster.Kubernetes.Version == nodeK8sVersion {
 		return false, nil
 	}
+	return true, nil
+}
+
+type GetKubeletVersion struct {
+	common.KubePrepare
+	CommandDelete bool
+}
+
+func (g *GetKubeletVersion) PreCheck(runtime connector.Runtime) (bool, error) {
+	fmt.Println("---0---", g.CommandDelete)
+	kubeletVersion, err := runtime.GetRunner().SudoCmd("/usr/local/bin/kubectl get nodes -o jsonpath='{.items[0].status.nodeInfo.kubeletVersion}'", false, true)
+	if err != nil {
+		logger.Errorf("failed to get kubelet version: %v", err)
+		return false, fmt.Errorf("failed to get kubelet version: %v", err)
+	}
+	fmt.Println("---1---", kubeletVersion)
+	g.PipelineCache.Set(common.CacheKubeletVersion, kubeletVersion)
 	return true, nil
 }

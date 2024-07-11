@@ -9,6 +9,7 @@ import (
 	"github.com/pkg/errors"
 )
 
+// ~ InitNamespace
 type InitNamespace struct {
 	common.KubeAction
 }
@@ -45,12 +46,24 @@ EOF
 	for _, ns := range allNs {
 		if _, err := runtime.GetRunner().SudoCmd(fmt.Sprintf("/usr/local/bin/kubectl label ns %s kubesphere.io/workspace=system-workspace", ns), false, true); err != nil {
 			logger.Errorf("label ns %s kubesphere.io/workspace=system-workspace failed: %v", ns, err)
+			return errors.Wrap(errors.WithStack(err), fmt.Sprintf("label namespace %s kubesphere.io/workspace=system-workspace failed: %v", ns, err))
 		}
 
 		if _, err := runtime.GetRunner().SudoCmd(fmt.Sprintf("/usr/local/bin/kubectl label ns %s kubesphere.io/namespace=%s", ns, ns), false, true); err != nil {
 			logger.Errorf("label ns %s kubesphere.io/namespace=%s failed: %v", ns, ns, err)
+			return errors.Wrap(errors.WithStack(err), fmt.Sprintf("label namespace %s kubesphere.io/namespace=%s failed: %v", ns, ns, err))
 		}
 	}
 
+	return nil
+}
+
+// ~ DeploySnapshotController
+type DeploySnapshotController struct {
+	common.KubeAction
+}
+
+func (t *DeploySnapshotController) Execute(runtime connector.Runtime) error {
+	fmt.Println("---a---")
 	return nil
 }

@@ -191,6 +191,7 @@ func (t *CopyPreInstallationDependencyFilesTask) Execute(runtime connector.Runti
 	return nil
 }
 
+// todo 需要迁移到 kubernets 中去
 // ~ CheckKubeVersionTask
 type GetKubeVersionTask struct {
 	common.KubeAction
@@ -208,14 +209,8 @@ func (t *GetKubeVersionTask) Execute(runtime connector.Runtime) error {
 			constants.InstalledKubeVersion = stdout
 		}
 	}
-	cmd, ok := t.PipelineCache.Get(common.CacheKubectlKey)
-	if !ok || cmd == nil {
-		return nil
-	}
 
-	kubectl := cmd.(string)
-
-	stdout, _, err := host.Exec(fmt.Sprintf("%s get nodes -o jsonpath='{.items[0].status.nodeInfo.kubeletVersion}'", kubectl), false, false)
+	stdout, _, err := host.Exec("/usr/local/bin/kubectl get nodes -o jsonpath='{.items[0].status.nodeInfo.kubeletVersion}'", false, false)
 	if err != nil {
 		return nil
 	}
@@ -645,31 +640,31 @@ type GetStorageKeyTask struct {
 
 func (t *GetStorageKeyTask) Execute(runtime connector.Runtime) error {
 	var host = runtime.GetRunner().Host
-	kubectl, ok := t.PipelineCache.Get(common.CacheKubectlKey)
-	if !ok {
-		return fmt.Errorf("get kubectl command failed by pipeline cache")
-	}
 
-	var cmd string
-	cmd = fmt.Sprintf("%s get terminus terminus -o jsonpath='{.metadata.annotations.bytetrade\\.io/s3-ak}'", kubectl)
-	if stdout, _, err := host.Exec(cmd, false, false); err == nil && stdout != "" {
+	if stdout, _, err := host.Exec("/usr/local/bin/kubectl get terminus terminus -o jsonpath='{.metadata.annotations.bytetrade\\.io/s3-ak}'", false, false); err != nil {
+		logger.Errorf("get s3 access key error %v", err)
+	} else if stdout != "" {
 		t.PipelineCache.Set(common.CacheSTSAccessKey, stdout)
 	}
 
-	cmd = fmt.Sprintf("%s get terminus terminus -o jsonpath='{.metadata.annotations.bytetrade\\.io/s3-sk}'", kubectl)
-	if stdout, _, err := host.Exec(cmd, false, false); err == nil && stdout != "" {
+	if stdout, _, err := host.Exec("/usr/local/bin/kubectl get terminus terminus -o jsonpath='{.metadata.annotations.bytetrade\\.io/s3-sk}'", false, false); err != nil {
+		logger.Errorf("get s3 secret key error %v", err)
+	} else if stdout != "" {
 		t.PipelineCache.Set(common.CacheSTSSecretKey, stdout)
 	}
 
-	cmd = fmt.Sprintf("%s get terminus terminus -o jsonpath='{.metadata.annotations.bytetrade\\.io/s3-sts}'", kubectl)
-	if stdout, _, err := host.Exec(cmd, false, false); err == nil && stdout != "" {
+	if stdout, _, err := host.Exec("/usr/local/bin/kubectl get terminus terminus -o jsonpath='{.metadata.annotations.bytetrade\\.io/s3-sts}'", false, false); err != nil {
+		logger.Errorf("get s3 sts token error %v", err)
+	} else if stdout != "" {
 		t.PipelineCache.Set(common.CacheSTSToken, stdout)
 	}
 
-	cmd = fmt.Sprintf("%s get terminus terminus -o jsonpath='{.metadata.annotations.bytetrade\\.io/cluster-id}'", kubectl)
-	if stdout, _, err := host.Exec(cmd, false, false); err == nil && stdout != "" {
+	if stdout, _, err := host.Exec("/usr/local/bin/kubectl get terminus terminus -o jsonpath='{.metadata.annotations.bytetrade\\.io/cluster-id}'", false, false); err != nil {
+		logger.Errorf("get cluster id error %v", err)
+	} else if stdout != "" {
 		t.PipelineCache.Set(common.CacheSTSClusterId, stdout)
 	}
+
 	constants.InstalledKubeVersion = ""
 	return nil
 }

@@ -154,6 +154,8 @@ const (
 )
 
 const (
+	CacheKubeletVersion = "version_kubelet"
+
 	CacheKubectlKey = "cmd_kubectl"
 
 	CacheSTSAccessKey = "sts_access_key"

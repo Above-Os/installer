@@ -35,10 +35,7 @@ func (m *GetStorageKeyModule) Init() {
 	m.Name = "GetStorageKey"
 
 	getStorageKeyTask := &task.LocalTask{
-		Name: "GetStorageKey",
-		Prepare: &prepare.PrepareCollection{
-			&common.GetCommandKubectl{},
-		},
+		Name:   "GetStorageKey",
 		Action: new(GetStorageKeyTask),
 	}
 	m.Tasks = []task.Interface{getStorageKeyTask}
@@ -63,10 +60,7 @@ func (m *GetSysInfoModel) Init() {
 	}
 
 	getInstalledVersionTask := &task.LocalTask{
-		Name: "GetInstalledVersion",
-		Prepare: &prepare.PrepareCollection{
-			&common.GetCommandKubectl{},
-		},
+		Name:   "GetInstalledVersion",
 		Action: new(GetKubeVersionTask),
 	}
 

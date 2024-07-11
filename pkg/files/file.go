@@ -159,14 +159,12 @@ func NewKubeBinary(name, arch, version, prePath string) *KubeBinary {
 		}
 	case helm:
 		component.Type = HELM
-		component.FileName = helm
-		component.CheckSum = false
+		component.FileName = fmt.Sprintf("helm-%s-linux-%s.tar.gz", version, arch)
+		component.CheckSum = true
 		component.Url = fmt.Sprintf("https://get.helm.sh/helm-%s-linux-%s.tar.gz", version, arch)
 		if component.Zone == "cn" {
 			component.Url = fmt.Sprintf("https://kubernetes-helm.pek3b.qingstor.com/linux-%s/%s/helm", arch, version)
 		}
-		fmt.Println("---helm zone / 1---", component.Zone)
-		fmt.Println("---helm url / 2---", component.Url)
 	case docker:
 		component.Type = DOCKER
 		component.FileName = fmt.Sprintf("docker-%s.tgz", version)
@@ -323,17 +321,14 @@ func (b *KubeBinary) Path() string {
 func (b *KubeBinary) UntarCmd() error {
 	untarCmd := b.GetTarCmd()
 	if untarCmd != "" {
-		fmt.Println("---untarCmd / 1---", untarCmd)
 		cmd := exec.Command("/bin/sh", "-c", untarCmd)
 		stdout, err := cmd.StdoutPipe()
 		if err != nil {
-			fmt.Println("---untarCmd / 2---", err)
 			return err
 		}
 		cmd.Stderr = cmd.Stdout
 
 		if err = cmd.Start(); err != nil {
-			fmt.Println("---untarCmd / 3---", err)
 			return err
 		}
 
@@ -343,14 +338,12 @@ func (b *KubeBinary) UntarCmd() error {
 			if errors.Is(err, io.EOF) {
 				break
 			} else if err != nil {
-				fmt.Println("---untarCmd / 4---", err)
 				logger.Error(err)
 				break
 			}
 		}
 
 		if err = cmd.Wait(); err != nil {
-			fmt.Println("---untarCmd / 5---", err)
 			if os.Getenv("KKZONE") != "cn" {
 				logger.Warn("Having a problem with accessing https://storage.googleapis.com? You can try again after setting environment 'export KKZONE=cn'")
 			}
@@ -363,7 +356,7 @@ func (b *KubeBinary) UntarCmd() error {
 func (b *KubeBinary) GetTarCmd() string {
 	var cmd string
 	if b.ID == helm && b.Zone != "cn" {
-		cmd = fmt.Sprintf("cd %s && tar -zxf helm-%s-linux-%s.tar.gz && mv linux-%s/helm . && rm -rf *linux-%s*",
+		cmd = fmt.Sprintf("cd %s && tar -zxf helm-%s-linux-%s.tar.gz && mv linux-%s/helm . && rm -rf ./linux-%s/",
 			b.BaseDir, b.Version, b.Arch, b.Arch, b.Arch)
 	}
 	if b.ID == kubekey { // ! 这是测试的，不用管
@@ -529,11 +522,17 @@ func (b *KubeBinary) SHA256Check() error {
 	if !b.CheckSum {
 		return nil
 	}
-	output, err := util.Sha256sum(b.Path())
-	if err != nil {
-		return errors.Wrap(err, fmt.Sprintf("Failed to check SHA256 of %s", b.Path()))
-	}
 
+	var p string
+	if b.ID == helm {
+		p = fmt.Sprintf("%s/%s", b.BaseDir, helm)
+	} else {
+		p = b.Path()
+	}
+	output, err := util.Sha256sum(p)
+	if err != nil {
+		return errors.Wrap(err, fmt.Sprintf("Failed to check SHA256 of %s", p))
+	}
 	if strings.TrimSpace(b.GetSha256()) == "" {
 		return errors.New(fmt.Sprintf("No SHA256 found for %s. %s is not supported.", b.ID, b.Version))
 	}

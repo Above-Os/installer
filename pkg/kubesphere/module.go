@@ -118,7 +118,7 @@ func (d *DeployModule) Init() {
 	d.Tasks = []task.Interface{
 		generateManifests,
 		// apply crd installer.kubesphere.io/v1alpha1
-		apply,
+		// apply,
 		addConfig,
 		createNamespace,
 		setup,

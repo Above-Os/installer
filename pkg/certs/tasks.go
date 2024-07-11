@@ -82,7 +82,7 @@ func (l *ListClusterCerts) Execute(runtime connector.Runtime) error {
 
 	for _, certFileName := range certificateList {
 		certPath := filepath.Join(common.KubeCertDir, certFileName)
-		certContext, err := runtime.GetRunner().SudoCmd(fmt.Sprintf("cat %s", certPath), false)
+		certContext, err := runtime.GetRunner().SudoCmd(fmt.Sprintf("cat %s", certPath), false, false)
 		if err != nil {
 			return errors.Wrap(err, "get cluster certs failed")
 		}
@@ -95,7 +95,7 @@ func (l *ListClusterCerts) Execute(runtime connector.Runtime) error {
 	for _, kubeConfigFileName := range kubeConfigList {
 		kubeConfigPath := filepath.Join(common.KubeConfigDir, kubeConfigFileName)
 		newConfig := clientcmdapi.NewConfig()
-		kubeconfigBytes, err := runtime.GetRunner().SudoCmd(fmt.Sprintf("cat %s", kubeConfigPath), false)
+		kubeconfigBytes, err := runtime.GetRunner().SudoCmd(fmt.Sprintf("cat %s", kubeConfigPath), false, false)
 		decoded, _, err := clientcmdlatest.Codec.Decode([]byte(kubeconfigBytes), &schema.GroupVersionKind{Version: clientcmdlatest.Version, Kind: "Config"}, newConfig)
 		if err != nil {
 			return err
@@ -118,7 +118,7 @@ func (l *ListClusterCerts) Execute(runtime connector.Runtime) error {
 
 	for _, caCertFileName := range caCertificateList {
 		certPath := filepath.Join(common.KubeCertDir, caCertFileName)
-		caCertContext, err := runtime.GetRunner().SudoCmd(fmt.Sprintf("cat %s", certPath), false)
+		caCertContext, err := runtime.GetRunner().SudoCmd(fmt.Sprintf("cat %s", certPath), false, false)
 		if err != nil {
 			return errors.Wrap(err, "Failed to get cluster certs")
 		}
@@ -279,7 +279,7 @@ func (r *RenewCerts) Execute(runtime connector.Runtime) error {
 		"systemctl restart kubelet",
 	}
 
-	version, err := runtime.GetRunner().SudoCmd("/usr/local/bin/kubeadm version -o short", true)
+	version, err := runtime.GetRunner().SudoCmd("/usr/local/bin/kubeadm version -o short", true, false)
 	if err != nil {
 		return errors.Wrap(errors.WithStack(err), "kubeadm get version failed")
 	}
@@ -288,18 +288,18 @@ func (r *RenewCerts) Execute(runtime connector.Runtime) error {
 		return errors.Wrap(errors.WithStack(err), "parse kubeadm version failed")
 	}
 	if cmp == -1 {
-		_, err := runtime.GetRunner().SudoCmd(strings.Join(kubeadmAlphaList, " && "), false)
+		_, err := runtime.GetRunner().SudoCmd(strings.Join(kubeadmAlphaList, " && "), false, false)
 		if err != nil {
 			return errors.Wrap(err, "kubeadm alpha certs renew failed")
 		}
 	} else {
-		_, err := runtime.GetRunner().SudoCmd(strings.Join(kubeadmList, " && "), false)
+		_, err := runtime.GetRunner().SudoCmd(strings.Join(kubeadmList, " && "), false, false)
 		if err != nil {
 			return errors.Wrap(err, "kubeadm alpha certs renew failed")
 		}
 	}
 
-	_, err = runtime.GetRunner().SudoCmd(strings.Join(restartList, " && "), false)
+	_, err = runtime.GetRunner().SudoCmd(strings.Join(restartList, " && "), false, false)
 	if err != nil {
 		return errors.Wrap(err, "kube-apiserver, kube-schedule, kube-controller-manager or kubelet restart failed")
 	}
@@ -317,7 +317,7 @@ func (f *FetchKubeConfig) Execute(runtime connector.Runtime) error {
 	}
 
 	tmpConfigFile := filepath.Join(common.TmpDir, "admin.conf")
-	if _, err := runtime.GetRunner().SudoCmd(fmt.Sprintf("cp /etc/kubernetes/admin.conf %s", tmpConfigFile), false); err != nil {
+	if _, err := runtime.GetRunner().SudoCmd(fmt.Sprintf("cp /etc/kubernetes/admin.conf %s", tmpConfigFile), false, false); err != nil {
 		return errors.Wrap(errors.WithStack(err), "copy kube config to /tmp/ failed")
 	}
 
@@ -335,7 +335,7 @@ type SyneKubeConfigToWorker struct {
 
 func (s *SyneKubeConfigToWorker) Execute(runtime connector.Runtime) error {
 	createConfigDirCmd := "mkdir -p /root/.kube"
-	if _, err := runtime.GetRunner().SudoCmd(createConfigDirCmd, false); err != nil {
+	if _, err := runtime.GetRunner().SudoCmd(createConfigDirCmd, false, false); err != nil {
 		return errors.Wrap(errors.WithStack(err), "create .kube dir failed")
 	}
 
@@ -352,27 +352,27 @@ func (s *SyneKubeConfigToWorker) Execute(runtime connector.Runtime) error {
 
 	if host := runtime.RemoteHost(); host.GetUser() != "root" {
 		userConfigDirCmd := "mkdir -p $HOME/.kube"
-		if _, err := runtime.GetRunner().Cmd(userConfigDirCmd, false); err != nil {
+		if _, err := runtime.GetRunner().Cmd(userConfigDirCmd, false, false); err != nil {
 			return errors.Wrap(errors.WithStack(err), "user mkdir $HOME/.kube failed")
 		}
 
 		getKubeConfigCmdUsr := "cp -f /root/.kube/config $HOME/.kube/config"
-		if _, err := runtime.GetRunner().SudoCmd(getKubeConfigCmdUsr, false); err != nil {
+		if _, err := runtime.GetRunner().SudoCmd(getKubeConfigCmdUsr, false, false); err != nil {
 			return errors.Wrap(errors.WithStack(err), "user copy /etc/kubernetes/admin.conf to $HOME/.kube/config failed")
 		}
 
-		userId, err := runtime.GetRunner().Cmd("echo $(id -u)", false)
+		userId, err := runtime.GetRunner().Cmd("echo $(id -u)", false, false)
 		if err != nil {
 			return errors.Wrap(errors.WithStack(err), "get user id failed")
 		}
 
-		userGroupId, err := runtime.GetRunner().Cmd("echo $(id -g)", false)
+		userGroupId, err := runtime.GetRunner().Cmd("echo $(id -g)", false, false)
 		if err != nil {
 			return errors.Wrap(errors.WithStack(err), "get user group id failed")
 		}
 
 		chownKubeConfig := fmt.Sprintf("chown -R %s:%s $HOME/.kube", userId, userGroupId)
-		if _, err := runtime.GetRunner().SudoCmd(chownKubeConfig, false); err != nil {
+		if _, err := runtime.GetRunner().SudoCmd(chownKubeConfig, false, false); err != nil {
 			return errors.Wrap(errors.WithStack(err), "chown user kube config failed")
 		}
 	}
@@ -387,7 +387,7 @@ type EnableRenewService struct {
 func (e *EnableRenewService) Execute(runtime connector.Runtime) error {
 	if _, err := runtime.GetRunner().SudoCmd(
 		"chmod +x /usr/local/bin/kube-scripts/k8s-certs-renew.sh && systemctl enable --now k8s-certs-renew.timer",
-		false); err != nil {
+		false, false); err != nil {
 		return errors.Wrap(errors.WithStack(err), "enable k8s renew certs service failed")
 	}
 	return nil
@@ -399,8 +399,8 @@ type UninstallAutoRenewCerts struct {
 }
 
 func (u *UninstallAutoRenewCerts) Execute(runtime connector.Runtime) error {
-	_, _ = runtime.GetRunner().SudoCmd("systemctl disable k8s-certs-renew.timer 1>/dev/null 2>/dev/null", true)
-	_, _ = runtime.GetRunner().SudoCmd("systemctl stop k8s-certs-renew.timer 1>/dev/null 2>/dev/null", true)
+	_, _ = runtime.GetRunner().SudoCmd("systemctl disable k8s-certs-renew.timer 1>/dev/null 2>/dev/null", true, false)
+	_, _ = runtime.GetRunner().SudoCmd("systemctl stop k8s-certs-renew.timer 1>/dev/null 2>/dev/null", true, false)
 
 	files := []string{
 		filepath.Join("/usr/local/bin/kube-scripts/", templates.K8sCertsRenewScript.Name()),
@@ -408,7 +408,7 @@ func (u *UninstallAutoRenewCerts) Execute(runtime connector.Runtime) error {
 		filepath.Join("/etc/systemd/system/", templates.K8sCertsRenewTimer.Name()),
 	}
 	for _, file := range files {
-		_, _ = runtime.GetRunner().SudoCmd(fmt.Sprintf("rm -rf %s", file), true)
+		_, _ = runtime.GetRunner().SudoCmd(fmt.Sprintf("rm -rf %s", file), true, false)
 	}
 
 	return nil

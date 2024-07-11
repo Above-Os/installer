@@ -62,13 +62,13 @@ type OverrideCoreDNS struct {
 }
 
 func (o *OverrideCoreDNS) Execute(runtime connector.Runtime) error {
-	if _, err := runtime.GetRunner().SudoCmd("/usr/local/bin/kubectl delete -n kube-system svc kube-dns", true); err != nil {
+	if _, err := runtime.GetRunner().SudoCmd("/usr/local/bin/kubectl delete -n kube-system svc kube-dns", true, false); err != nil {
 		if !strings.Contains(err.Error(), "NotFound") {
 			return errors.Wrap(errors.WithStack(err), "delete kube-dns failed")
 		}
 	}
 
-	if _, err := runtime.GetRunner().SudoCmd("/usr/local/bin/kubectl apply -f /etc/kubernetes/coredns-svc.yaml", true); err != nil {
+	if _, err := runtime.GetRunner().SudoCmd("/usr/local/bin/kubectl apply -f /etc/kubernetes/coredns-svc.yaml", true, false); err != nil {
 		return errors.Wrap(errors.WithStack(err), "create coredns service failed")
 	}
 	return nil
@@ -80,7 +80,7 @@ type DeployNodeLocalDNS struct {
 }
 
 func (d *DeployNodeLocalDNS) Execute(runtime connector.Runtime) error {
-	if _, err := runtime.GetRunner().SudoCmd("/usr/local/bin/kubectl apply -f /etc/kubernetes/nodelocaldns.yaml", true); err != nil {
+	if _, err := runtime.GetRunner().SudoCmd("/usr/local/bin/kubectl apply -f /etc/kubernetes/nodelocaldns.yaml", true, false); err != nil {
 		return errors.Wrap(errors.WithStack(err), "deploy nodelocaldns failed")
 	}
 	return nil
@@ -92,7 +92,7 @@ type GenerateNodeLocalDNSConfigMap struct {
 }
 
 func (g *GenerateNodeLocalDNSConfigMap) Execute(runtime connector.Runtime) error {
-	clusterIP, err := runtime.GetRunner().SudoCmd("/usr/local/bin/kubectl get svc -n kube-system coredns -o jsonpath='{.spec.clusterIP}'", false)
+	clusterIP, err := runtime.GetRunner().SudoCmd("/usr/local/bin/kubectl get svc -n kube-system coredns -o jsonpath='{.spec.clusterIP}'", false, false)
 	if err != nil {
 		return errors.Wrap(errors.WithStack(err), "get clusterIP failed")
 	}
@@ -124,7 +124,7 @@ type ApplyNodeLocalDNSConfigMap struct {
 }
 
 func (a *ApplyNodeLocalDNSConfigMap) Execute(runtime connector.Runtime) error {
-	if _, err := runtime.GetRunner().SudoCmd("/usr/local/bin/kubectl apply -f /etc/kubernetes/nodelocaldnsConfigmap.yaml", true); err != nil {
+	if _, err := runtime.GetRunner().SudoCmd("/usr/local/bin/kubectl apply -f /etc/kubernetes/nodelocaldnsConfigmap.yaml", true, false); err != nil {
 		return errors.Wrap(errors.WithStack(err), "apply nodelocaldns configmap failed")
 	}
 	return nil

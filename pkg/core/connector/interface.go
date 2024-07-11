@@ -25,7 +25,7 @@ import (
 )
 
 type Connection interface {
-	Exec(cmd string, host Host) (stdout string, code int, err error)
+	Exec(cmd string, host Host, printLine bool) (stdout string, code int, err error)
 	PExec(cmd string, stdin io.Reader, stdout io.Writer, stderr io.Writer, host Host) (code int, err error)
 	Fetch(local, remote string, host Host) error
 	Scp(local, remote string, host Host) error

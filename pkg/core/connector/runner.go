@@ -34,12 +34,12 @@ type Runner struct {
 	Index int
 }
 
-func (r *Runner) Exec(cmd string, printOutput bool) (string, int, error) {
+func (r *Runner) Exec(cmd string, printOutput bool, printLine bool) (string, int, error) {
 	if r.Conn == nil {
 		return "", 1, errors.New("no ssh connection available")
 	}
 
-	stdout, code, err := r.Conn.Exec(cmd, r.Host)
+	stdout, code, err := r.Conn.Exec(cmd, r.Host, printLine)
 	if err != nil {
 		logger.Errorf("[exec] %s CMD: %s, ERROR: %s", r.Host.GetName(), cmd, err)
 	}
@@ -53,20 +53,20 @@ func (r *Runner) Exec(cmd string, printOutput bool) (string, int, error) {
 	return stdout, code, err
 }
 
-func (r *Runner) Cmd(cmd string, printOutput bool) (string, error) {
-	stdout, _, err := r.Exec(cmd, printOutput)
+func (r *Runner) Cmd(cmd string, printOutput bool, printLine bool) (string, error) {
+	stdout, _, err := r.Exec(cmd, printOutput, printLine)
 	if err != nil {
 		return stdout, err
 	}
 	return stdout, nil
 }
 
-func (r *Runner) SudoExec(cmd string, printOutput bool) (string, int, error) {
-	return r.Exec(SudoPrefix(cmd), printOutput)
+func (r *Runner) SudoExec(cmd string, printOutput bool, printLine bool) (string, int, error) {
+	return r.Exec(SudoPrefix(cmd), printOutput, printLine)
 }
 
-func (r *Runner) SudoCmd(cmd string, printOutput bool) (string, error) {
-	return r.Cmd(SudoPrefix(cmd), printOutput)
+func (r *Runner) SudoCmd(cmd string, printOutput bool, printLine bool) (string, error) {
+	return r.Cmd(SudoPrefix(cmd), printOutput, printLine)
 }
 
 func (r *Runner) Fetch(local, remote string) error {
@@ -115,11 +115,11 @@ func (r *Runner) SudoScp(local, remote string) error {
 		return err
 	}
 
-	if _, err := r.SudoCmd(fmt.Sprintf(common.MoveCmd, remoteTmp, remote), false); err != nil {
+	if _, err := r.SudoCmd(fmt.Sprintf(common.MoveCmd, remoteTmp, remote), false, false); err != nil {
 		return err
 	}
 
-	if _, err := r.SudoCmd(fmt.Sprintf("rm -rf %s", filepath.Join(common.TmpDir, "*")), false); err != nil {
+	if _, err := r.SudoCmd(fmt.Sprintf("rm -rf %s", filepath.Join(common.TmpDir, "*")), false, false); err != nil {
 		return err
 	}
 	return nil
@@ -179,7 +179,7 @@ func (r *Runner) FileMd5(path string) (string, error) {
 	}
 
 	cmd := fmt.Sprintf("md5sum %s | cut -d\" \" -f1", path)
-	out, _, err := r.Conn.Exec(cmd, r.Host)
+	out, _, err := r.Conn.Exec(cmd, r.Host, false)
 	if err != nil {
 		logger.Errorf("count remote %s md5 failed: %v", path, err)
 		return "", err

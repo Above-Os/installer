@@ -119,7 +119,7 @@ func (n *NodeConfigureOS) Execute(runtime connector.Runtime) error {
 		return err
 	}
 
-	_, err1 := runtime.GetRunner().SudoCmd(fmt.Sprintf("hostnamectl set-hostname %s && sed -i '/^127.0.1.1/s/.*/127.0.1.1      %s/g' /etc/hosts", host.GetName(), host.GetName()), false)
+	_, err1 := runtime.GetRunner().SudoCmd(fmt.Sprintf("hostnamectl set-hostname %s && sed -i '/^127.0.1.1/s/.*/127.0.1.1      %s/g' /etc/hosts", host.GetName(), host.GetName()), false, false)
 	if err1 != nil {
 		return errors.Wrap(errors.WithStack(err1), "Failed to override hostname")
 	}
@@ -128,12 +128,12 @@ func (n *NodeConfigureOS) Execute(runtime connector.Runtime) error {
 }
 
 func addUsers(runtime connector.Runtime, node connector.Host) error {
-	if _, err := runtime.GetRunner().SudoCmd("useradd -M -c 'Kubernetes user' -s /sbin/nologin -r kube || :", false); err != nil {
+	if _, err := runtime.GetRunner().SudoCmd("useradd -M -c 'Kubernetes user' -s /sbin/nologin -r kube || :", false, false); err != nil {
 		return err
 	}
 
 	if node.IsRole(common.ETCD) {
-		if _, err := runtime.GetRunner().SudoCmd("useradd -M -c 'Etcd user' -s /sbin/nologin -r etcd || :", false); err != nil {
+		if _, err := runtime.GetRunner().SudoCmd("useradd -M -c 'Etcd user' -s /sbin/nologin -r etcd || :", false, false); err != nil {
 			return err
 		}
 	}
@@ -152,34 +152,34 @@ func createDirectories(runtime connector.Runtime, node connector.Host) error {
 	}
 
 	for _, dir := range dirs {
-		if _, err := runtime.GetRunner().SudoCmd(fmt.Sprintf("mkdir -p %s", dir), false); err != nil {
+		if _, err := runtime.GetRunner().SudoCmd(fmt.Sprintf("mkdir -p %s", dir), false, false); err != nil {
 			return err
 		}
 		if dir == common.KubeletFlexvolumesPluginsDir {
-			if _, err := runtime.GetRunner().SudoCmd(fmt.Sprintf("chown kube -R %s", "/usr/libexec/kubernetes"), false); err != nil {
+			if _, err := runtime.GetRunner().SudoCmd(fmt.Sprintf("chown kube -R %s", "/usr/libexec/kubernetes"), false, false); err != nil {
 				return err
 			}
 		} else {
-			if _, err := runtime.GetRunner().SudoCmd(fmt.Sprintf("chown kube -R %s", dir), false); err != nil {
+			if _, err := runtime.GetRunner().SudoCmd(fmt.Sprintf("chown kube -R %s", dir), false, false); err != nil {
 				return err
 			}
 		}
 	}
 
-	if _, err := runtime.GetRunner().SudoCmd(fmt.Sprintf("mkdir -p %s && chown kube -R %s", "/etc/cni/net.d", "/etc/cni"), false); err != nil {
+	if _, err := runtime.GetRunner().SudoCmd(fmt.Sprintf("mkdir -p %s && chown kube -R %s", "/etc/cni/net.d", "/etc/cni"), false, false); err != nil {
 		return err
 	}
 
-	if _, err := runtime.GetRunner().SudoCmd(fmt.Sprintf("mkdir -p %s && chown kube -R %s", "/opt/cni/bin", "/opt/cni"), false); err != nil {
+	if _, err := runtime.GetRunner().SudoCmd(fmt.Sprintf("mkdir -p %s && chown kube -R %s", "/opt/cni/bin", "/opt/cni"), false, false); err != nil {
 		return err
 	}
 
-	if _, err := runtime.GetRunner().SudoCmd(fmt.Sprintf("mkdir -p %s && chown kube -R %s", "/var/lib/calico", "/var/lib/calico"), false); err != nil {
+	if _, err := runtime.GetRunner().SudoCmd(fmt.Sprintf("mkdir -p %s && chown kube -R %s", "/var/lib/calico", "/var/lib/calico"), false, false); err != nil {
 		return err
 	}
 
 	if node.IsRole(common.ETCD) {
-		if _, err := runtime.GetRunner().SudoCmd(fmt.Sprintf("mkdir -p %s && chown etcd -R %s", "/var/lib/etcd", "/var/lib/etcd"), false); err != nil {
+		if _, err := runtime.GetRunner().SudoCmd(fmt.Sprintf("mkdir -p %s && chown etcd -R %s", "/var/lib/etcd", "/var/lib/etcd"), false, false); err != nil {
 			return err
 		}
 	}
@@ -193,11 +193,11 @@ type NodeExecScript struct {
 }
 
 func (n *NodeExecScript) Execute(runtime connector.Runtime) error {
-	if _, err := runtime.GetRunner().SudoCmd(fmt.Sprintf("chmod +x %s/initOS.sh", common.KubeScriptDir), false); err != nil {
+	if _, err := runtime.GetRunner().SudoCmd(fmt.Sprintf("chmod +x %s/initOS.sh", common.KubeScriptDir), false, false); err != nil {
 		return errors.Wrap(errors.WithStack(err), "Failed to chmod +x init os script")
 	}
 
-	if _, err := runtime.GetRunner().SudoCmd(fmt.Sprintf("%s/initOS.sh", common.KubeScriptDir), true); err != nil {
+	if _, err := runtime.GetRunner().SudoCmd(fmt.Sprintf("%s/initOS.sh", common.KubeScriptDir), true, false); err != nil {
 		return errors.Wrap(errors.WithStack(err), "Failed to configure operating system")
 	}
 	return nil
@@ -251,7 +251,7 @@ type ResetNetworkConfig struct {
 
 func (r *ResetNetworkConfig) Execute(runtime connector.Runtime) error {
 	for _, cmd := range networkResetCmds {
-		_, _ = runtime.GetRunner().SudoCmd(cmd, true)
+		_, _ = runtime.GetRunner().SudoCmd(cmd, true, false)
 	}
 	return nil
 }
@@ -262,9 +262,9 @@ type UninstallETCD struct {
 }
 
 func (s *UninstallETCD) Execute(runtime connector.Runtime) error {
-	_, _ = runtime.GetRunner().SudoCmd("systemctl stop etcd && exit 0", false)
+	_, _ = runtime.GetRunner().SudoCmd("systemctl stop etcd && exit 0", false, false)
 	for _, file := range etcdFiles {
-		_, _ = runtime.GetRunner().SudoCmd(fmt.Sprintf("rm -rf %s", file), true)
+		_, _ = runtime.GetRunner().SudoCmd(fmt.Sprintf("rm -rf %s", file), true, false)
 	}
 	return nil
 }
@@ -298,7 +298,7 @@ func (r *RemoveNodeFiles) Execute(runtime connector.Runtime) error {
 	}
 
 	for _, file := range nodeFiles {
-		_, _ = runtime.GetRunner().SudoCmd(fmt.Sprintf("rm -rf %s", file), true)
+		_, _ = runtime.GetRunner().SudoCmd(fmt.Sprintf("rm -rf %s", file), true, false)
 	}
 	return nil
 }
@@ -310,7 +310,7 @@ type RemoveFiles struct {
 
 func (r *RemoveFiles) Execute(runtime connector.Runtime) error {
 	for _, file := range clusterFiles {
-		_, _ = runtime.GetRunner().SudoCmd(fmt.Sprintf("rm -rf %s", file), true)
+		_, _ = runtime.GetRunner().SudoCmd(fmt.Sprintf("rm -rf %s", file), true, false)
 	}
 	return nil
 }
@@ -321,12 +321,12 @@ type DaemonReload struct {
 }
 
 func (d *DaemonReload) Execute(runtime connector.Runtime) error {
-	if _, err := runtime.GetRunner().SudoCmd("systemctl daemon-reload && exit 0", false); err != nil {
+	if _, err := runtime.GetRunner().SudoCmd("systemctl daemon-reload && exit 0", false, false); err != nil {
 		return errors.Wrap(errors.WithStack(err), "systemctl daemon-reload failed")
 	}
 
 	// try to restart the cotainerd after /etc/cni has been removed
-	_, _ = runtime.GetRunner().SudoCmd("systemctl restart containerd", false)
+	_, _ = runtime.GetRunner().SudoCmd("systemctl restart containerd", false, false)
 	return nil
 }
 
@@ -336,7 +336,7 @@ type GetOSData struct {
 }
 
 func (g *GetOSData) Execute(runtime connector.Runtime) error {
-	osReleaseStr, err := runtime.GetRunner().SudoCmd("cat /etc/os-release", false)
+	osReleaseStr, err := runtime.GetRunner().SudoCmd("cat /etc/os-release", false, false)
 	if err != nil {
 		return err
 	}
@@ -392,7 +392,7 @@ func (m *MountISO) Execute(runtime connector.Runtime) error {
 	isoFile, _ := host.GetCache().GetMustString("iso")
 	path := filepath.Join(common.TmpDir, isoFile)
 	mountCmd := fmt.Sprintf("sudo mount -t iso9660 -o loop %s %s", path, mountPath)
-	if _, err := runtime.GetRunner().Cmd(mountCmd, false); err != nil {
+	if _, err := runtime.GetRunner().Cmd(mountCmd, false, false); err != nil {
 		return errors.Wrapf(errors.WithStack(err), "mount %s at %s failed", path, mountPath)
 	}
 	return nil
@@ -413,11 +413,11 @@ func (n *NewRepoClient) Execute(runtime connector.Runtime) error {
 
 	repo, err := repository.New(r.ID)
 	if err != nil {
-		checkDeb, debErr := runtime.GetRunner().SudoCmd("which apt", false)
+		checkDeb, debErr := runtime.GetRunner().SudoCmd("which apt", false, false)
 		if debErr == nil && strings.Contains(checkDeb, "bin") {
 			repo = repository.NewDeb()
 		}
-		checkRPM, rpmErr := runtime.GetRunner().SudoCmd("which yum", false)
+		checkRPM, rpmErr := runtime.GetRunner().SudoCmd("which yum", false, false)
 		if rpmErr == nil && strings.Contains(checkRPM, "bin") {
 			repo = repository.NewRPM()
 		}
@@ -520,7 +520,7 @@ func (r *ResetRepository) Execute(runtime connector.Runtime) error {
 		if resetErr != nil {
 			mountPath := filepath.Join(common.TmpDir, "iso")
 			umountCmd := fmt.Sprintf("umount %s", mountPath)
-			_, _ = runtime.GetRunner().SudoCmd(umountCmd, false)
+			_, _ = runtime.GetRunner().SudoCmd(umountCmd, false, false)
 		}
 	}()
 
@@ -539,7 +539,7 @@ type UmountISO struct {
 func (u *UmountISO) Execute(runtime connector.Runtime) error {
 	mountPath := filepath.Join(common.TmpDir, "iso")
 	umountCmd := fmt.Sprintf("umount %s", mountPath)
-	if _, err := runtime.GetRunner().SudoCmd(umountCmd, false); err != nil {
+	if _, err := runtime.GetRunner().SudoCmd(umountCmd, false, false); err != nil {
 		return errors.Wrapf(errors.WithStack(err), "umount %s failed", mountPath)
 	}
 	return nil
@@ -571,7 +571,7 @@ func (n *NodeConfigureNtpServer) Execute(runtime connector.Runtime) error {
 		serverAddr := strings.Trim(server, " \"")
 		if serverAddr == currentHost.GetName() || serverAddr == currentHost.GetInternalAddress() {
 			allowClientCmd := fmt.Sprintf(`sed -i '/#allow/ a\allow 0.0.0.0/0' %s`, chronyConfigFile)
-			if _, err := runtime.GetRunner().SudoCmd(allowClientCmd, false); err != nil {
+			if _, err := runtime.GetRunner().SudoCmd(allowClientCmd, false, false); err != nil {
 				return errors.Wrapf(err, "change host:%s chronyd conf failed, please check file %s", serverAddr, chronyConfigFile)
 			}
 		}
@@ -585,7 +585,7 @@ func (n *NodeConfigureNtpServer) Execute(runtime connector.Runtime) error {
 		}
 
 		checkOrAddCmd := fmt.Sprintf(`grep -q '^server %s iburst' %s||sed '1a server %s iburst' -i %s`, serverAddr, chronyConfigFile, serverAddr, chronyConfigFile)
-		if _, err := runtime.GetRunner().SudoCmd(checkOrAddCmd, false); err != nil {
+		if _, err := runtime.GetRunner().SudoCmd(checkOrAddCmd, false, false); err != nil {
 			return errors.Wrapf(err, "set ntpserver: %s failed, please check file %s", serverAddr, chronyConfigFile)
 		}
 
@@ -594,11 +594,11 @@ func (n *NodeConfigureNtpServer) Execute(runtime connector.Runtime) error {
 	// if Timezone was configured
 	if len(n.KubeConf.Cluster.System.Timezone) > 0 {
 		setTimeZoneCmd := fmt.Sprintf("timedatectl set-timezone %s", n.KubeConf.Cluster.System.Timezone)
-		if _, err := runtime.GetRunner().SudoCmd(setTimeZoneCmd, false); err != nil {
+		if _, err := runtime.GetRunner().SudoCmd(setTimeZoneCmd, false, false); err != nil {
 			return errors.Wrapf(err, "set timezone: %s failed", n.KubeConf.Cluster.System.Timezone)
 		}
 
-		if _, err := runtime.GetRunner().SudoCmd("timedatectl set-ntp true", false); err != nil {
+		if _, err := runtime.GetRunner().SudoCmd("timedatectl set-ntp true", false, false); err != nil {
 			return errors.Wrap(err, "timedatectl set-ntp true failed")
 		}
 	}
@@ -606,12 +606,12 @@ func (n *NodeConfigureNtpServer) Execute(runtime connector.Runtime) error {
 	// ensure chronyd was enabled and work normally
 	if len(n.KubeConf.Cluster.System.NtpServers) > 0 || len(n.KubeConf.Cluster.System.Timezone) > 0 {
 		startChronyCmd := fmt.Sprintf("systemctl enable %s && systemctl restart %s", chronyService, chronyService)
-		if _, err := runtime.GetRunner().SudoCmd(startChronyCmd, false); err != nil {
+		if _, err := runtime.GetRunner().SudoCmd(startChronyCmd, false, false); err != nil {
 			return errors.Wrap(err, "restart chronyd failed")
 		}
 
 		// tells chronyd to cancel any remaining correction that was being slewed and jump the system clock by the equivalent amount, making it correct immediately.
-		if _, err := runtime.GetRunner().SudoCmd("chronyc makestep > /dev/null && chronyc sources", true); err != nil {
+		if _, err := runtime.GetRunner().SudoCmd("chronyc makestep > /dev/null && chronyc sources", true, false); err != nil {
 			return errors.Wrap(err, "chronyc makestep failed")
 		}
 	}

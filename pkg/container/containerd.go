@@ -63,7 +63,7 @@ func (s *SyncContainerd) Execute(runtime connector.Runtime) error {
 
 	if _, err := runtime.GetRunner().SudoCmd(
 		fmt.Sprintf("mkdir -p /usr/bin && tar -zxf %s && mv bin/* /usr/bin && rm -rf bin", dst),
-		false); err != nil {
+		false, false); err != nil {
 		return errors.Wrap(errors.WithStack(err), fmt.Sprintf("install containerd binaries failed"))
 	}
 	return nil
@@ -97,7 +97,7 @@ func (s *SyncCrictlBinaries) Execute(runtime connector.Runtime) error {
 
 	if _, err := runtime.GetRunner().SudoCmd(
 		fmt.Sprintf("mkdir -p /usr/bin && tar -zxf %s -C /usr/bin ", dst),
-		false); err != nil {
+		false, false); err != nil {
 		return errors.Wrap(errors.WithStack(err), fmt.Sprintf("install crictl binaries failed"))
 	}
 	return nil
@@ -110,7 +110,7 @@ type EnableContainerd struct {
 func (e *EnableContainerd) Execute(runtime connector.Runtime) error {
 	if _, err := runtime.GetRunner().SudoCmd(
 		"systemctl daemon-reload && systemctl enable containerd && systemctl start containerd",
-		false); err != nil {
+		false, false); err != nil {
 		return errors.Wrap(errors.WithStack(err), fmt.Sprintf("enable and start containerd failed"))
 	}
 
@@ -137,7 +137,7 @@ func (e *EnableContainerd) Execute(runtime connector.Runtime) error {
 
 	if _, err := runtime.GetRunner().SudoCmd(
 		fmt.Sprintf("install -m 755 %s /usr/local/sbin/runc", dst),
-		false); err != nil {
+		false, false); err != nil {
 		return errors.Wrap(errors.WithStack(err), fmt.Sprintf("install runc binaries failed"))
 	}
 	return nil
@@ -149,7 +149,7 @@ type DisableContainerd struct {
 
 func (d *DisableContainerd) Execute(runtime connector.Runtime) error {
 	if _, err := runtime.GetRunner().SudoCmd(
-		"systemctl disable containerd && systemctl stop containerd", true); err != nil {
+		"systemctl disable containerd && systemctl stop containerd", true, false); err != nil {
 		return errors.Wrap(errors.WithStack(err), fmt.Sprintf("disable and stop containerd failed"))
 	}
 
@@ -170,7 +170,7 @@ func (d *DisableContainerd) Execute(runtime connector.Runtime) error {
 	}
 
 	for _, file := range files {
-		_, _ = runtime.GetRunner().SudoCmd(fmt.Sprintf("rm -rf %s", file), true)
+		_, _ = runtime.GetRunner().SudoCmd(fmt.Sprintf("rm -rf %s", file), true, false)
 	}
 	return nil
 }
@@ -181,7 +181,7 @@ type CordonNode struct {
 
 func (d *CordonNode) Execute(runtime connector.Runtime) error {
 	nodeName := runtime.RemoteHost().GetName()
-	if _, err := runtime.GetRunner().SudoCmd(fmt.Sprintf("/usr/local/bin/kubectl cordon %s ", nodeName), true); err != nil {
+	if _, err := runtime.GetRunner().SudoCmd(fmt.Sprintf("/usr/local/bin/kubectl cordon %s ", nodeName), true, false); err != nil {
 		return errors.Wrap(err, fmt.Sprintf("cordon the node: %s failed", nodeName))
 	}
 	return nil
@@ -195,7 +195,7 @@ func (d *UnCordonNode) Execute(runtime connector.Runtime) error {
 	nodeName := runtime.RemoteHost().GetName()
 	f := true
 	for f {
-		if _, err := runtime.GetRunner().SudoCmd(fmt.Sprintf("/usr/local/bin/kubectl uncordon %s", nodeName), true); err == nil {
+		if _, err := runtime.GetRunner().SudoCmd(fmt.Sprintf("/usr/local/bin/kubectl uncordon %s", nodeName), true, false); err == nil {
 			break
 		}
 
@@ -209,7 +209,7 @@ type DrainNode struct {
 
 func (d *DrainNode) Execute(runtime connector.Runtime) error {
 	nodeName := runtime.RemoteHost().GetName()
-	if _, err := runtime.GetRunner().SudoCmd(fmt.Sprintf("/usr/local/bin/kubectl drain %s --delete-emptydir-data --ignore-daemonsets --timeout=2m --force", nodeName), true); err != nil {
+	if _, err := runtime.GetRunner().SudoCmd(fmt.Sprintf("/usr/local/bin/kubectl drain %s --delete-emptydir-data --ignore-daemonsets --timeout=2m --force", nodeName), true, false); err != nil {
 		return errors.Wrap(err, fmt.Sprintf("drain the node: %s failed", nodeName))
 	}
 	return nil
@@ -222,11 +222,11 @@ type RestartCri struct {
 func (i *RestartCri) Execute(runtime connector.Runtime) error {
 	switch i.KubeConf.Arg.Type {
 	case common.Docker:
-		if _, err := runtime.GetRunner().SudoCmd(fmt.Sprintf("systemctl daemon-reload && systemctl restart docker "), true); err != nil {
+		if _, err := runtime.GetRunner().SudoCmd(fmt.Sprintf("systemctl daemon-reload && systemctl restart docker "), true, false); err != nil {
 			return errors.Wrap(err, "restart docker")
 		}
 	case common.Containerd:
-		if _, err := runtime.GetRunner().SudoCmd(fmt.Sprintf("systemctl daemon-reload && systemctl restart containerd"), true); err != nil {
+		if _, err := runtime.GetRunner().SudoCmd(fmt.Sprintf("systemctl daemon-reload && systemctl restart containerd"), true, false); err != nil {
 			return errors.Wrap(err, "restart containerd")
 		}
 
@@ -245,13 +245,13 @@ func (i *EditKubeletCri) Execute(runtime connector.Runtime) error {
 	case common.Docker:
 		if _, err := runtime.GetRunner().SudoCmd(fmt.Sprintf(
 			"sed -i 's#--container-runtime=remote --container-runtime-endpoint=unix:///run/containerd/containerd.sock --pod#--pod#' /var/lib/kubelet/kubeadm-flags.env"),
-			true); err != nil {
+			true, false); err != nil {
 			return errors.Wrap(err, "Change KubeletTo Containerd failed")
 		}
 	case common.Containerd:
 		if _, err := runtime.GetRunner().SudoCmd(fmt.Sprintf(
 			"sed -i 's#--network-plugin=cni --pod#--network-plugin=cni --container-runtime=remote --container-runtime-endpoint=unix:///run/containerd/containerd.sock --pod#' /var/lib/kubelet/kubeadm-flags.env"),
-			true); err != nil {
+			true, false); err != nil {
 			return errors.Wrap(err, "Change KubeletTo Containerd failed")
 		}
 
@@ -267,7 +267,7 @@ type RestartKubeletNode struct {
 
 func (d *RestartKubeletNode) Execute(runtime connector.Runtime) error {
 
-	if _, err := runtime.GetRunner().SudoCmd(fmt.Sprintf("systemctl restart kubelet"), true); err != nil {
+	if _, err := runtime.GetRunner().SudoCmd(fmt.Sprintf("systemctl restart kubelet"), true, false); err != nil {
 		return errors.Wrap(err, "RestartNode Kube failed")
 	}
 	return nil

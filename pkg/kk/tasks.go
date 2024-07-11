@@ -12,7 +12,7 @@ type ChmodKk struct {
 }
 
 func (a *ChmodKk) Execute(runtime connector.Runtime) error {
-	if _, err := runtime.GetRunner().SudoCmd("chmod +x /tmp/install_log/kk", false); err != nil {
+	if _, err := runtime.GetRunner().SudoCmd("chmod +x /tmp/install_log/kk", false, false); err != nil {
 		return errors.Wrapf(errors.WithStack(err), "chmod kk failed")
 	}
 	return nil
@@ -26,7 +26,7 @@ type ExecuteKk struct {
 func (a *ExecuteKk) Execute(runtime connector.Runtime) error {
 	// kk 的安装走的是脚本
 	installCmd := "/tmp/install_log/kk create cluster --with-kubernetes v1.21.4-k3s --with-kubesphere v3.3.0 --container-manager containerd "
-	if _, err := runtime.GetRunner().SudoCmd(installCmd, false); err != nil {
+	if _, err := runtime.GetRunner().SudoCmd(installCmd, false, false); err != nil {
 		return errors.Wrapf(errors.WithStack(err), "install kk failed")
 	}
 

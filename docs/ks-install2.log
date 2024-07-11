@@ -25,10 +25,13 @@ the implicit localhost does not match 'all'
 
 PLAY [localhost] ***************************************************************
 
-TASK [download : Generating images list] ***************************************
+TASK [download : Generating images list] *************************************** <对应 download/tasks/main.yml>
 skipping: [localhost]
+>>>>>>> 说明：这个会引用 generate_images_list.yml 文件；不过貌似跳过没执行？
 
-TASK [download : Synchronizing images] *****************************************
+TASK [download : Synchronizing images] ***************************************** <对应 download/tasks/main.yml>
+>>>>>>> 说明：这个会引用 sync_images.yml 文件
+
 
 TASK [kubesphere-defaults : KubeSphere | Setting images' namespace override] ***
 skipping: [localhost]
@@ -59,9 +62,15 @@ ok: [localhost] => {
     "msg": "All assertions passed"
 }
 
+
+--->>>>>>>>>>> 对应 roles/preinstall/tasks/main.yaml
 TASK [preinstall : KubeSphere | Checking KubeSphere component] *****************
 changed: [localhost]
 
+--->>>>>>>>>>> 对应 roles/preinstall/tasks/helm-migrate.yaml
+--->>>>>>>>>>> 内部代码：helm 2to3 命令将指定的 KubeSphere 组件从 Helm 2 转换为 Helm 3
+--->>>>>>>>>>> 使用 loop 循环遍历指定的 KubeSphere 组件列表。每次循环都会将当前组件名称赋值给 item，并执行 shell 命令
+--->>>>>>>>>>> failed_when: false：该任务即使执行失败也不会标记为失败。这意味着即使某个组件转换失败，整个 Playbook 也会继续执行，不会因为这个任务的失败而中断
 TASK [preinstall : KubeSphere | Getting KubeSphere component version] **********
 skipping: [localhost] => (item=ks-openldap) 
 skipping: [localhost] => (item=ks-redis) 
@@ -80,6 +89,9 @@ skipping: [localhost] => (item=metrics-server)
 
 PLAY RECAP *********************************************************************
 localhost                  : ok=6    changed=3    unreachable=0    failed=0    skipped=5    rescued=0    ignored=0   
+
+
+---->>>>>> 进入第二个 playbook：metrics_server.yaml
 [WARNING]: No inventory was parsed, only implicit localhost is available
 [WARNING]: provided hosts list is empty, only localhost is available. Note that
 the implicit localhost does not match 'all'
@@ -99,6 +111,7 @@ ok: [localhost] => {
     "msg": "Check roles/kubesphere-defaults/defaults/main.yml"
 }
 
+--->>>>>>>>>>> 对应 roles/metrics-server/tasks/main.yaml
 TASK [Metrics-Server | Getting metrics-server installation files] **************
 skipping: [localhost]
 

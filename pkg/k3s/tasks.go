@@ -129,7 +129,7 @@ func SyncKubeBinaries(runtime connector.Runtime, binariesMap map[string]*files.K
 			if err := runtime.GetRunner().Scp(binary.Path(), dst); err != nil {
 				return errors.Wrap(errors.WithStack(err), fmt.Sprintf("sync kube binaries failed"))
 			}
-			if _, err := runtime.GetRunner().SudoCmd(fmt.Sprintf("tar -zxf %s -C /opt/cni/bin", dst), false); err != nil {
+			if _, err := runtime.GetRunner().SudoCmd(fmt.Sprintf("tar -zxf %s -C /opt/cni/bin", dst), false, false); err != nil {
 				return err
 			}
 		default:
@@ -138,7 +138,7 @@ func SyncKubeBinaries(runtime connector.Runtime, binariesMap map[string]*files.K
 			if err := runtime.GetRunner().SudoScp(binary.Path(), dst); err != nil {
 				return errors.Wrap(errors.WithStack(err), fmt.Sprintf("sync kube binaries failed"))
 			}
-			if _, err := runtime.GetRunner().SudoCmd(fmt.Sprintf("chmod +x %s", dst), false); err != nil {
+			if _, err := runtime.GetRunner().SudoCmd(fmt.Sprintf("chmod +x %s", dst), false, false); err != nil {
 				return err
 			}
 		}
@@ -149,7 +149,7 @@ func SyncKubeBinaries(runtime connector.Runtime, binariesMap map[string]*files.K
 	for _, binary := range binaries {
 		createLinkCMDs = append(createLinkCMDs, fmt.Sprintf("ln -snf /usr/local/bin/k3s /usr/local/bin/%s", binary))
 	}
-	if _, err := runtime.GetRunner().SudoCmd(strings.Join(createLinkCMDs, " && "), false); err != nil {
+	if _, err := runtime.GetRunner().SudoCmd(strings.Join(createLinkCMDs, " && "), false, false); err != nil {
 		return errors.Wrap(errors.WithStack(err), "create ctl tool link failed")
 	}
 
@@ -166,11 +166,11 @@ func (c *ChmodScript) Execute(runtime connector.Runtime) error {
 	uninstallScript := filepath.Join("/usr/local/bin", templates.K3sUninstallScript.Name())
 
 	if _, err := runtime.GetRunner().SudoCmd(fmt.Sprintf("chmod +x %s", killAllScript),
-		false); err != nil {
+		false, false); err != nil {
 		return err
 	}
 	if _, err := runtime.GetRunner().SudoCmd(fmt.Sprintf("chmod +x %s", uninstallScript),
-		false); err != nil {
+		false, false); err != nil {
 		return err
 	}
 	return nil
@@ -333,7 +333,7 @@ type EnableK3sService struct {
 
 func (e *EnableK3sService) Execute(runtime connector.Runtime) error {
 	if _, err := runtime.GetRunner().SudoCmd("systemctl daemon-reload && systemctl enable --now k3s",
-		false); err != nil {
+		false, false); err != nil {
 		return errors.Wrap(errors.WithStack(err), "enable k3s failed")
 	}
 	return nil
@@ -391,32 +391,32 @@ func (c *CopyK3sKubeConfig) Execute(runtime connector.Runtime) error {
 	getKubeConfigCmd := "cp -f /etc/rancher/k3s/k3s.yaml /root/.kube/config"
 
 	cmd := strings.Join([]string{createConfigDirCmd, getKubeConfigCmd}, " && ")
-	if _, err := runtime.GetRunner().SudoCmd(cmd, false); err != nil {
+	if _, err := runtime.GetRunner().SudoCmd(cmd, false, false); err != nil {
 		return errors.Wrap(errors.WithStack(err), "copy k3s kube config failed")
 	}
 
 	userMkdir := "mkdir -p $HOME/.kube"
-	if _, err := runtime.GetRunner().Cmd(userMkdir, false); err != nil {
+	if _, err := runtime.GetRunner().Cmd(userMkdir, false, false); err != nil {
 		return errors.Wrap(errors.WithStack(err), "user mkdir $HOME/.kube failed")
 	}
 
 	userCopyKubeConfig := "cp -f /etc/rancher/k3s/k3s.yaml $HOME/.kube/config"
-	if _, err := runtime.GetRunner().SudoCmd(userCopyKubeConfig, false); err != nil {
+	if _, err := runtime.GetRunner().SudoCmd(userCopyKubeConfig, false, false); err != nil {
 		return errors.Wrap(errors.WithStack(err), "user copy /etc/rancher/k3s/k3s.yaml to $HOME/.kube/config failed")
 	}
 
-	userId, err := runtime.GetRunner().Cmd("echo $(id -u)", false)
+	userId, err := runtime.GetRunner().Cmd("echo $(id -u)", false, false)
 	if err != nil {
 		return errors.Wrap(errors.WithStack(err), "get user id failed")
 	}
 
-	userGroupId, err := runtime.GetRunner().Cmd("echo $(id -g)", false)
+	userGroupId, err := runtime.GetRunner().Cmd("echo $(id -g)", false, false)
 	if err != nil {
 		return errors.Wrap(errors.WithStack(err), "get user group id failed")
 	}
 
 	chownKubeConfig := fmt.Sprintf("chown -R %s:%s $HOME/.kube", userId, userGroupId)
-	if _, err := runtime.GetRunner().SudoCmd(chownKubeConfig, false); err != nil {
+	if _, err := runtime.GetRunner().SudoCmd(chownKubeConfig, false, false); err != nil {
 		return errors.Wrap(errors.WithStack(err), "chown user kube config failed")
 	}
 	return nil
@@ -434,7 +434,7 @@ func (a *AddMasterTaint) Execute(runtime connector.Runtime) error {
 		"/usr/local/bin/kubectl taint nodes %s node-role.kubernetes.io/master=effect:NoSchedule --overwrite",
 		host.GetName())
 
-	if _, err := runtime.GetRunner().SudoCmd(cmd, false); err != nil {
+	if _, err := runtime.GetRunner().SudoCmd(cmd, false, false); err != nil {
 		return errors.Wrap(errors.WithStack(err), "add master NoSchedule taint failed")
 	}
 	return nil
@@ -454,7 +454,7 @@ func (a *AddWorkerLabel) Execute(runtime connector.Runtime) error {
 
 	var out string
 	var err error
-	if out, err = runtime.GetRunner().SudoCmd(cmd, false); err != nil {
+	if out, err = runtime.GetRunner().SudoCmd(cmd, false, false); err != nil {
 		return errors.Wrap(errors.WithStack(err), "add master NoSchedule taint failed")
 	}
 	fmt.Printf("AddWorkerLabel successed: %s\n", out)
@@ -471,7 +471,7 @@ func (s *SyncKubeConfigToWorker) Execute(runtime connector.Runtime) error {
 		cluster := v.(*K3sStatus)
 
 		createConfigDirCmd := "mkdir -p /root/.kube"
-		if _, err := runtime.GetRunner().SudoCmd(createConfigDirCmd, false); err != nil {
+		if _, err := runtime.GetRunner().SudoCmd(createConfigDirCmd, false, false); err != nil {
 			return errors.Wrap(errors.WithStack(err), "create .kube dir failed")
 		}
 
@@ -482,32 +482,32 @@ func (s *SyncKubeConfigToWorker) Execute(runtime connector.Runtime) error {
 		newKubeConfig := strings.Replace(cluster.KubeConfig, oldServer, newServer, -1)
 
 		syncKubeConfigForRootCmd := fmt.Sprintf("echo '%s' > %s", newKubeConfig, "/root/.kube/config")
-		if _, err := runtime.GetRunner().SudoCmd(syncKubeConfigForRootCmd, false); err != nil {
+		if _, err := runtime.GetRunner().SudoCmd(syncKubeConfigForRootCmd, false, false); err != nil {
 			return errors.Wrap(errors.WithStack(err), "sync kube config for root failed")
 		}
 
 		userConfigDirCmd := "mkdir -p $HOME/.kube"
-		if _, err := runtime.GetRunner().Cmd(userConfigDirCmd, false); err != nil {
+		if _, err := runtime.GetRunner().Cmd(userConfigDirCmd, false, false); err != nil {
 			return errors.Wrap(errors.WithStack(err), "user mkdir $HOME/.kube failed")
 		}
 
 		syncKubeConfigForUserCmd := fmt.Sprintf("echo '%s' > %s", newKubeConfig, "$HOME/.kube/config")
-		if _, err := runtime.GetRunner().Cmd(syncKubeConfigForUserCmd, false); err != nil {
+		if _, err := runtime.GetRunner().Cmd(syncKubeConfigForUserCmd, false, false); err != nil {
 			return errors.Wrap(errors.WithStack(err), "sync kube config for normal user failed")
 		}
 
-		userId, err := runtime.GetRunner().Cmd("echo $(id -u)", false)
+		userId, err := runtime.GetRunner().Cmd("echo $(id -u)", false, false)
 		if err != nil {
 			return errors.Wrap(errors.WithStack(err), "get user id failed")
 		}
 
-		userGroupId, err := runtime.GetRunner().Cmd("echo $(id -g)", false)
+		userGroupId, err := runtime.GetRunner().Cmd("echo $(id -g)", false, false)
 		if err != nil {
 			return errors.Wrap(errors.WithStack(err), "get user group id failed")
 		}
 
 		chownKubeConfig := fmt.Sprintf("chown -R %s:%s -R $HOME/.kube", userId, userGroupId)
-		if _, err := runtime.GetRunner().SudoCmd(chownKubeConfig, false); err != nil {
+		if _, err := runtime.GetRunner().SudoCmd(chownKubeConfig, false, false); err != nil {
 			return errors.Wrap(errors.WithStack(err), "chown user kube config failed")
 		}
 	}
@@ -521,11 +521,11 @@ type ExecUninstallScript struct {
 
 func (e *ExecUninstallScript) Execute(runtime connector.Runtime) error {
 	if _, err := runtime.GetRunner().SudoCmd("systemctl daemon-reload && /usr/local/bin/k3s-killall.sh",
-		true); err != nil {
+		true, false); err != nil {
 		return errors.Wrap(errors.WithStack(err), "add master NoSchedule taint failed")
 	}
 	if _, err := runtime.GetRunner().SudoCmd("systemctl daemon-reload && /usr/local/bin/k3s-uninstall.sh",
-		true); err != nil {
+		true, false); err != nil {
 		return errors.Wrap(errors.WithStack(err), "add master NoSchedule taint failed")
 	}
 	return nil

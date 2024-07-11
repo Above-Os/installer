@@ -349,7 +349,7 @@ type GreetingsTask struct {
 }
 
 func (h *GreetingsTask) Execute(runtime connector.Runtime) error {
-	_, err := runtime.GetRunner().SudoCmd("echo 'Greetings, KubeKey!!!!! hahahaha!!!!'", true)
+	_, err := runtime.GetRunner().SudoCmd("echo 'Greetings, KubeKey!!!!! hahahaha!!!!'", true, false)
 	if err != nil {
 		return err
 	}
@@ -386,7 +386,7 @@ func (n *NodePreCheck) Execute(runtime connector.Runtime) error {
 			cmd = connector.SudoPrefix(cmd)
 		}
 
-		res, err := runtime.GetRunner().Cmd(cmd, false)
+		res, err := runtime.GetRunner().Cmd(cmd, false, false)
 		switch software {
 		case showmount:
 			software = nfs
@@ -408,7 +408,7 @@ func (n *NodePreCheck) Execute(runtime connector.Runtime) error {
 		}
 	}
 
-	output, err := runtime.GetRunner().Cmd("date +\"%Z %H:%M:%S\"", false)
+	output, err := runtime.GetRunner().Cmd("date +\"%Z %H:%M:%S\"", false, false)
 	if err != nil {
 		results["time"] = ""
 	} else {
@@ -442,24 +442,24 @@ func (g *GetKubeConfig) Execute(runtime connector.Runtime) error {
 				return err
 			} else {
 				if exist {
-					if _, err := runtime.GetRunner().Cmd("mkdir -p $HOME/.kube", false); err != nil {
+					if _, err := runtime.GetRunner().Cmd("mkdir -p $HOME/.kube", false, false); err != nil {
 						return err
 					}
-					if _, err := runtime.GetRunner().SudoCmd("cp /etc/kubernetes/admin.conf $HOME/.kube/config", false); err != nil {
+					if _, err := runtime.GetRunner().SudoCmd("cp /etc/kubernetes/admin.conf $HOME/.kube/config", false, false); err != nil {
 						return err
 					}
-					userId, err := runtime.GetRunner().Cmd("echo $(id -u)", false)
+					userId, err := runtime.GetRunner().Cmd("echo $(id -u)", false, false)
 					if err != nil {
 						return errors.Wrap(errors.WithStack(err), "get user id failed")
 					}
 
-					userGroupId, err := runtime.GetRunner().Cmd("echo $(id -g)", false)
+					userGroupId, err := runtime.GetRunner().Cmd("echo $(id -g)", false, false)
 					if err != nil {
 						return errors.Wrap(errors.WithStack(err), "get user group id failed")
 					}
 
 					chownKubeConfig := fmt.Sprintf("chown -R %s:%s $HOME/.kube", userId, userGroupId)
-					if _, err := runtime.GetRunner().SudoCmd(chownKubeConfig, false); err != nil {
+					if _, err := runtime.GetRunner().SudoCmd(chownKubeConfig, false, false); err != nil {
 						return errors.Wrap(errors.WithStack(err), "chown user kube config failed")
 					}
 				}
@@ -476,7 +476,7 @@ type GetAllNodesK8sVersion struct {
 
 func (g *GetAllNodesK8sVersion) Execute(runtime connector.Runtime) error {
 	var nodeK8sVersion string
-	kubeletVersionInfo, err := runtime.GetRunner().SudoCmd("/usr/local/bin/kubelet --version", false)
+	kubeletVersionInfo, err := runtime.GetRunner().SudoCmd("/usr/local/bin/kubelet --version", false, false)
 	if err != nil {
 		return errors.Wrap(err, "get current kubelet version failed")
 	}
@@ -486,7 +486,7 @@ func (g *GetAllNodesK8sVersion) Execute(runtime connector.Runtime) error {
 	if host.IsRole(common.Master) {
 		apiserverVersion, err := runtime.GetRunner().SudoCmd(
 			"cat /etc/kubernetes/manifests/kube-apiserver.yaml | grep 'image:' | rev | cut -d ':' -f1 | rev",
-			false)
+			false, false)
 		if err != nil {
 			return errors.Wrap(err, "get current kube-apiserver version failed")
 		}
@@ -547,7 +547,7 @@ type KsVersionCheck struct {
 func (k *KsVersionCheck) Execute(runtime connector.Runtime) error {
 	ksVersionStr, err := runtime.GetRunner().SudoCmd(
 		"/usr/local/bin/kubectl get deploy -n  kubesphere-system ks-console -o jsonpath='{.metadata.labels.version}'",
-		false)
+		false, false)
 	if err != nil {
 		if k.KubeConf.Cluster.KubeSphere.Enabled {
 			return errors.Wrap(err, "get kubeSphere version failed")
@@ -558,7 +558,7 @@ func (k *KsVersionCheck) Execute(runtime connector.Runtime) error {
 
 	ccKsVersionStr, ccErr := runtime.GetRunner().SudoCmd(
 		"/usr/local/bin/kubectl get ClusterConfiguration ks-installer -n  kubesphere-system  -o jsonpath='{.metadata.labels.version}'",
-		false)
+		false, false)
 	if ccErr == nil && ksVersionStr == "v3.1.0" {
 		ksVersionStr = ccKsVersionStr
 	}
@@ -624,13 +624,13 @@ type GetKubernetesNodesStatus struct {
 }
 
 func (g *GetKubernetesNodesStatus) Execute(runtime connector.Runtime) error {
-	nodeStatus, err := runtime.GetRunner().SudoCmd("/usr/local/bin/kubectl get node -o wide", false)
+	nodeStatus, err := runtime.GetRunner().SudoCmd("/usr/local/bin/kubectl get node -o wide", false, false)
 	if err != nil {
 		return err
 	}
 	g.PipelineCache.Set(common.ClusterNodeStatus, nodeStatus)
 
-	cri, err := runtime.GetRunner().SudoCmd("/usr/local/bin/kubectl get node -o jsonpath=\"{.items[*].status.nodeInfo.containerRuntimeVersion}\"", false)
+	cri, err := runtime.GetRunner().SudoCmd("/usr/local/bin/kubectl get node -o jsonpath=\"{.items[*].status.nodeInfo.containerRuntimeVersion}\"", false, false)
 	if err != nil {
 		return err
 	}

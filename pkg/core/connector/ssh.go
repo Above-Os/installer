@@ -324,7 +324,7 @@ func (c *connection) PExec(cmd string, stdin io.Reader, stdout io.Writer, stderr
 	return exitCode, err
 }
 
-func (c *connection) Exec(cmd string, host Host) (stdout string, code int, err error) {
+func (c *connection) Exec(cmd string, host Host, printLine bool) (stdout string, code int, err error) {
 	sess, err := c.session()
 	if err != nil {
 		return "", 1, errors.Wrap(err, "failed to get SSH session")
@@ -360,7 +360,9 @@ func (c *connection) Exec(cmd string, host Host) (stdout string, code int, err e
 		output = append(output, b)
 
 		if b == byte('\n') {
-			// fmt.Println(line)
+			if printLine {
+				fmt.Println(line)
+			}
 			line = ""
 			continue
 		}
@@ -395,7 +397,7 @@ func (c *connection) Fetch(local, remote string, host Host) error {
 	//defer srcFile.Close()
 
 	// Base64 encoding is performed on the contents of the file to prevent garbled code in the target file.
-	output, _, err := c.Exec(SudoPrefix(fmt.Sprintf("cat %s | base64 -w 0", remote)), host)
+	output, _, err := c.Exec(SudoPrefix(fmt.Sprintf("cat %s | base64 -w 0", remote)), host, false)
 	if err != nil {
 		return fmt.Errorf("open remote file failed %v, remote path: %s", err, remote)
 	}
@@ -539,7 +541,7 @@ func (c *connection) copyFileToRemote(src, dst string, host Host) error {
 
 func (c *connection) RemoteMd5Sum(dst string, host Host) string {
 	cmd := fmt.Sprintf("md5sum %s | cut -d\" \" -f1", dst)
-	remoteMd5, _, err := c.Exec(cmd, host)
+	remoteMd5, _, err := c.Exec(cmd, host, false)
 	if err != nil {
 		logger.Errorf("exec countRemoteMd5Command %s failed: %v", cmd, err)
 	}
@@ -552,7 +554,7 @@ func (c *connection) RemoteFileExist(dst string, host Host) bool {
 
 	remoteFileCommand := fmt.Sprintf(SudoPrefix("ls -l %s/%s 2>/dev/null |wc -l"), remoteFileDirName, remoteFileName)
 
-	out, _, err := c.Exec(remoteFileCommand, host)
+	out, _, err := c.Exec(remoteFileCommand, host, false)
 	defer func() {
 		if r := recover(); r != nil {
 			logger.Errorf("exec remoteFileCommand %s err: %v", remoteFileCommand, err)
@@ -585,7 +587,7 @@ func (c *connection) MkDirAll(path string, mode string, host Host) error {
 		mode = "775"
 	}
 	mkDstDir := fmt.Sprintf("mkdir -p -m %s %s || true", mode, path)
-	if _, _, err := c.Exec(SudoPrefix(mkDstDir), host); err != nil {
+	if _, _, err := c.Exec(SudoPrefix(mkDstDir), host, false); err != nil {
 		return err
 	}
 

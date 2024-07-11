@@ -160,6 +160,7 @@ func NewKubeBinary(name, arch, version, prePath string) *KubeBinary {
 	case helm:
 		component.Type = HELM
 		component.FileName = helm
+		component.CheckSum = false
 		component.Url = fmt.Sprintf("https://get.helm.sh/helm-%s-linux-%s.tar.gz", version, arch)
 		if component.Zone == "cn" {
 			component.Url = fmt.Sprintf("https://kubernetes-helm.pek3b.qingstor.com/linux-%s/%s/helm", arch, version)

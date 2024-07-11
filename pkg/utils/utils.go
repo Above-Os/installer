@@ -42,7 +42,7 @@ type Data map[string]interface{}
 func ResetTmpDir(runtime connector.Runtime) error {
 	_, err := runtime.GetRunner().SudoCmd(fmt.Sprintf(
 		"if [ -d %s ]; then rm -rf %s ;fi && mkdir -m 777 -p %s",
-		common.TmpDir, common.TmpDir, common.TmpDir), false)
+		common.TmpDir, common.TmpDir, common.TmpDir), false, false)
 	if err != nil {
 		return errors.Wrap(errors.WithStack(err), "reset tmp dir failed")
 	}

@@ -432,6 +432,14 @@ poddisruptionbudget.policy/calico-kube-controllers created
 2024-07-09T02:10:46.720-0700	[A] zhaoyu: GenerateOpenEBSManifest success (188.653354ms)
 2024-07-09T02:10:46.861-0700	[A] Remote: DeployOpenEBS
 2024-07-09T02:10:47.146-0700	[A] zhaoyu: DeployOpenEBS success (425.879478ms)
+
+
+##########################################################################################
+#
+#  这里开始涉及到 ks-installer
+#  这里的 AddKsInstallerConfig、CreateKubeSphereNamespace、SetupKsInstallerConfig... 是并行的
+#
+##########################################################################################
 2024-07-09T02:10:47.146-0700	[Module] DeployKubeSphereModule
 2024-07-09T02:10:47.146-0700	[A] Remote: GenerateKsInstallerCRD
 2024-07-09T02:10:47.168-0700	scp local file /project/pkg/zhaoyu/kubesphere.yaml to remote /tmp/kubekey/etc/kubernetes/addons/kubesphere.yaml success
@@ -443,9 +451,9 @@ serviceaccount/ks-installer created
 customresourcedefinition.apiextensions.k8s.io/clusterconfigurations.installer.kubesphere.io created
 clusterrole.rbac.authorization.k8s.io/ks-installer created
 clusterrolebinding.rbac.authorization.k8s.io/ks-installer created
-deployment.apps/ks-installer created
+deployment.apps/ks-installer created     ---------->>>>>>>>>>>>>>>>>>>>>>>>>>> 看这里，这里是 deployment ks-installer
 2024-07-09T02:10:47.773-0700	[A] zhaoyu: ApplyKsInstaller success (580.215611ms)
-2024-07-09T02:10:47.773-0700	[A] Remote: AddKsInstallerConfig
+2024-07-09T02:10:47.773-0700	[A] Remote: AddKsInstallerConfig    -------->>>>> 这里其实是在NewKubeRunner 时就已经提取了模版信息，ks v3.3.0 的数据；文件位于 ./pkg/version/kubesphere/templates/cc_v330.go；就是 kind：ClusterConfiguration，它内部有很多注释的地方，估计是在 ks-installer 中去做了替换。
 2024-07-09T02:10:47.782-0700	[exec] zhaoyu CMD: sudo -E /bin/bash -c "echo Ci0tLQphcGlWZXJzaW9uOiBpbnN0YWxsZXIua3ViZXNwaGVyZS5pby92MWFscGhhMQpraW5kOiBDbHVzdGVyQ29uZmlndXJhdGlvbgptZXRhZGF0YToKICBuYW1lOiBrcy1pbnN0YWxsZXIKICBuYW1lc3BhY2U6IGt1YmVzcGhlcmUtc3lzdGVtCiAgbGFiZWxzOgogICAgdmVyc2lvbjogdjMuMy4wCnNwZWM6CiAgcGVyc2lzdGVuY2U6CiAgICBzdG9yYWdlQ2xhc3M6ICIiCiAgYXV0aGVudGljYXRpb246CiAgICBqd3RTZWNyZXQ6ICIiCiAgem9uZTogIiIKICBsb2NhbF9yZWdpc3RyeTogIiIKICBuYW1lc3BhY2Vfb3ZlcnJpZGU6ICIiCiAgIyBkZXZfdGFnOiAiIgogIGV0Y2Q6CiAgICBtb25pdG9yaW5nOiBmYWxzZQogICAgZW5kcG9pbnRJcHM6IGxvY2FsaG9zdAogICAgcG9ydDogMjM3OQogICAgdGxzRW5hYmxlOiB0cnVlCiAgY29tbW9uOgogICAgY29yZToKICAgICAgY29uc29sZToKICAgICAgICBlbmFibGVNdWx0aUxvZ2luOiB0cnVlCiAgICAgICAgcG9ydDogMzA4ODAKICAgICAgICB0eXBlOiBOb2RlUG9ydAogICAgIyBhcGlzZXJ2ZXI6CiAgICAjICByZXNvdXJjZXM6IHt9CiAgICAjIGNvbnRyb2xsZXJNYW5hZ2VyOgogICAgIyAgcmVzb3VyY2VzOiB7fQogICAgcmVkaXM6CiAgICAgIGVuYWJsZWQ6IHRydWUKICAgICAgdm9sdW1lU2l6ZTogMkdpCiAgICBvcGVubGRhcDoKICAgICAgZW5hYmxlZDogZmFsc2UKICAgICAgdm9sdW1lU2l6ZTogMkdpCiAgICBtaW5pbzoKICAgICAgdm9sdW1lU2l6ZTogMjBHaQogICAgbW9uaXRvcmluZzoKICAgICAgIyB0eXBlOiBleHRlcm5hbAogICAgICBlbmRwb2ludDogaHR0cDovL3Byb21ldGhldXMtb3BlcmF0ZWQua3ViZXNwaGVyZS1tb25pdG9yaW5nLXN5c3RlbS5zdmM6OTA5MAogICAgICBHUFVNb25pdG9yaW5nOgogICAgICAgIGVuYWJsZWQ6IGZhbHNlCiAgICBncHU6CiAgICAgIGtpbmRzOgogICAgICAtIHJlc291cmNlTmFtZTogIm52aWRpYS5jb20vZ3B1IgogICAgICAgIHJlc291cmNlVHlwZTogIkdQVSIKICAgICAgICBkZWZhdWx0OiB0cnVlCiAgICBlczoKICAgICAgIyBtYXN0ZXI6CiAgICAgICMgICB2b2x1bWVTaXplOiA0R2kKICAgICAgIyAgIHJlcGxpY2FzOiAxCiAgICAgICMgICByZXNvdXJjZXM6IHt9CiAgICAgICMgZGF0YToKICAgICAgIyAgIHZvbHVtZVNpemU6IDIwR2kKICAgICAgIyAgIHJlcGxpY2FzOiAxCiAgICAgICMgICByZXNvdXJjZXM6IHt9CiAgICAgIGxvZ01heEFnZTogNwogICAgICBlbGtQcmVmaXg6IGxvZ3N0YXNoCiAgICAgIGJhc2ljQXV0aDoKICAgICAgICBlbmFibGVkOiBmYWxzZQogICAgICAgIHVzZXJuYW1lOiAiIgogICAgICAgIHBhc3N3b3JkOiAiIgogICAgICBleHRlcm5hbEVsYXN0aWNzZWFyY2hIb3N0OiAiIgogICAgICBleHRlcm5hbEVsYXN0aWNzZWFyY2hQb3J0OiAiIgogIGFsZXJ0aW5nOgogICAgZW5hYmxlZDogZmFsc2UKICAgICMgdGhhbm9zcnVsZXI6CiAgICAjICAgcmVwbGljYXM6IDEKICAgICMgICByZXNvdXJjZXM6IHt9CiAgYXVkaXRpbmc6CiAgICBlbmFibGVkOiBmYWxzZQogICAgIyBvcGVyYXRvcjoKICAgICMgICByZXNvdXJjZXM6IHt9CiAgICAjIHdlYmhvb2s6CiAgICAjICAgcmVzb3VyY2VzOiB7fQogIGRldm9wczoKICAgIGVuYWJsZWQ6IGZhbHNlCiAgICAjIHJlc291cmNlczoge30KICAgIGplbmtpbnNNZW1vcnlMaW06IDJHaQogICAgamVua2luc01lbW9yeVJlcTogMTUwME1pCiAgICBqZW5raW5zVm9sdW1lU2l6ZTogOEdpCiAgICBqZW5raW5zSmF2YU9wdHNfWG1zOiAxMjAwbQogICAgamVua2luc0phdmFPcHRzX1hteDogMTYwMG0KICAgIGplbmtpbnNKYXZhT3B0c19NYXhSQU06IDJnCiAgZXZlbnRzOgogICAgZW5hYmxlZDogZmFsc2UKICAgICMgb3BlcmF0b3I6CiAgICAjICAgcmVzb3VyY2VzOiB7fQogICAgIyBleHBvcnRlcjoKICAgICMgICByZXNvdXJjZXM6IHt9CiAgICAjIHJ1bGVyOgogICAgIyAgIGVuYWJsZWQ6IHRydWUKICAgICMgICByZXBsaWNhczogMgogICAgIyAgIHJlc291cmNlczoge30KICBsb2dnaW5nOgogICAgZW5hYmxlZDogZmFsc2UKICAgIGxvZ3NpZGVjYXI6CiAgICAgIGVuYWJsZWQ6IHRydWUKICAgICAgcmVwbGljYXM6IDIKICAgICAgIyByZXNvdXJjZXM6IHt9CiAgbWV0cmljc19zZXJ2ZXI6CiAgICBlbmFibGVkOiBmYWxzZQogIG1vbml0b3Jpbmc6CiAgICBzdG9yYWdlQ2xhc3M6ICIiCiAgICBub2RlX2V4cG9ydGVyOgogICAgICBwb3J0OiA5MTAwCiAgICAgICMgcmVzb3VyY2VzOiB7fQogICAgIyBrdWJlX3JiYWNfcHJveHk6CiAgICAjICAgcmVzb3VyY2VzOiB7fQogICAgIyBrdWJlX3N0YXRlX21ldHJpY3M6CiAgICAjICAgcmVzb3VyY2VzOiB7fQogICAgIyBwcm9tZXRoZXVzOgogICAgIyAgIHJlcGxpY2FzOiAxCiAgICAjICAgdm9sdW1lU2l6ZTogMjBHaQogICAgIyAgIHJlc291cmNlczoge30KICAgICMgICBvcGVyYXRvcjoKICAgICMgICAgIHJlc291cmNlczoge30KICAgICMgYWxlcnRtYW5hZ2VyOgogICAgIyAgIHJlcGxpY2FzOiAxCiAgICAjICAgcmVzb3VyY2VzOiB7fQogICAgIyBub3RpZmljYXRpb25fbWFuYWdlcjoKICAgICMgICByZXNvdXJjZXM6IHt9CiAgICAjICAgb3BlcmF0b3I6CiAgICAjICAgICByZXNvdXJjZXM6IHt9CiAgICAjICAgcHJveHk6CiAgICAjICAgICByZXNvdXJjZXM6IHt9CiAgICBncHU6CiAgICAgIG52aWRpYV9kY2dtX2V4cG9ydGVyOgogICAgICAgIGVuYWJsZWQ6IGZhbHNlCiAgICAgICAgIyByZXNvdXJjZXM6IHt9CiAgbXVsdGljbHVzdGVyOgogICAgY2x1c3RlclJvbGU6IG5vbmUKICBuZXR3b3JrOgogICAgbmV0d29ya3BvbGljeToKICAgICAgZW5hYmxlZDogZW5hYmxlCiAgICBpcHBvb2w6CiAgICAgIHR5cGU6IG5vbmUKICAgIHRvcG9sb2d5OgogICAgICB0eXBlOiBub25lCiAgb3BlbnBpdHJpeDoKICAgIHN0b3JlOgogICAgICBlbmFibGVkOiBmYWxzZQogIHNlcnZpY2VtZXNoOgogICAgZW5hYmxlZDogZmFsc2UKICAgIGlzdGlvOgogICAgICBjb21wb25lbnRzOgogICAgICAgIGluZ3Jlc3NHYXRld2F5czoKICAgICAgICAtIG5hbWU6IGlzdGlvLWluZ3Jlc3NnYXRld2F5CiAgICAgICAgICBlbmFibGVkOiBmYWxzZQogICAgICAgIGNuaToKICAgICAgICAgIGVuYWJsZWQ6IGZhbHNlCiAgZWRnZXJ1bnRpbWU6CiAgICBlbmFibGVkOiBmYWxzZQogICAga3ViZWVkZ2U6CiAgICAgIGVuYWJsZWQ6IGZhbHNlCiAgICAgIGNsb3VkQ29yZToKICAgICAgICBjbG91ZEh1YjoKICAgICAgICAgIGFkdmVydGlzZUFkZHJlc3M6CiAgICAgICAgICAgIC0gIiIKICAgICAgICBzZXJ2aWNlOgogICAgICAgICAgY2xvdWRodWJOb2RlUG9ydDogIjMwMDAwIgogICAgICAgICAgY2xvdWRodWJRdWljTm9kZVBvcnQ6ICIzMDAwMSIKICAgICAgICAgIGNsb3VkaHViSHR0cHNOb2RlUG9ydDogIjMwMDAyIgogICAgICAgICAgY2xvdWRzdHJlYW1Ob2RlUG9ydDogIjMwMDAzIgogICAgICAgICAgdHVubmVsTm9kZVBvcnQ6ICIzMDAwNCIKICAgICAgICAjIHJlc291cmNlczoge30KICAgICAgICAjIGhvc3ROZXRXb3JrOiBmYWxzZQogICAgICBpcHRhYmxlcy1tYW5hZ2VyOgogICAgICAgIGVuYWJsZWQ6IHRydWUKICAgICAgICBtb2RlOiAiZXh0ZXJuYWwiCiAgICAgICAgIyByZXNvdXJjZXM6IHt9CiAgICAgICMgZWRnZVNlcnZpY2U6CiAgICAgICMgICByZXNvdXJjZXM6IHt9CiAgdGVybWluYWw6CiAgICB0aW1lb3V0OiA2MDAK | base64 -d >> /etc/kubernetes/addons/kubesphere.yaml", OUTPUT: 
 
 2024-07-09T02:10:47.783-0700	[A] zhaoyu: AddKsInstallerConfig success (9.336321ms)
@@ -465,11 +473,19 @@ EOF
 namespace/kubesphere-system unchanged
 namespace/kubesphere-monitoring-system created
 2024-07-09T02:10:47.992-0700	[A] zhaoyu: CreateKubeSphereNamespace success (209.241564ms)
-2024-07-09T02:10:47.992-0700	[A] Remote: SetupKsInstallerConfig
+
+##############################
+#  SetupKsInstallerConfig 这个东西是干嘛的？做生成了 etcd 相关的信息，然后创建 secret？
+##############################
+2024-07-09T02:10:47.992-0700	[A] Remote: SetupKsInstallerConfig   ------>>>>> 这里会修改 /etc/kubernetes/addons/kubesphere.yaml，包括会修改 etcd 的地址
 2024-07-09T02:10:48.129-0700	[exec] zhaoyu CMD: sudo -E /bin/bash -c "/usr/local/bin/kubectl -n kubesphere-monitoring-system create secret generic kube-etcd-client-certs --from-file=etcd-client-ca.crt=/etc/ssl/etcd/ssl/ca.pem --from-file=etcd-client.crt=/etc/ssl/etcd/ssl/node-zhaoyu.pem --from-file=etcd-client.key=/etc/ssl/etcd/ssl/node-zhaoyu-key.pem", OUTPUT: 
 secret/kube-etcd-client-certs created
 2024-07-09T02:10:48.188-0700	[A] zhaoyu: SetupKsInstallerConfig success (195.909852ms)
-2024-07-09T02:10:48.188-0700	[A] Remote: ApplyKsInstaller
+
+##############################
+# 所有这次执行的才应该是最完整的？至少包括了 etcd 的地址吧。
+##############################
+2024-07-09T02:10:48.188-0700	[A] Remote: ApplyKsInstaller   ------------>>>>>> 这里是第二次执行；为什么会执行两次呢？？？？？
 2024-07-09T02:10:50.925-0700	[exec] zhaoyu CMD: sudo -E /bin/bash -c "/usr/local/bin/kubectl apply -f /etc/kubernetes/addons/kubesphere.yaml --force", OUTPUT: 
 namespace/kubesphere-system unchanged
 serviceaccount/ks-installer unchanged
@@ -477,8 +493,11 @@ customresourcedefinition.apiextensions.k8s.io/clusterconfigurations.installer.ku
 clusterrole.rbac.authorization.k8s.io/ks-installer unchanged
 clusterrolebinding.rbac.authorization.k8s.io/ks-installer unchanged
 deployment.apps/ks-installer unchanged
-clusterconfiguration.installer.kubesphere.io/ks-installer created
+clusterconfiguration.installer.kubesphere.io/ks-installer created   ----->>>>>>>>>>>>>>>>>> 这个是新建的
 2024-07-09T02:10:50.925-0700	[A] zhaoyu: ApplyKsInstaller success (2.737048708s)
+
+
+
 2024-07-09T02:10:50.925-0700	[Module] CheckResultModule
 2024-07-09T02:10:50.925-0700	[A] Remote: CheckKsInstallerResult
 2024-07-09T02:10:56.662-0700	[exec] zhaoyu CMD: sudo -E /bin/bash -c "/usr/local/bin/kubectl exec -n kubesphere-system $(kubectl get pod -n kubesphere-system -l app=ks-installer -o jsonpath='{.items[0].metadata.name}') -- ls /kubesphere/playbooks/kubesphere_running", ERROR: Failed to exec command: sudo -E /bin/bash -c "/usr/local/bin/kubectl exec -n kubesphere-system $(kubectl get pod -n kubesphere-system -l app=ks-installer -o jsonpath='{.items[0].metadata.name}') -- ls /kubesphere/playbooks/kubesphere_running" 
@@ -611,6 +630,9 @@ skipping: [localhost]
 
 PLAY RECAP *********************************************************************
 localhost                  : ok=1    changed=0    unreachable=0    failed=0    skipped=10   rescued=0    ignored=0   
+
+
+-------->>>>>>>>>>>>>>> 新 playbook：common
 [WARNING]: No inventory was parsed, only implicit localhost is available
 [WARNING]: provided hosts list is empty, only localhost is available. Note that
 the implicit localhost does not match 'all'
@@ -630,7 +652,7 @@ ok: [localhost] => {
     "msg": "Check roles/kubesphere-defaults/defaults/main.yml"
 }
 
-TASK [common : KubeSphere | Checking kube-node-lease namespace] ****************
+TASK [common : KubeSphere | Checking kube-node-lease namespace] ****************    -->>>>>>> 这里开始进入 common
 changed: [localhost]
 
 TASK [common : KubeSphere | Getting system namespaces] *************************

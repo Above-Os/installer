@@ -77,7 +77,7 @@ func (f *FetchCerts) Execute(runtime connector.Runtime) error {
 	src := "/etc/ssl/registry/ssl"
 	dst := fmt.Sprintf("%s/pki/registry", runtime.GetWorkDir())
 
-	certs, err := runtime.GetRunner().SudoCmd("ls /etc/ssl/registry/ssl/ | grep .pem", false)
+	certs, err := runtime.GetRunner().SudoCmd("ls /etc/ssl/registry/ssl/ | grep .pem", false, false)
 	if err != nil {
 		return nil
 	}

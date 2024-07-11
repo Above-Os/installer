@@ -111,7 +111,7 @@ func (images *Images) PullImages(runtime connector.Runtime, kubeConf *common.Kub
 			host.IsRole(common.ETCD) && image.Group == kubekeyapiv1alpha2.Etcd && image.Enable:
 
 			logger.Debugf("%s downloading image: %s", host.GetName(), image.ImageName())
-			if _, err := runtime.GetRunner().SudoCmd(fmt.Sprintf("env PATH=$PATH %s inspecti -q %s", pullCmd, image.ImageName()), false); err == nil {
+			if _, err := runtime.GetRunner().SudoCmd(fmt.Sprintf("env PATH=$PATH %s inspecti -q %s", pullCmd, image.ImageName()), false, false); err == nil {
 				logger.Infof("%s pull image %s exists", pullCmd, image.ImageName())
 				fmt.Printf("%s pull image %s exists\n", pullCmd, image.ImageName())
 				continue
@@ -119,7 +119,7 @@ func (images *Images) PullImages(runtime connector.Runtime, kubeConf *common.Kub
 
 			fmt.Printf("%s downloading image %s\n", pullCmd, image.ImageName())
 			logger.Infof("%s downloading image: %s", host.GetName(), image.ImageName())
-			if _, err := runtime.GetRunner().SudoCmd(fmt.Sprintf("env PATH=$PATH %s pull %s", pullCmd, image.ImageName()), false); err != nil {
+			if _, err := runtime.GetRunner().SudoCmd(fmt.Sprintf("env PATH=$PATH %s pull %s", pullCmd, image.ImageName()), false, false); err != nil {
 				return errors.Wrap(err, "pull image failed")
 			}
 		default:
@@ -173,7 +173,7 @@ func (i LocalImages) LoadImages(runtime connector.Runtime, kubeConf *common.Kube
 
 				// continue if load image error
 				if err := retry(func() error {
-					if _, err := runtime.GetRunner().SudoCmd(fmt.Sprintf("env PATH=$PATH gunzip -c %s | %s", image.Filename, loadCmd), false); err != nil {
+					if _, err := runtime.GetRunner().SudoCmd(fmt.Sprintf("env PATH=$PATH gunzip -c %s | %s", image.Filename, loadCmd), false, false); err != nil {
 						return errors.Wrap(err, "load image failed")
 					}
 
@@ -194,7 +194,7 @@ func (i LocalImages) LoadImages(runtime connector.Runtime, kubeConf *common.Kube
 				}
 
 				if err := retry(func() error {
-					if _, err := runtime.GetRunner().SudoCmd(fmt.Sprintf("env PATH=$PATH %s %s", loadCmd, image.Filename), false); err != nil {
+					if _, err := runtime.GetRunner().SudoCmd(fmt.Sprintf("env PATH=$PATH %s %s", loadCmd, image.Filename), false, false); err != nil {
 						return errors.Wrap(err, "load image failed")
 					}
 

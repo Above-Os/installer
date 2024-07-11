@@ -125,7 +125,7 @@ func (g *InstallRegistryBinary) Execute(runtime connector.Runtime) error {
 	}
 
 	installCmd := fmt.Sprintf("tar -zxf %s && mv -f registry /usr/local/bin/ && chmod +x /usr/local/bin/registry", dst)
-	if _, err := runtime.GetRunner().SudoCmd(installCmd, false); err != nil {
+	if _, err := runtime.GetRunner().SudoCmd(installCmd, false, false); err != nil {
 		return errors.Wrap(errors.WithStack(err), "install etcd binaries failed")
 	}
 	return nil
@@ -138,7 +138,7 @@ type StartRegistryService struct {
 
 func (g *StartRegistryService) Execute(runtime connector.Runtime) error {
 	installCmd := "systemctl daemon-reload && systemctl enable registry && systemctl restart registry"
-	if _, err := runtime.GetRunner().SudoCmd(installCmd, false); err != nil {
+	if _, err := runtime.GetRunner().SudoCmd(installCmd, false, false); err != nil {
 		return errors.Wrap(errors.WithStack(err), "start registry service failed")
 	}
 
@@ -176,7 +176,7 @@ func (g *InstallDockerCompose) Execute(runtime connector.Runtime) error {
 	}
 
 	installCmd := fmt.Sprintf("mv -f %s /usr/local/bin/docker-compose && chmod +x /usr/local/bin/docker-compose", dst)
-	if _, err := runtime.GetRunner().SudoCmd(installCmd, false); err != nil {
+	if _, err := runtime.GetRunner().SudoCmd(installCmd, false, false); err != nil {
 		return errors.Wrap(errors.WithStack(err), "install dokcer-compose failed")
 	}
 
@@ -210,7 +210,7 @@ func (g *SyncHarborPackage) Execute(runtime connector.Runtime) error {
 	}
 
 	installCmd := fmt.Sprintf("tar -zxvf %s -C /opt", dst)
-	if _, err := runtime.GetRunner().SudoCmd(installCmd, false); err != nil {
+	if _, err := runtime.GetRunner().SudoCmd(installCmd, false, false); err != nil {
 		return errors.Wrap(errors.WithStack(err), "unzip harbor package failed")
 	}
 
@@ -224,7 +224,7 @@ type StartHarbor struct {
 
 func (g *StartHarbor) Execute(runtime connector.Runtime) error {
 	startCmd := "cd /opt/harbor && chmod +x install.sh && export PATH=$PATH:/usr/local/bin; ./install.sh --with-notary --with-trivy --with-chartmuseum && systemctl daemon-reload && systemctl enable harbor && systemctl restart harbor"
-	if _, err := runtime.GetRunner().SudoCmd(startCmd, false); err != nil {
+	if _, err := runtime.GetRunner().SudoCmd(startCmd, false, false); err != nil {
 		return errors.Wrap(errors.WithStack(err), "start harbor failed")
 	}
 

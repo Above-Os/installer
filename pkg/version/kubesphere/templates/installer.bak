@@ -292,5 +292,38 @@ roleRef:
   name: ks-installer
   apiGroup: rbac.authorization.k8s.io
 
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ks-installer
+  namespace: kubesphere-system
+  labels:
+    app: ks-installer
+    version: {{ .Tag }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ks-installer
+  template:
+    metadata:
+      labels:
+        app: ks-installer
+    spec:
+      serviceAccountName: ks-installer
+      containers:
+      - name: installer
+        image: {{ .Repo }}/ks-installer-ext:{{ .Tag }}
+        imagePullPolicy: IfNotPresent
+        volumeMounts:
+        - mountPath: /etc/localtime
+          name: host-time
+      volumes:
+      - hostPath:
+          path: /etc/localtime
+          type: ""
+        name: host-time
+
     `)))
 )

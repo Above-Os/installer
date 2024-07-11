@@ -36,7 +36,7 @@ func (u *updateK3sPrepare) PreCheck(runtime connector.Runtime) (bool, error) {
 	}
 
 	if exist {
-		if out, err := runtime.GetRunner().SudoCmd("sed -n '/--server=.*/p' /etc/systemd/system/k3s.service", false); err != nil {
+		if out, err := runtime.GetRunner().SudoCmd("sed -n '/--server=.*/p' /etc/systemd/system/k3s.service", false, false); err != nil {
 			return false, err
 		} else {
 			if strings.Contains(strings.TrimSpace(out), LocalServer) {
@@ -61,7 +61,7 @@ func (u *updateKubeletPrepare) PreCheck(runtime connector.Runtime) (bool, error)
 	}
 
 	if exist {
-		if out, err := runtime.GetRunner().SudoCmd("sed -n '/server:.*/p' /etc/kubernetes/kubelet.conf", true); err != nil {
+		if out, err := runtime.GetRunner().SudoCmd("sed -n '/server:.*/p' /etc/kubernetes/kubelet.conf", true, false); err != nil {
 			return false, err
 		} else {
 			if strings.Contains(strings.TrimSpace(out), LocalServer) {
@@ -82,7 +82,7 @@ type updateKubeProxyPrapre struct {
 func (u *updateKubeProxyPrapre) PreCheck(runtime connector.Runtime) (bool, error) {
 	if out, err := runtime.GetRunner().SudoCmd(
 		"set -o pipefail && /usr/local/bin/kubectl --kubeconfig /etc/kubernetes/admin.conf get configmap kube-proxy -n kube-system -o yaml "+
-			"| sed -n '/server:.*/p'", false); err != nil {
+			"| sed -n '/server:.*/p'", false, false); err != nil {
 		return false, err
 	} else {
 		if strings.Contains(strings.TrimSpace(out), LocalServer) {

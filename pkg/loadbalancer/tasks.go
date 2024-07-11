@@ -82,10 +82,10 @@ type UpdateK3s struct {
 }
 
 func (u *UpdateK3s) Execute(runtime connector.Runtime) error {
-	if _, err := runtime.GetRunner().SudoCmd("sed -i 's#--server=.*\"#--server=https://127.0.0.1:%s\"#g' /etc/systemd/system/k3s.service", false); err != nil {
+	if _, err := runtime.GetRunner().SudoCmd("sed -i 's#--server=.*\"#--server=https://127.0.0.1:%s\"#g' /etc/systemd/system/k3s.service", false, false); err != nil {
 		return err
 	}
-	if _, err := runtime.GetRunner().SudoCmd("systemctl restart k3s", false); err != nil {
+	if _, err := runtime.GetRunner().SudoCmd("systemctl restart k3s", false, false); err != nil {
 		return err
 	}
 	return nil
@@ -99,10 +99,10 @@ type UpdateKubelet struct {
 func (u *UpdateKubelet) Execute(runtime connector.Runtime) error {
 	if _, err := runtime.GetRunner().SudoCmd(fmt.Sprintf(
 		"sed -i 's#server:.*#server: https://127.0.0.1:%s#g' /etc/kubernetes/kubelet.conf",
-		strconv.Itoa(u.KubeConf.Cluster.ControlPlaneEndpoint.Port)), false); err != nil {
+		strconv.Itoa(u.KubeConf.Cluster.ControlPlaneEndpoint.Port)), false, false); err != nil {
 		return err
 	}
-	if _, err := runtime.GetRunner().SudoCmd("systemctl daemon-reload && systemctl restart kubelet", false); err != nil {
+	if _, err := runtime.GetRunner().SudoCmd("systemctl daemon-reload && systemctl restart kubelet", false, false); err != nil {
 		return err
 	}
 	return nil
@@ -119,7 +119,7 @@ func (u *UpdateKubeProxy) Execute(runtime connector.Runtime) error {
 			"&& /usr/local/bin/kubectl --kubeconfig /etc/kubernetes/admin.conf get configmap kube-proxy -n kube-system -o yaml "+
 			"| sed 's#server:.*#server: https://127.0.0.1:%s#g' "+
 			"| /usr/local/bin/kubectl --kubeconfig /etc/kubernetes/admin.conf replace -f -",
-		strconv.Itoa(u.KubeConf.Cluster.ControlPlaneEndpoint.Port)), false); err != nil {
+		strconv.Itoa(u.KubeConf.Cluster.ControlPlaneEndpoint.Port)), false, false); err != nil {
 		return err
 	}
 	if _, err := runtime.GetRunner().SudoCmd("/usr/local/bin/kubectl "+
@@ -127,7 +127,7 @@ func (u *UpdateKubeProxy) Execute(runtime connector.Runtime) error {
 		"-n kube-system "+
 		"-l k8s-app=kube-proxy "+
 		"--force "+
-		"--grace-period=0", false); err != nil {
+		"--grace-period=0", false, false); err != nil {
 		return err
 	}
 	return nil
@@ -140,7 +140,7 @@ type UpdateHosts struct {
 
 func (u *UpdateHosts) Execute(runtime connector.Runtime) error {
 	if _, err := runtime.GetRunner().SudoCmd(fmt.Sprintf("sed -i 's#.* %s#127.0.0.1 %s#g' /etc/hosts",
-		u.KubeConf.Cluster.ControlPlaneEndpoint.Domain, u.KubeConf.Cluster.ControlPlaneEndpoint.Domain), false); err != nil {
+		u.KubeConf.Cluster.ControlPlaneEndpoint.Domain, u.KubeConf.Cluster.ControlPlaneEndpoint.Domain), false, false); err != nil {
 		return err
 	}
 	return nil
@@ -173,7 +173,7 @@ func (g *GetInterfaceName) Execute(runtime connector.Runtime) error {
 	cmd := fmt.Sprintf("ip route "+
 		"| grep ' %s ' "+
 		"| sed -e \"s/^.*dev.//\" -e \"s/.proto.*//\"", host.GetAddress())
-	interfaceName, err := runtime.GetRunner().SudoCmd(cmd, false)
+	interfaceName, err := runtime.GetRunner().SudoCmd(cmd, false, false)
 	if err != nil {
 		return err
 	}
@@ -263,7 +263,7 @@ type CreateManifestsFolder struct {
 }
 
 func (h *CreateManifestsFolder) Execute(runtime connector.Runtime) error {
-	_, err := runtime.GetRunner().SudoCmd("mkdir -p /var/lib/rancher/k3s/server/manifests/", false)
+	_, err := runtime.GetRunner().SudoCmd("mkdir -p /var/lib/rancher/k3s/server/manifests/", false, false)
 	if err != nil {
 		return err
 	}
@@ -325,6 +325,6 @@ func (g *DeleteVIP) Execute(runtime connector.Runtime) error {
 		return errors.New("get interface failed")
 	}
 	cmd := fmt.Sprintf("ip addr del %s dev %s", g.KubeConf.Cluster.ControlPlaneEndpoint.Address, interfaceName)
-	runtime.GetRunner().SudoCmd(cmd, false)
+	runtime.GetRunner().SudoCmd(cmd, false, false)
 	return nil
 }

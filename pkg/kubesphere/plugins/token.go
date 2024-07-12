@@ -2,6 +2,7 @@ package plugins
 
 import (
 	"fmt"
+	"strings"
 
 	"bytetrade.io/web3os/installer/pkg/common"
 	"bytetrade.io/web3os/installer/pkg/core/connector"
@@ -30,8 +31,18 @@ func (t *GenerateKubeSphereToken) Execute(runtime connector.Runtime) error {
 		return errors.Wrap(errors.WithStack(err), "create kubesphere token failed")
 	}
 
-	fmt.Println("---1---", random)
-	fmt.Println("---2---", token)
+	var cmd = fmt.Sprintf("/usr/local/bin/kubectl get secrets -n %s --no-headers", common.NamespaceKubesphereSystem)
+	stdout, _ := runtime.GetRunner().SudoCmd(cmd, false, true)
+	if strings.Contains(stdout, "kubesphere-secret") {
+		cmd = fmt.Sprintf("/usr/local/bin/kubectl delete secrets -n %s kubesphere-secret", common.NamespaceKubesphereSystem)
+		runtime.GetRunner().SudoCmd(cmd, false, true)
+	}
+
+	cmd = fmt.Sprintf("/usr/local/bin/kubectl create secret generic kubesphere-secret --from-literal=token=%s --from-literal=secret=%s -n %s",
+		token, random, common.NamespaceKubesphereSystem)
+	if _, err := runtime.GetRunner().SudoCmd(cmd, false, true); err != nil {
+		return errors.Wrap(errors.WithStack(err), "create kubesphere token failed")
+	}
 
 	return nil
 }

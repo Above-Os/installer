@@ -18,6 +18,7 @@ package plugins
 
 import (
 	"fmt"
+	"strings"
 
 	"bytetrade.io/web3os/installer/pkg/common"
 	"bytetrade.io/web3os/installer/pkg/core/connector"
@@ -25,6 +26,57 @@ import (
 	"github.com/pkg/errors"
 	versionutil "k8s.io/apimachinery/pkg/util/version"
 )
+
+// ~ CheckStorageClass
+type CheckStorageClass struct {
+	common.KubePrepare
+}
+
+func (p *CheckStorageClass) PreCheck(runtime connector.Runtime) (bool, error) {
+	var cmd = fmt.Sprintf("/usr/local/bin/kubectl get sc | awk '{if(NR>1){print $1}}'")
+	stdout, err := runtime.GetRunner().SudoCmd(cmd, false, true)
+	if err != nil {
+		return false, errors.Wrap(errors.WithStack(err), "get storageclass failed")
+	}
+	if stdout == "" {
+		return false, fmt.Errorf("no storageclass found")
+	}
+
+	cmd = fmt.Sprintf("/usr/local/bin/kubectl get sc --no-headers")
+	stdout, err = runtime.GetRunner().SudoCmd(cmd, false, true)
+	if err != nil {
+		return false, errors.Wrap(errors.WithStack(err), "get storageclass failed")
+	}
+
+	if stdout == "" {
+		return false, fmt.Errorf("no storageclass found")
+	}
+
+	if !strings.Contains(stdout, "(default)") {
+		return false, fmt.Errorf("default storageclass was not found")
+	}
+
+	return true, nil
+}
+
+// ~ EnableHA
+type EnableHA struct {
+	common.KubePrepare
+}
+
+func (p *EnableHA) PreCheck(runtime connector.Runtime) (bool, error) {
+	var cmd = fmt.Sprintf("/usr/local/bin/kubectl get node | awk '{if(NR>1){print $3}}' | grep master | wc -l")
+	var stdout, err = runtime.GetRunner().SudoCmd(cmd, false, true)
+	if err != nil {
+		return false, errors.Wrap(errors.WithStack(err), "get master num failed")
+	}
+
+	if stdout != "" && stdout != "0" && stdout != "1" {
+		return true, nil
+	}
+
+	return false, nil
+}
 
 // ~ GenerateRedisPassword
 type GenerateRedisPassword struct {

@@ -30,10 +30,12 @@ type PreloadImagesModule struct {
 func (p *PreloadImagesModule) Init() {
 	p.Name = "PreloadImages"
 
-	preload := &task.LocalTask{
-		Name:   "PreloadK3sImages",
-		Action: new(PreloadK3sImages),
-		Retry:  0,
+	preload := &task.RemoteTask{
+		Name:     "PreloadK3sImages",
+		Hosts:    p.Runtime.GetHostsByRole(common.Master),
+		Action:   new(PreloadK3sImages),
+		Parallel: false,
+		Retry:    0,
 	}
 
 	p.Tasks = []task.Interface{

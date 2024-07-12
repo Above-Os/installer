@@ -164,5 +164,7 @@ const (
 	CacheSTSClusterId = "sts_cluster_id"
 	CacheProxy        = "proxy"
 
+	CacheStorageClass  = "storage_class"
+	CacheEnableHA      = "enable_ha"
 	CacheRedisPassword = "redis_password"
 )

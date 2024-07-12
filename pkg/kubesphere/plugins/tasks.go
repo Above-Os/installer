@@ -19,6 +19,27 @@ func (t *CopyEmbedFiles) Execute(runtime connector.Runtime) error {
 	return utils.CopyEmbed(Assets(), "files", runtime.GetFilesDir())
 }
 
+// ! moved to prepares
+// // ~ CheckMasterNum
+// type CheckMasterNum struct {
+// 	common.KubeAction
+// }
+
+// func (t *CheckMasterNum) Execute(runtime connector.Runtime) error {
+// 	var cmd = fmt.Sprintf("/usr/local/bin/kubectl get node | awk '{if(NR>1){print $3}}' | grep master | wc -l")
+// 	var stdout, err = runtime.GetRunner().SudoCmd(cmd, false, true)
+// 	if err != nil {
+// 		return errors.Wrap(errors.WithStack(err), "get master num failed")
+// 	}
+
+// 	var enableHA = "0"
+// 	if stdout != "" && stdout != "0" && stdout != "1" {
+// 		enableHA = "1"
+// 	}
+// 	t.PipelineCache.Set(common.CacheEnableHA, enableHA)
+// 	return nil
+// }
+
 // ~ InitNamespace
 type InitNamespace struct {
 	common.KubeAction

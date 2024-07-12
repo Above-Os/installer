@@ -56,7 +56,7 @@ func (t *PreloadK3sImages) Execute(runtime connector.Runtime) error {
 	}
 
 	var cmd = fmt.Sprintf("rm -rf %s/*", common.PreloadK3sImageDir)
-	_, _, err := runtime.GetRunner().Host.Exec(cmd, false, false)
+	_, err := runtime.GetRunner().SudoCmd(cmd, false, false)
 	if err != nil {
 		logger.Errorf("delete %s files failed: %v", common.PreloadK3sImageDir, err)
 		return err
@@ -70,7 +70,7 @@ func (t *PreloadK3sImages) Execute(runtime connector.Runtime) error {
 		fileName := info.Name()
 		if strings.Contains(fileName, ".tar.gz") {
 			cmd = fmt.Sprintf("ln -s %s %s/%s", filePath, common.PreloadK3sImageDir, fileName)
-			if _, _, err := runtime.GetRunner().Host.Exec(cmd, false, true); err != nil {
+			if _, err := runtime.GetRunner().SudoCmd(cmd, false, true); err != nil {
 				logger.Errorf("link %s failed: %v", fileName, err)
 			}
 		}

@@ -38,10 +38,22 @@ func (t *DeployKsPluginsModule) Init() {
 			new(NotEqualDesiredVersion),
 		},
 		Action:   new(InitNamespace),
-		Parallel: false,
+		Parallel: true,
 	}
+
+	// checkMasterNum := &task.RemoteTask{
+	// 	Name:  "CheckMasterNum",
+	// 	Hosts: t.Runtime.GetHostsByRole(common.Master),
+	// 	Prepare: &prepare.PrepareCollection{
+	// 		new(common.OnlyFirstMaster),
+	// 		new(NotEqualDesiredVersion),
+	// 	},
+	// 	Action:   new(CheckMasterNum),
+	// 	Parallel: true,
+	// }
 
 	t.Tasks = []task.Interface{
 		initNs,
+		// checkMasterNum,
 	}
 }

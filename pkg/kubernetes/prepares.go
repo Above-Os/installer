@@ -140,13 +140,11 @@ type GetKubeletVersion struct {
 }
 
 func (g *GetKubeletVersion) PreCheck(runtime connector.Runtime) (bool, error) {
-	fmt.Println("---0---", g.CommandDelete)
 	kubeletVersion, err := runtime.GetRunner().SudoCmd("/usr/local/bin/kubectl get nodes -o jsonpath='{.items[0].status.nodeInfo.kubeletVersion}'", false, true)
 	if err != nil {
 		logger.Errorf("failed to get kubelet version: %v", err)
 		return false, fmt.Errorf("failed to get kubelet version: %v", err)
 	}
-	fmt.Println("---1---", kubeletVersion)
 	g.PipelineCache.Set(common.CacheKubeletVersion, kubeletVersion)
 	return true, nil
 }

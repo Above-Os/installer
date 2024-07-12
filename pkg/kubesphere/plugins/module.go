@@ -57,3 +57,28 @@ func (t *DeployKsPluginsModule) Init() {
 		// checkMasterNum,
 	}
 }
+
+// +
+
+type DebugModule struct {
+	common.KubeModule
+}
+
+func (m *DebugModule) Init() {
+	m.Name = "Debug"
+
+	patchRedis := &task.RemoteTask{
+		Name:  "PatchRedis",
+		Hosts: m.Runtime.GetHostsByRole(common.ETCD),
+		Prepare: &prepare.PrepareCollection{
+			new(common.OnlyFirstMaster),
+			new(NotEqualDesiredVersion),
+		},
+		Action:   new(PatchRedisStatus),
+		Parallel: true,
+	}
+
+	m.Tasks = []task.Interface{
+		patchRedis,
+	}
+}

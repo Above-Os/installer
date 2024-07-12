@@ -112,17 +112,16 @@ type PatchRedisStatus struct {
 }
 
 func (t *PatchRedisStatus) Execute(runtime connector.Runtime) error {
-	fmt.Println("---1---")
-	var cmd = fmt.Sprintf("/usr/local/bin/kubectl patch cc ks-installer --type merge -p '{\"status\": {\"redis\": {\"status\": \"enabled\", \"enabledTime\": \"%s\"}}}' -n %s", time.Now().Format("2006-01-02T15:04:05Z07:00"), common.NamespaceKubesphereSystem)
+	var jsonPatch = fmt.Sprintf(`{\"status\": {\"redis\": {\"status\": \"enabled\", \"enabledTime\": \"%s\"}}}`,
+		time.Now().Format("2006-01-02T15:04:05Z"))
+	var cmd = fmt.Sprintf("/usr/local/bin/kubectl patch cc ks-installer --type merge -p '%s' -n %s", jsonPatch, common.NamespaceKubesphereSystem)
 
-	stdout, _, err := runtime.GetRunner().SudoExec(cmd, false, true)
-	fmt.Println("---2---", err)
-	fmt.Println("---3---", stdout)
+	_, err := runtime.GetRunner().SudoCmd(cmd, false, true)
 	if err != nil {
 		return errors.Wrap(errors.WithStack(err), "patch redis status failed")
 	}
 
-	return fmt.Errorf("---err---")
+	return nil
 }
 
 // +++++

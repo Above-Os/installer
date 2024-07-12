@@ -73,6 +73,7 @@ func NewK3sCreateClusterPhase(runtime *common.KubeRuntime) []module.Module {
 		&ksplugins.DeployKsPluginsModule{},
 		&ksplugins.DeploySnapshotControllerModule{},
 		&ksplugins.DeployRedisModule{},
+		&ksplugins.CreateKubeSphereSecretModule{},
 		// &kubesphere.CheckResultModule{Skip: !runtime.Cluster.KubeSphere.Enabled}, // todo ks-installer 状态检测
 	}
 

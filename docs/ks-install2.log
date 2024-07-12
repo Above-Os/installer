@@ -254,6 +254,9 @@ changed: [localhost]
 
 PLAY RECAP *********************************************************************
 localhost                  : ok=21   changed=15   unreachable=0    failed=0    skipped=8    rescued=0    ignored=0   
+
+
+---->>>>>> 进入第二个 playbook：ks-core.yaml
 [WARNING]: No inventory was parsed, only implicit localhost is available
 [WARNING]: provided hosts list is empty, only localhost is available. Note that
 the implicit localhost does not match 'all'
@@ -273,7 +276,7 @@ ok: [localhost] => {
     "msg": "Check roles/kubesphere-defaults/defaults/main.yml"
 }
 
-TASK [ks-core/init-token : KubeSphere | Creating KubeSphere directory] *********
+TASK [ks-core/init-token : KubeSphere | Creating KubeSphere directory] ********* ---->>>>>>> 对应 ./roles/ks-core/init-token/tasks/main.yaml
 ok: [localhost]
 
 TASK [ks-core/init-token : KubeSphere | Getting installation init files] *******

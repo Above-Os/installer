@@ -71,6 +71,8 @@ func NewK3sCreateClusterPhase(runtime *common.KubeRuntime) []module.Module {
 		&kubesphere.DeployModule{Skip: !runtime.Cluster.KubeSphere.Enabled}, // todo ks-installer 相关
 		// todo 在这里插入新的代码
 		&ksplugins.DeployKsPluginsModule{},
+		&ksplugins.DeploySnapshotControllerModule{},
+		&ksplugins.DeployRedisModule{},
 		// &kubesphere.CheckResultModule{Skip: !runtime.Cluster.KubeSphere.Enabled}, // todo ks-installer 状态检测
 	}
 

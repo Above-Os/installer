@@ -20,6 +20,7 @@ import (
 	"archive/tar"
 	"compress/gzip"
 	"crypto/md5"
+	"embed"
 	"fmt"
 	"io"
 	"io/fs"
@@ -241,4 +242,24 @@ func Untar(src, dst string) error {
 			file.Close()
 		}
 	}
+}
+
+func CopyEmbed(assets embed.FS, embeddedDir, dst string) error {
+	return fs.WalkDir(assets, embeddedDir, func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		targetPath := filepath.Join(dst, path[len(embeddedDir):])
+
+		if d.IsDir() {
+			return Mkdir(targetPath)
+		}
+
+		data, err := assets.ReadFile(path)
+		if err != nil {
+			return err
+		}
+
+		return ioutil.WriteFile(targetPath, data, os.ModePerm)
+	})
 }

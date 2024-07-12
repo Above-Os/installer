@@ -4,19 +4,35 @@ import (
 	"bytetrade.io/web3os/installer/pkg/common"
 	"bytetrade.io/web3os/installer/pkg/core/prepare"
 	"bytetrade.io/web3os/installer/pkg/core/task"
-	"bytetrade.io/web3os/installer/pkg/kubernetes"
 )
+
+type CopyEmbed struct {
+	common.KubeModule
+}
+
+func (t *CopyEmbed) Init() {
+	t.Name = "CopyEmbed"
+
+	copyEmbed := &task.LocalTask{
+		Name:   "CopyEmbedFiles",
+		Action: new(CopyEmbedFiles),
+	}
+
+	t.Tasks = []task.Interface{
+		copyEmbed,
+	}
+}
 
 type DeployKsPluginsModule struct {
 	common.KubeModule
 }
 
-func (d *DeployKsPluginsModule) Init() {
-	d.Name = "DeployKsPluginsModule"
+func (t *DeployKsPluginsModule) Init() {
+	t.Name = "DeployKsPlugins"
 
-	newNamespace := &task.RemoteTask{
-		Name:  "CreateKsPluginsNamespace",
-		Hosts: d.Runtime.GetHostsByRole(common.Master),
+	initNs := &task.RemoteTask{
+		Name:  "InitKsNamespace",
+		Hosts: t.Runtime.GetHostsByRole(common.Master),
 		Prepare: &prepare.PrepareCollection{
 			new(common.OnlyFirstMaster),
 			new(NotEqualDesiredVersion),
@@ -25,22 +41,7 @@ func (d *DeployKsPluginsModule) Init() {
 		Parallel: false,
 	}
 
-	createSnapshotController := &task.RemoteTask{
-		Name:  "CreateSnapshotController",
-		Hosts: d.Runtime.GetHostsByRole(common.Master),
-		Prepare: &prepare.PrepareCollection{
-			new(common.OnlyFirstMaster),
-			new(NotEqualDesiredVersion),
-			&kubernetes.GetKubeletVersion{
-				CommandDelete: false,
-			},
-		},
-		Action:   new(DeploySnapshotController),
-		Parallel: false,
-	}
-
-	d.Tasks = []task.Interface{
-		newNamespace,
-		createSnapshotController,
+	t.Tasks = []task.Interface{
+		initNs,
 	}
 }

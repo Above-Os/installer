@@ -5,11 +5,12 @@
 # namespace for components implementing base system functionality. For installing with
 # Vanilla Kubernetes, kube-system makes sense for the namespace.
 
+---
 kind: StatefulSet
 apiVersion: apps/v1
 metadata:
   name: snapshot-controller
-  namespace: {? {.Release.Namespace: ''} : ''}
+  namespace: {{ .Release.Namespace }}
 spec:
   serviceName: "snapshot-controller"
   replicas: 1
@@ -23,9 +24,9 @@ spec:
     spec:
       serviceAccount: snapshot-controller
       containers:
-      - name: snapshot-controller
-        image: "{{ .Values.repository }}:{{ .Values.tag }}"
-        args:
-        - "--v=5"
-        - "--leader-election=false"
-        imagePullPolicy: {? {.Values.pullPolicy: ''} : ''}
+        - name: snapshot-controller
+          image: "{{ .Values.repository }}:{{ .Values.tag }}"
+          args:
+            - "--v=5"
+            - "--leader-election=false"
+          imagePullPolicy: {{ .Values.pullPolicy}}

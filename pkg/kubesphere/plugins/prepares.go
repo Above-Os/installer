@@ -17,12 +17,34 @@
 package plugins
 
 import (
+	"fmt"
+
 	"bytetrade.io/web3os/installer/pkg/common"
 	"bytetrade.io/web3os/installer/pkg/core/connector"
+	"bytetrade.io/web3os/installer/pkg/utils"
 	"github.com/pkg/errors"
 	versionutil "k8s.io/apimachinery/pkg/util/version"
 )
 
+// ~ GenerateRedisPassword
+type GenerateRedisPassword struct {
+	common.KubePrepare
+}
+
+func (p *GenerateRedisPassword) PreCheck(runtime connector.Runtime) (bool, error) {
+	pass, err := utils.GeneratePassword(15)
+	if err != nil {
+		return false, err
+	}
+	if pass == "" {
+		return false, fmt.Errorf("failed to generate redis password")
+	}
+
+	p.ModuleCache.Set(common.CacheRedisPassword, pass)
+	return true, nil
+}
+
+// ~ VersionBelowV3
 type VersionBelowV3 struct {
 	common.KubePrepare
 }
@@ -40,6 +62,7 @@ func (v *VersionBelowV3) PreCheck(runtime connector.Runtime) (bool, error) {
 	return false, nil
 }
 
+// ~ NotEqualDesiredVersion
 type NotEqualDesiredVersion struct {
 	common.KubePrepare
 }

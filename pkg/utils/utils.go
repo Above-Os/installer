@@ -18,8 +18,10 @@ package utils
 
 import (
 	"bytes"
+	crypto "crypto/rand"
 	"fmt"
 	"math"
+	"math/big"
 	"math/rand"
 	"os"
 	"os/exec"
@@ -36,6 +38,8 @@ import (
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v2"
 )
+
+const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 
 type Data map[string]interface{}
 
@@ -205,4 +209,16 @@ func GenerateNumberWithProbability(p float64) int {
 	} else {
 		return 2*rand.Intn(50) + 1
 	}
+}
+
+func GeneratePassword(length int) (string, error) {
+	password := make([]byte, length)
+	for i := range password {
+		index, err := crypto.Int(crypto.Reader, big.NewInt(int64(len(charset))))
+		if err != nil {
+			return "", err
+		}
+		password[i] = charset[index.Int64()]
+	}
+	return string(password), nil
 }

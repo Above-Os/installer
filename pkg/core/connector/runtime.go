@@ -36,6 +36,7 @@ type BaseRuntime struct {
 	rootDir         string
 	workDir         string
 	packageDir      string
+	filesDir        string
 	verbose         bool
 	ignoreErr       bool
 	allHosts        []Host
@@ -116,6 +117,12 @@ func (b *BaseRuntime) GenerateWorkDir() error {
 	}
 	b.packageDir = pkgsPath
 
+	filesPath := filepath.Join(currentDir, common.FilesDir)
+	if err := util.CreateDir(filesPath); err != nil {
+		return errors.Wrap(err, "create files dir failed")
+	}
+	b.filesDir = filesPath
+
 	for i := range b.allHosts {
 		subPath := filepath.Join(rootPath, b.allHosts[i].GetName())
 		if err := util.CreateDir(subPath); err != nil {
@@ -139,6 +146,10 @@ func (b *BaseRuntime) GetWorkDir() string {
 
 func (b *BaseRuntime) GetPackageDir() string {
 	return b.packageDir
+}
+
+func (b *BaseRuntime) GetFilesDir() string {
+	return b.filesDir
 }
 
 func (b *BaseRuntime) GetIgnoreErr() bool {

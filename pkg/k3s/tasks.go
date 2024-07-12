@@ -570,7 +570,7 @@ func (s *SaveKubeConfig) Execute(_ connector.Runtime) error {
 		CoreV1().
 		Namespaces().
 		Create(context.TODO(), namespace, metav1.CreateOptions{}); err != nil {
-		return err
+		// return err
 	}
 
 	cm := &corev1.ConfigMap{
@@ -586,7 +586,7 @@ func (s *SaveKubeConfig) Execute(_ connector.Runtime) error {
 		CoreV1().
 		ConfigMaps("kubekey-system").
 		Create(context.TODO(), cm, metav1.CreateOptions{}); err != nil {
-		return err
+		// return err
 	}
 	return nil
 }

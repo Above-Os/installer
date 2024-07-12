@@ -20,7 +20,7 @@ type Greeting struct {
 }
 
 func (t *Greeting) Execute(runtime connector.Runtime) error {
-	p := fmt.Sprintf("%s/%s/%s", constants.WorkDir, common.Scripts, common.GreetingShell)
+	p := fmt.Sprintf("%s/%s/%s", constants.WorkDir, common.ScriptsDir, common.GreetingShell)
 	if ok := util.IsExist(p); ok {
 		outstd, _, err := util.Exec(p, false, false)
 		if err != nil {

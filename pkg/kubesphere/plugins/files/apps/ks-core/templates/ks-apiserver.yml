@@ -11,7 +11,7 @@ spec:
     rollingUpdate:
       maxSurge: 0
     type: RollingUpdate
-  replicas: {{ .Values.replicaCount }}
+  replicas: {{ .Release.ReplicaCount }}
   selector:
     matchLabels:
       app: ks-apiserver

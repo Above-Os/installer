@@ -1,34 +1,22 @@
 # Default values for ks-core.
 
-replicaCount: 1
+# replicaCount: 1 # ! 这里要替换下
 
 image:
   # Overrides the image tag whose default is the chart appVersion.
   ks_controller_manager_repo: kubesphere/ks-controller-manager
-  ks_controller_manager_tag: ""
+  ks_controller_manager_tag: "v3.3.0"
 
-  ks_apiserver_repo: kubesphere/ks-apiserver
-  ks_apiserver_tag: ""
+  ks_apiserver_repo: beclab/ks-apiserver
+  ks_apiserver_tag: "v3.3.0-ext-3"
 
   ks_kubectl_repo: kubesphere/kubectl
-  ks_kubectl_tag: ""
+  ks_kubectl_tag: "v1.22.0"
 
-  nginx_ingress_controller_repo: kubesphere/nginx-ingress-controller
-  nginx_ingress_controller_tag: "v0.35.0"
+  nginx_ingress_controller_repo: kubesphere/nginx-ingress-controller # ! 这个貌似没用到
+  nginx_ingress_controller_tag: "v0.35.0" # ! 这里？？？好像没用到？ roles/download 中这里的数据是 v1.1.0
   defaultbackend_repo: "mirrorgooglecontainers/defaultbackend-amd64"
   defaultbackend_tag: "1.4"
-
-  bookinfo_productpage_v1_repo: kubesphere/examples-bookinfo-productpage-v1
-  bookinfo_productpage_v1_tag: "1.16.2"
-
-  bookinfo_reviews_v1_repo: kubesphere/examples-bookinfo-reviews-v1
-  bookinfo_reviews_v1_tag: "1.16.2"
-
-  bookinfo_details_v1_repo: kubesphere/examples-bookinfo-details-v1
-  bookinfo_details_v1_tag: "1.16.2"
-
-  bookinfo_ratings_v1_repo: kubesphere/examples-bookinfo-ratings-v1
-  bookinfo_ratings_v1_tag: "1.16.3"
 
   pullPolicy: IfNotPresent
 
@@ -70,9 +58,14 @@ securityContext: {}
   # runAsUser: 1000
 
 # Kubernetes Version shows in KubeSphere console
-kube_version: "v1.19.4"
+# kube_version: "v1.19.4" # ! 这里要替换下
 
-env: []
+env:
+- name: KUBESPHERE_REDIS_PASSWORD
+  valueFrom:
+    secretKeyRef:
+      name: redis-secret
+      key: auth
 
 tolerations: 
   - key: node-role.kubernetes.io/master

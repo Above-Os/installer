@@ -99,7 +99,7 @@ func (t *DeployRedis) Execute(runtime connector.Runtime) error {
 	var ctx, cancel = context.WithTimeout(context.Background(), 1*time.Minute)
 	defer cancel()
 
-	if err := utils.InstallCharts(ctx, actionConfig, settings, appName, appPath, "", appName, nil); err != nil {
+	if err := utils.InstallCharts(ctx, actionConfig, settings, appName, appPath, "", common.NamespaceKubesphereSystem, nil); err != nil {
 		return err
 	}
 

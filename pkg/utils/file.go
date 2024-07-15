@@ -20,16 +20,19 @@ import (
 	"archive/tar"
 	"compress/gzip"
 	"crypto/md5"
-	"embed"
 	"fmt"
 	"io"
 	"io/fs"
 	"io/ioutil"
+	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
 
 	"bytetrade.io/web3os/installer/pkg/core/logger"
+
+	"github.com/pkg/errors"
+	"github.com/shurcooL/httpfs/vfsutil"
 )
 
 func IsExist(path string) bool {
@@ -244,18 +247,22 @@ func Untar(src, dst string) error {
 	}
 }
 
-func CopyEmbed(assets embed.FS, embeddedDir, dst string) error {
-	return fs.WalkDir(assets, embeddedDir, func(path string, d fs.DirEntry, err error) error {
+func CopyEmbed(assets http.FileSystem, embeddedDir, dst string) error {
+	return vfsutil.WalkFiles(assets, embeddedDir, func(path string, info os.FileInfo, rs io.ReadSeeker, err error) error {
 		if err != nil {
 			return err
 		}
-		targetPath := filepath.Join(dst, path[len(embeddedDir):])
 
-		if d.IsDir() {
+		if len(path)+1 < len(embeddedDir) {
+			return errors.New("embedded dir is empty")
+		}
+		targetPath := filepath.Join(dst, path[len(embeddedDir)-1:])
+
+		if info.IsDir() {
 			return Mkdir(targetPath)
 		}
 
-		data, err := assets.ReadFile(path)
+		data, err := vfsutil.ReadFile(assets, path)
 		if err != nil {
 			return err
 		}

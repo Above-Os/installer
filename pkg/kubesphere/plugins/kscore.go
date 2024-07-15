@@ -1,7 +1,11 @@
 package plugins
 
 import (
+	"context"
 	"fmt"
+	"os"
+	"path"
+	"path/filepath"
 	"strconv"
 
 	"bytetrade.io/web3os/installer/pkg/common"
@@ -9,7 +13,9 @@ import (
 	"bytetrade.io/web3os/installer/pkg/core/logger"
 	"bytetrade.io/web3os/installer/pkg/core/prepare"
 	"bytetrade.io/web3os/installer/pkg/core/task"
+	"bytetrade.io/web3os/installer/pkg/utils"
 	"github.com/pkg/errors"
+	ctrl "sigs.k8s.io/controller-runtime"
 )
 
 var kscorecrds = []map[string]string{
@@ -147,6 +153,107 @@ var kscorecrds = []map[string]string{
 	},
 }
 
+// ~ CreateKsCore
+type CreateKsCore struct {
+	common.KubeAction
+}
+
+func (t *CreateKsCore) Execute(runtime connector.Runtime) error {
+	masterNumIf, ok := t.PipelineCache.Get(common.CacheMasterNum)
+	if !ok || masterNumIf == nil {
+		return fmt.Errorf("failed to get master num")
+	}
+
+	kubeVersionIf, ok := t.PipelineCache.Get(common.CacheKubeletVersion)
+	if !ok || kubeVersionIf == nil {
+		return fmt.Errorf("failed to get kubelet version")
+	}
+
+	masterNum := masterNumIf.(int64)
+
+	config, err := ctrl.GetConfig()
+	if err != nil {
+		return err
+	}
+
+	var appName = common.ChartNameKsCoreConfig
+	var appPath = path.Join(runtime.GetFilesDir(), "apps", appName)
+
+	actionConfig, settings, err := utils.InitConfig(config, common.NamespaceKubesphereSystem)
+	if err != nil {
+		return err
+	}
+
+	var values = make(map[string]interface{})
+	values["Release"] = map[string]string{
+		"Namespace": common.NamespaceKubesphereSystem,
+	}
+
+	if err := utils.InstallCharts(context.Background(), actionConfig, settings, appName,
+		appPath, "", common.NamespaceKubesphereSystem, values); err != nil {
+		logger.Errorf("failed to install %s chart: %v", appName, err)
+		return err
+	}
+
+	appName = common.ChartNameKsCore
+	appPath = path.Join(runtime.GetFilesDir(), "apps", appName)
+	values = make(map[string]interface{})
+	values["Release"] = map[string]string{
+		"Namespace":    common.NamespaceKubesphereSystem,
+		"ReplicaCount": fmt.Sprintf("%s", masterNum),
+	}
+
+	if err := utils.InstallCharts(context.Background(), actionConfig, settings, appName,
+		appPath, "", common.NamespaceKubesphereSystem, values); err != nil {
+		logger.Errorf("failed to install %s chart: %v", appName, err)
+		return err
+	}
+
+	// manifestStr, err := util.Render(templates.KsCoreTempl, util.Data{
+	// 	"MasterNum":   masterNum,
+	// 	"KubeVersion": kubeVersionIf.(string),
+	// })
+	// if err != nil {
+	// 	return err
+	// }
+
+	// var ksCoreConfigFileName = path.Join(runtime.GetFilesDir(), "apps", common.ChartNameKsCoreConfig, "values.yaml")
+	// if err := ioutil.WriteFile(ksCoreConfigFileName, []byte(manifestStr), 0644); err != nil {
+	// 	return errors.Wrapf(err, "failed to write ks-core-config values file %s", ksCoreConfigFileName)
+	// }
+
+	// var ksCoreFileName = path.Join(runtime.GetFilesDir(), "apps", common.ChartNameKsCore, "values.yaml")
+	// if err := ioutil.WriteFile(ksCoreFileName, []byte(manifestStr), 0644); err != nil {
+	// 	return errors.Wrapf(err, "failed to write ks-core values file %s", ksCoreFileName)
+	// }
+
+	return nil
+}
+
+// ~ CreateKsCoreManifests
+type CreateKsCoreConfigManifests struct {
+	common.KubeAction
+}
+
+func (t *CreateKsCoreConfigManifests) Execute(runtime connector.Runtime) error {
+	var kscoreConfigCrdsPath = path.Join(runtime.GetFilesDir(), "apps", common.ChartNameKsCoreConfig, "crds")
+	filepath.Walk(kscoreConfigCrdsPath, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		if !info.IsDir() {
+			_, err := runtime.GetRunner().SudoCmd(fmt.Sprintf("/usr/local/bin/kubectl apply -f %s", path), false, true)
+			if err != nil {
+				logger.Errorf("failed to apply %s: %v", path, err)
+				return err
+			}
+		}
+		return nil
+	})
+
+	return nil
+}
+
 // ~ PacthKsCore
 type PacthKsCore struct {
 	common.KubeAction
@@ -241,9 +348,32 @@ func (m *DeployKsCoreModule) Init() {
 		Prepare: &prepare.PrepareCollection{
 			new(common.OnlyFirstMaster),
 			new(NotEqualDesiredVersion),
-			new(common.GetMasterNum),
 		},
 		Action:   new(PacthKsCore),
+		Parallel: false,
+		Retry:    0,
+	}
+
+	createKsCoreConfigManifests := &task.RemoteTask{
+		Name:  "CreateKsCoreConfigManifests",
+		Hosts: m.Runtime.GetHostsByRole(common.ETCD),
+		Prepare: &prepare.PrepareCollection{
+			new(common.OnlyFirstMaster),
+			new(NotEqualDesiredVersion),
+		},
+		Action:   new(CreateKsCoreConfigManifests),
+		Parallel: false,
+		Retry:    0,
+	}
+
+	createKsCore := &task.RemoteTask{
+		Name:  "CreateKsCore",
+		Hosts: m.Runtime.GetHostsByRole(common.ETCD),
+		Prepare: &prepare.PrepareCollection{
+			new(common.OnlyFirstMaster),
+			new(NotEqualDesiredVersion),
+		},
+		Action:   new(CreateKsCore),
 		Parallel: false,
 		Retry:    0,
 	}
@@ -251,5 +381,7 @@ func (m *DeployKsCoreModule) Init() {
 	m.Tasks = []task.Interface{
 		checkKsCoreExist,
 		pacthKsCore,
+		createKsCoreConfigManifests,
+		createKsCore,
 	}
 }

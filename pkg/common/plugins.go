@@ -13,4 +13,6 @@ const (
 
 	ChartNameRedis              = "redis"
 	ChartNameSnapshotController = "snapshot-controller"
+	ChartNameKsCore             = "ks-core"
+	ChartNameKsCoreConfig       = "ks-core-config"
 )

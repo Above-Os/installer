@@ -16,7 +16,8 @@ type CopyEmbedFiles struct {
 }
 
 func (t *CopyEmbedFiles) Execute(runtime connector.Runtime) error {
-	return utils.CopyEmbed(Assets(), "files", runtime.GetFilesDir())
+	return utils.CopyEmbed(assets, ".", runtime.GetFilesDir())
+
 }
 
 // ! moved to prepares

@@ -50,6 +50,7 @@ func InitConfig(kubeConfig *rest.Config, namespace string) (*action.Configuratio
 // InstallCharts installs helm chart using action config and environment settings.
 func InstallCharts(ctx context.Context, actionConfig *action.Configuration, settings *cli.EnvSettings,
 	appName, chartsName, repoURL, namespace string, vals map[string]interface{}) error {
+	settings.SetNamespace(namespace)
 	logger.Debugw("[helm] action config", "reachable", actionConfig.KubeClient.IsReachable())
 	instClient := action.NewInstall(actionConfig)
 	instClient.CreateNamespace = true

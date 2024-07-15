@@ -1,21 +1,31 @@
-# Default values for ks-core.
+package templates
 
-# replicaCount: 1 # ! 这里要替换下
+import (
+	"text/template"
+
+	"github.com/lithammer/dedent"
+)
+
+var (
+	KsCoreTempl = template.Must(template.New("KsCore").Parse(
+		dedent.Dedent(`# Default values for ks-core.
+
+replicaCount: {{ .MasterNum }}
 
 image:
   # Overrides the image tag whose default is the chart appVersion.
   ks_controller_manager_repo: kubesphere/ks-controller-manager
   ks_controller_manager_tag: "v3.3.0"
 
-  ks_apiserver_repo: beclab/ks-apiserver
+  ks_apiserver_repo: kubesphere/ks-apiserver
   ks_apiserver_tag: "v3.3.0-ext-3"
 
   ks_kubectl_repo: kubesphere/kubectl
   ks_kubectl_tag: "v1.22.0"
 
-  nginx_ingress_controller_repo: kubesphere/nginx-ingress-controller # ! 这个貌似没用到
-  nginx_ingress_controller_tag: "v0.35.0" # ! 这里？？？好像没用到？ roles/download 中这里的数据是 v1.1.0
-  
+  nginx_ingress_controller_repo: kubesphere/nginx-ingress-controller
+  nginx_ingress_controller_tag: "v0.35.0"
+
   defaultbackend_repo: "mirrorgooglecontainers/defaultbackend-amd64"
   defaultbackend_tag: "1.4"
 
@@ -59,7 +69,7 @@ securityContext: {}
   # runAsUser: 1000
 
 # Kubernetes Version shows in KubeSphere console
-# kube_version: "v1.19.4" # ! 这里要替换下
+kube_version: {{ .KubeVersion }}
 
 env:
 - name: KUBESPHERE_REDIS_PASSWORD
@@ -147,4 +157,5 @@ controller:
   ## Additional volumes to the controller pod.
   #  - name: example-config
   #    emptyDir: {}
-
+		`)))
+)

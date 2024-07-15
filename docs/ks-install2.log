@@ -404,6 +404,9 @@ changed: [localhost] => (item=/kubesphere/kubesphere/ks-core-config/crds/iam.kub
 changed: [localhost] => (item=/kubesphere/kubesphere/ks-core-config/crds/application.kubesphere.io_helmcategories.yaml)
 changed: [localhost] => (item=/kubesphere/kubesphere/ks-core-config/crds/iam.kubesphere.io_federatedusers.yaml)
 
+
+
+---->>>>>> 对应 ./roles/ks-core/ks-core/tasks/main.yaml
 TASK [ks-core/ks-core : KubeSphere | Creating ks-core-config] ******************
 changed: [localhost]
 

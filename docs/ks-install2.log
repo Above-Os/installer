@@ -303,9 +303,19 @@ changed: [localhost]
 TASK [ks-core/init-token : KubeSphere | Deleting KubeSphere secret] ************
 skipping: [localhost]
 
+################################################################
+#
+#   --->>>>>>> 到这里，走完了 /roles/ks-core/init-token
+#
+################################################################
 TASK [ks-core/init-token : KubeSphere | Creating components token] *************
 changed: [localhost]
 
+
+
+
+
+---->>>>>>>>> 这里进入到 roles/ks-core/ks-core
 TASK [ks-core/ks-core : KubeSphere | Setting Kubernetes version] ***************
 ok: [localhost]
 

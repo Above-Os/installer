@@ -59,25 +59,6 @@ func (p *CheckStorageClass) PreCheck(runtime connector.Runtime) (bool, error) {
 	return true, nil
 }
 
-// ~ EnableHA
-type EnableHA struct {
-	common.KubePrepare
-}
-
-func (p *EnableHA) PreCheck(runtime connector.Runtime) (bool, error) {
-	var cmd = fmt.Sprintf("/usr/local/bin/kubectl get node | awk '{if(NR>1){print $3}}' | grep master | wc -l")
-	var stdout, err = runtime.GetRunner().SudoCmd(cmd, false, true)
-	if err != nil {
-		return false, errors.Wrap(errors.WithStack(err), "get master num failed")
-	}
-
-	if stdout != "" && stdout != "0" && stdout != "1" {
-		return true, nil
-	}
-
-	return false, nil
-}
-
 // ~ GenerateRedisPassword
 type GenerateRedisPassword struct {
 	common.KubePrepare

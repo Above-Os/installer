@@ -166,5 +166,8 @@ const (
 
 	CacheStorageClass  = "storage_class"
 	CacheEnableHA      = "enable_ha"
+	CacheMasterNum     = "master_num"
 	CacheRedisPassword = "redis_password"
+	CacheSecretsNum    = "secrets_num"
+	CacheCrdsNUm       = "users_iam_num"
 )

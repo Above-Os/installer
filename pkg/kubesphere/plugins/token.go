@@ -32,7 +32,7 @@ func (t *GenerateKubeSphereToken) Execute(runtime connector.Runtime) error {
 	}
 
 	var cmd = fmt.Sprintf("/usr/local/bin/kubectl get secrets -n %s --no-headers", common.NamespaceKubesphereSystem)
-	stdout, _ := runtime.GetRunner().SudoCmd(cmd, false, true)
+	stdout, _ := runtime.GetRunner().SudoCmd(cmd, false, false)
 	if strings.Contains(stdout, "kubesphere-secret") {
 		cmd = fmt.Sprintf("/usr/local/bin/kubectl delete secrets -n %s kubesphere-secret", common.NamespaceKubesphereSystem)
 		runtime.GetRunner().SudoCmd(cmd, false, true)

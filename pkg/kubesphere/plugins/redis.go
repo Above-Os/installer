@@ -165,7 +165,7 @@ func (m *DeployRedisModule) Init() {
 		Prepare: &prepare.PrepareCollection{
 			new(common.OnlyFirstMaster),
 			new(NotEqualDesiredVersion),
-			new(EnableHA),
+			new(common.GetMasterNum),
 		},
 		Action:   new(DeployRedisHA),
 		Parallel: false,

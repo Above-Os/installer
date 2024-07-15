@@ -342,7 +342,7 @@ func (c *connection) Exec(cmd string, host Host, printLine bool) (stdout string,
 		if exitErr, ok := err.(*ssh.ExitError); ok {
 			exitCode = exitErr.ExitStatus()
 		}
-		return "", exitCode, err
+		return err.Error(), exitCode, err
 	}
 
 	var (

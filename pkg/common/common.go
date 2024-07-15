@@ -169,5 +169,6 @@ const (
 	CacheMasterNum     = "master_num"
 	CacheRedisPassword = "redis_password"
 	CacheSecretsNum    = "secrets_num"
+	CacheJwtSecret     = "jwt_secret"
 	CacheCrdsNUm       = "users_iam_num"
 )

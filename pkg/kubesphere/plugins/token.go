@@ -44,6 +44,8 @@ func (t *GenerateKubeSphereToken) Execute(runtime connector.Runtime) error {
 		return errors.Wrap(errors.WithStack(err), "create kubesphere token failed")
 	}
 
+	t.PipelineCache.Set(common.CacheJwtSecret, random)
+
 	return nil
 }
 

@@ -159,6 +159,11 @@ type CreateKsCore struct {
 }
 
 func (t *CreateKsCore) Execute(runtime connector.Runtime) error {
+	jwtSecretIf, ok := t.PipelineCache.Get(common.CacheJwtSecret)
+	if !ok || jwtSecretIf == nil {
+		return fmt.Errorf("failed to get jwt secret")
+	}
+
 	masterNumIf, ok := t.PipelineCache.Get(common.CacheMasterNum)
 	if !ok || masterNumIf == nil {
 		return fmt.Errorf("failed to get master num")
@@ -187,6 +192,7 @@ func (t *CreateKsCore) Execute(runtime connector.Runtime) error {
 	var values = make(map[string]interface{})
 	values["Release"] = map[string]string{
 		"Namespace": common.NamespaceKubesphereSystem,
+		"JwtSecret": jwtSecretIf.(string),
 	}
 
 	if err := utils.InstallCharts(context.Background(), actionConfig, settings, appName,

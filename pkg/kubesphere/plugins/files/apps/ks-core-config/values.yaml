@@ -27,7 +27,7 @@ config:
   create: true
   authentication: {}
   # Jwt Secret is required by ks-apiserver, a random string would be generated if it's empty
-  jwtSecret: ""
+  # jwtSecret: ""
   multicluster: {}
   monitoring: {}
   notification: {}

@@ -38,7 +38,7 @@ func InitConfig(kubeConfig *rest.Config, namespace string) (*action.Configuratio
 	settings.KubeAPIServer = kubeConfig.Host
 	settings.KubeToken = kubeConfig.BearerToken
 	settings.KubeInsecureSkipTLSVerify = true
-
+	settings.SetNamespace(namespace)
 	if err := actionConfig.Init(settings.RESTClientGetter(), namespace, helmDriver, debug); err != nil {
 		logger.Error(err, "helm config init error")
 		return nil, nil, err
@@ -50,8 +50,7 @@ func InitConfig(kubeConfig *rest.Config, namespace string) (*action.Configuratio
 // InstallCharts installs helm chart using action config and environment settings.
 func InstallCharts(ctx context.Context, actionConfig *action.Configuration, settings *cli.EnvSettings,
 	appName, chartsName, repoURL, namespace string, vals map[string]interface{}) error {
-	settings.SetNamespace(namespace)
-	logger.Debugw("[helm] action config", "reachable", actionConfig.KubeClient.IsReachable())
+	// logger.Debugw("[helm] action config", "reachable", actionConfig.KubeClient.IsReachable())
 	instClient := action.NewInstall(actionConfig)
 	instClient.CreateNamespace = true
 	instClient.Namespace = namespace
@@ -63,6 +62,7 @@ func InstallCharts(ctx context.Context, actionConfig *action.Configuration, sett
 
 	r, err := runInstall(ctx, []string{appName, chartsName}, instClient, settings, vals)
 	if err != nil {
+		// todo uninstall
 		// delete failed install
 		// do not need delete release, helm will delete it automatically if failed
 		// if r != nil {

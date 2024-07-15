@@ -460,6 +460,9 @@ task multicluster status is successful  (3/4)
 task monitoring status is successful  (4/4)
 **************************************************
 Collecting installation results ...
+
+
+--->>>>>>>>>>>>>>>>> 进入新的 task
 [WARNING]: No inventory was parsed, only implicit localhost is available
 [WARNING]: provided hosts list is empty, only localhost is available. Note that
 the implicit localhost does not match 'all'
@@ -567,6 +570,9 @@ skipping: [localhost]
 
 PLAY RECAP *********************************************************************
 localhost                  : ok=14   changed=9    unreachable=0    failed=0    skipped=15   rescued=0    ignored=0   
+
+
+--->>>>>>>>>>>>>>> 进入新的task
 [WARNING]: No inventory was parsed, only implicit localhost is available
 [WARNING]: provided hosts list is empty, only localhost is available. Note that
 the implicit localhost does not match 'all'

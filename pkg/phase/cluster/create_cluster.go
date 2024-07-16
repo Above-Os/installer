@@ -74,7 +74,11 @@ func NewK3sCreateClusterPhase(runtime *common.KubeRuntime) []module.Module {
 		&ksplugins.DeploySnapshotControllerModule{},
 		&ksplugins.DeployRedisModule{},
 		&ksplugins.CreateKubeSphereSecretModule{},
-		&ksplugins.DeployKsCoreModule{},
+		&ksplugins.DeployKsCoreConfigModule{},     // ! ks-core-config
+		&ksplugins.CreateMonitorDashboardModule{}, // todo 这里暂时是测试，先放这里
+		&ksplugins.CreateNotificationModule{},     // todo 这里暂时是测试，先放这里
+		&ksplugins.DeployPrometheusModule{},
+		&ksplugins.DeployKsCoreModule{}, // ! 这里创建 ks-core，也就是 ks-apiserver
 		// &kubesphere.CheckResultModule{Skip: !runtime.Cluster.KubeSphere.Enabled}, // todo ks-installer 状态检测
 	}
 

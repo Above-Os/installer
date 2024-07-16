@@ -51,6 +51,7 @@ func InitConfig(kubeConfig *rest.Config, namespace string) (*action.Configuratio
 func InstallCharts(ctx context.Context, actionConfig *action.Configuration, settings *cli.EnvSettings,
 	appName, chartsName, repoURL, namespace string, vals map[string]interface{}) error {
 	// logger.Debugw("[helm] action config", "reachable", actionConfig.KubeClient.IsReachable())
+
 	instClient := action.NewInstall(actionConfig)
 	instClient.CreateNamespace = true
 	instClient.Namespace = namespace

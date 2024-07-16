@@ -61,3 +61,22 @@ func (p *GetMasterNum) PreCheck(runtime connector.Runtime) (bool, error) {
 
 	return true, nil
 }
+
+// ~ GetNodeNum
+type GetNodeNum struct {
+	prepare.BasePrepare
+}
+
+func (p *GetNodeNum) PreCheck(runtime connector.Runtime) (bool, error) {
+	var cmd = fmt.Sprintf("/usr/local/bin/kubectl get node | wc -l")
+	var stdout, err = runtime.GetRunner().SudoCmd(cmd, false, false)
+	if err != nil {
+		return false, errors.Wrap(errors.WithStack(err), "get node num failed")
+	}
+
+	nodeNum, _ := strconv.ParseInt(stdout, 10, 64)
+
+	p.PipelineCache.Set(CacheNodeNum, nodeNum)
+
+	return true, nil
+}

@@ -11,9 +11,10 @@ const (
 	NamespaceKubesphereMonitoringSystem    = "kubesphere-monitoring-system"
 	NamespaceKubesphereSystem              = "kubesphere-system"
 
-	ChartNameRedis              = "redis"
-	ChartNameSnapshotController = "snapshot-controller"
-	ChartNameKsCore             = "ks-core"
-	ChartNameKsCoreConfig       = "ks-core-config"
-	ChartNameKsConfig           = "ks-config"
+	ChartNameRedis               = "redis"
+	ChartNameSnapshotController  = "snapshot-controller"
+	ChartNameKsCore              = "ks-core"
+	ChartNameKsCoreConfig        = "ks-core-config"
+	ChartNameKsConfig            = "ks-config"
+	ChartNameMonitorNotification = "monitor-notification"
 )

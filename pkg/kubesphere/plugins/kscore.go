@@ -3,7 +3,6 @@ package plugins
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path"
 	"path/filepath"
@@ -15,8 +14,6 @@ import (
 	"bytetrade.io/web3os/installer/pkg/core/logger"
 	"bytetrade.io/web3os/installer/pkg/core/prepare"
 	"bytetrade.io/web3os/installer/pkg/core/task"
-	"bytetrade.io/web3os/installer/pkg/core/util"
-	"bytetrade.io/web3os/installer/pkg/kubesphere/plugins/templates"
 	"bytetrade.io/web3os/installer/pkg/utils"
 	"github.com/pkg/errors"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -75,12 +72,6 @@ var kscorecrds = []map[string]string{
 		"ns":       "kubesphere-system",
 		"kind":     "configmaps",
 		"resource": "ks-router-config",
-		"release":  "ks-core",
-	},
-	{
-		"ns":       "kubesphere-system",
-		"kind":     "configmaps",
-		"resource": "sample-bookinfo",
 		"release":  "ks-core",
 	},
 	{
@@ -157,39 +148,6 @@ var kscorecrds = []map[string]string{
 	},
 }
 
-// ~ CreateKsConfig
-type CreateKsConfig struct {
-	common.KubeAction
-}
-
-func (t *CreateKsConfig) Execute(runtime connector.Runtime) error {
-	jwtSecretIf, ok := t.PipelineCache.Get(common.CacheJwtSecret)
-	if !ok || jwtSecretIf == nil {
-		return fmt.Errorf("failed to get jwt secret")
-	}
-
-	content, err := util.Render(templates.KsConfigTempl, util.Data{
-		"JwtSecret": jwtSecretIf.(string),
-	})
-	if err != nil {
-		return errors.Wrap(errors.WithStack(err), "render ks config failed")
-	}
-
-	p := path.Join(runtime.GetFilesDir(), "apps", "ks-config.yaml")
-	if err := ioutil.WriteFile(p, []byte(content), 0644); err != nil {
-		return errors.Wrap(err, fmt.Sprintf("write ks-config file %s failed", p))
-	}
-
-	var cmd = fmt.Sprintf("/usr/local/bin/kubectl apply -f %s", p)
-	_, err = runtime.GetRunner().SudoCmd(cmd, false, true)
-	if err != nil {
-		logger.Errorf("create ks config failed: %v", err)
-		return errors.Wrap(errors.WithStack(err), "create ks config failed")
-	}
-
-	return nil
-}
-
 // ~ CreateKsRole
 type CreateKsRole struct {
 	common.KubeAction
@@ -254,9 +212,10 @@ func (t *CreateKsCore) Execute(runtime connector.Runtime) error {
 		return err
 	}
 
-	var appName = common.ChartNameKsCoreConfig
-	var appPath = path.Join(runtime.GetFilesDir(), "apps", appName)
+	var appKsCoreConfigName = common.ChartNameKsCoreConfig
+	var appPath = path.Join(runtime.GetFilesDir(), "apps", appKsCoreConfigName)
 
+	// create ks-core-config
 	actionConfig, settings, err := utils.InitConfig(config, common.NamespaceKubesphereSystem)
 	if err != nil {
 		return err
@@ -265,26 +224,37 @@ func (t *CreateKsCore) Execute(runtime connector.Runtime) error {
 	var values = make(map[string]interface{})
 	values["Release"] = map[string]string{
 		"Namespace": common.NamespaceKubesphereSystem,
-		"JwtSecret": jwtSecretIf.(string),
 	}
-
-	if err := utils.InstallCharts(context.Background(), actionConfig, settings, appName,
+	if err := utils.InstallCharts(context.Background(), actionConfig, settings, appKsCoreConfigName,
 		appPath, "", common.NamespaceKubesphereSystem, values); err != nil {
-		logger.Errorf("failed to install %s chart: %v", appName, err)
+		logger.Errorf("failed to install %s chart: %v", appKsCoreConfigName, err)
 		return err
 	}
 
-	appName = common.ChartNameKsCore
-	appPath = path.Join(runtime.GetFilesDir(), "apps", appName)
+	// + create ks-config
+	var appKsConfigName = common.ChartNameKsConfig
+	appPath = path.Join(runtime.GetFilesDir(), "apps", appKsConfigName)
+	values = make(map[string]interface{})
+	values["Release"] = map[string]string{
+		"JwtSecret": jwtSecretIf.(string),
+	}
+	if err := utils.InstallCharts(context.Background(), actionConfig, settings, appKsConfigName,
+		appPath, "", common.NamespaceKubesphereSystem, values); err != nil {
+		logger.Errorf("failed to install %s chart: %v", appKsConfigName, err)
+		return err
+	}
+
+	// create ks-core
+	var appKsCoreName = common.ChartNameKsCore
+	appPath = path.Join(runtime.GetFilesDir(), "apps", appKsCoreName)
 	values = make(map[string]interface{})
 	values["Release"] = map[string]string{
 		"Namespace":    common.NamespaceKubesphereSystem,
 		"ReplicaCount": fmt.Sprintf("%s", masterNum),
 	}
-
-	if err := utils.InstallCharts(context.Background(), actionConfig, settings, appName,
+	if err := utils.InstallCharts(context.Background(), actionConfig, settings, appKsCoreName,
 		appPath, "", common.NamespaceKubesphereSystem, values); err != nil {
-		logger.Errorf("failed to install %s chart: %v", appName, err)
+		logger.Errorf("failed to install %s chart: %v", appKsCoreName, err)
 		return err
 	}
 
@@ -355,8 +325,9 @@ func (t *PacthKsCore) Execute(runtime connector.Runtime) error {
 	if secretsNum == 0 && crdNum != 0 {
 		for _, item := range kscorecrds {
 			var cmd = fmt.Sprintf("%s -n %s annotate --overwrite %s %s meta.helm.sh/release-name=%s && %s -n %s annotate --overwrite %s %s meta.helm.sh/release-namespace=%s && %s -n %s label --overwrite %s %s app.kubernetes.io/managed-by=Helm",
-				kubectl, item["ns"], item["kind"], item["resource"], item["release"], kubectl, item["ns"], item["kind"], item["resource"], kubectl,
-				item["ns"], item["kind"], item["resource"])
+				kubectl, item["ns"], item["kind"], item["resource"], item["release"],
+				kubectl, item["ns"], item["kind"], item["resource"], common.NamespaceKubesphereSystem,
+				kubectl, item["ns"], item["kind"], item["resource"])
 
 			if _, err := runtime.GetRunner().SudoCmd(cmd, false, true); err != nil {
 				return errors.Wrap(errors.WithStack(err), "patch ks-core crd")
@@ -481,18 +452,6 @@ func (m *DeployKsCoreModule) Init() {
 		Retry:    0,
 	}
 
-	createKsConfig := &task.RemoteTask{
-		Name:  "CreateKsConfig",
-		Hosts: m.Runtime.GetHostsByRole(common.Master),
-		Prepare: &prepare.PrepareCollection{
-			new(common.OnlyFirstMaster),
-			new(NotEqualDesiredVersion),
-		},
-		Action:   new(CreateKsConfig),
-		Parallel: true,
-		Retry:    0,
-	}
-
 	m.Tasks = []task.Interface{
 		checkKsCoreExist,
 		pacthKsCore,
@@ -500,6 +459,5 @@ func (m *DeployKsCoreModule) Init() {
 		createKsCore,
 		patchKsCoreStatus,
 		createKsRole,
-		createKsConfig,
 	}
 }

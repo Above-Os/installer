@@ -1,14 +1,8 @@
-package templates
-
-import (
-	"text/template"
-
-	"github.com/lithammer/dedent"
-)
-
-var (
-	KsConfigTempl = template.Must(template.New("KsConfig").Parse(
-		dedent.Dedent(`apiVersion: v1
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kubesphere-config
+  namespace: kubesphere-system
 data:
   kubesphere.yaml: |
     authentication:
@@ -18,7 +12,7 @@ data:
       maximumClockSkew: 10s
       multipleLogin: True
       kubectlImage: kubesphere/kubectl:v1.22.0
-      jwtSecret: "{{ .JwtSecret }}"
+      jwtSecret: "{{ .Values.Release.JwtSecret }}"
       oauthOptions:
         accessTokenMaxAge: 1209600000000000
         clients:
@@ -46,19 +40,11 @@ data:
         default: True
     notification:
       endpoint: http://notification-manager-svc.kubesphere-monitoring-system.svc:19093
-
     terminal:
       image: alpine:3.14
       timeout: 600
-
     gateway:
       watchesPath: /var/helm-charts/watches.yaml
       repository: kubesphere/nginx-ingress-controller
       tag: v1.1.0
       namespace: kubesphere-controls-system
-kind: ConfigMap
-metadata:
-  name: kubesphere-config
-  namespace: kubesphere-system
-		`)))
-)

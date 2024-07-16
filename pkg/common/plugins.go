@@ -15,4 +15,5 @@ const (
 	ChartNameSnapshotController = "snapshot-controller"
 	ChartNameKsCore             = "ks-core"
 	ChartNameKsCoreConfig       = "ks-core-config"
+	ChartNameKsConfig           = "ks-config"
 )

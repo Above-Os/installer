@@ -3,16 +3,20 @@ package plugins
 import (
 	"context"
 	"fmt"
+	"io/ioutil"
 	"os"
 	"path"
 	"path/filepath"
 	"strconv"
+	"time"
 
 	"bytetrade.io/web3os/installer/pkg/common"
 	"bytetrade.io/web3os/installer/pkg/core/connector"
 	"bytetrade.io/web3os/installer/pkg/core/logger"
 	"bytetrade.io/web3os/installer/pkg/core/prepare"
 	"bytetrade.io/web3os/installer/pkg/core/task"
+	"bytetrade.io/web3os/installer/pkg/core/util"
+	"bytetrade.io/web3os/installer/pkg/kubesphere/plugins/templates"
 	"bytetrade.io/web3os/installer/pkg/utils"
 	"github.com/pkg/errors"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -151,6 +155,75 @@ var kscorecrds = []map[string]string{
 		"resource": "admin",
 		"release":  "ks-core",
 	},
+}
+
+// ~ CreateKsConfig
+type CreateKsConfig struct {
+	common.KubeAction
+}
+
+func (t *CreateKsConfig) Execute(runtime connector.Runtime) error {
+	jwtSecretIf, ok := t.PipelineCache.Get(common.CacheJwtSecret)
+	if !ok || jwtSecretIf == nil {
+		return fmt.Errorf("failed to get jwt secret")
+	}
+
+	content, err := util.Render(templates.KsConfigTempl, util.Data{
+		"JwtSecret": jwtSecretIf.(string),
+	})
+	if err != nil {
+		return errors.Wrap(errors.WithStack(err), "render ks config failed")
+	}
+
+	p := path.Join(runtime.GetFilesDir(), "apps", "ks-config.yaml")
+	if err := ioutil.WriteFile(p, []byte(content), 0644); err != nil {
+		return errors.Wrap(err, fmt.Sprintf("write ks-config file %s failed", p))
+	}
+
+	var cmd = fmt.Sprintf("/usr/local/bin/kubectl apply -f %s", p)
+	_, err = runtime.GetRunner().SudoCmd(cmd, false, true)
+	if err != nil {
+		logger.Errorf("create ks config failed: %v", err)
+		return errors.Wrap(errors.WithStack(err), "create ks config failed")
+	}
+
+	return nil
+}
+
+// ~ CreateKsRole
+type CreateKsRole struct {
+	common.KubeAction
+}
+
+func (t *CreateKsRole) Execute(runtime connector.Runtime) error {
+	var f = path.Join(runtime.GetFilesDir(), "apps", "ks-init", "role-templates.yaml")
+	if !utils.IsExist(f) {
+		return fmt.Errorf("file %s not found", f)
+	}
+
+	cmd := fmt.Sprintf("/usr/local/bin/kubectl apply -f %s", f)
+	_, err := runtime.GetRunner().SudoCmd(cmd, false, true)
+	if err != nil {
+		return errors.Wrap(errors.WithStack(err), "create ks role failed")
+	}
+	return nil
+}
+
+// ~ PatchKsCoreStatus
+type PatchKsCoreStatus struct {
+	common.KubeAction
+}
+
+func (t *PatchKsCoreStatus) Execute(runtime connector.Runtime) error {
+	var jsonPath = fmt.Sprintf(`{\"status\": {\"core\": {\"status\": \"enabled\", \"enabledTime\": \"%s\"}}}`, time.Now().Format("2006-01-02T15:04:05Z"))
+	var cmd = fmt.Sprintf("/usr/local/bin/kubectl patch cc ks-installer --type merge -p '%s' -n %s", jsonPath, common.NamespaceKubesphereSystem)
+
+	_, err := runtime.GetRunner().SudoCmd(cmd, false, true)
+	if err != nil {
+		return errors.Wrap(errors.WithStack(err), "patch ks-core status failed")
+	}
+
+	return nil
 }
 
 // ~ CreateKsCore
@@ -337,7 +410,7 @@ func (m *DeployKsCoreModule) Init() {
 
 	checkKsCoreExist := &task.RemoteTask{
 		Name:  "CheckKsCoreExist",
-		Hosts: m.Runtime.GetHostsByRole(common.ETCD),
+		Hosts: m.Runtime.GetHostsByRole(common.Master),
 		Prepare: &prepare.PrepareCollection{
 			new(common.OnlyFirstMaster),
 			new(NotEqualDesiredVersion),
@@ -350,7 +423,7 @@ func (m *DeployKsCoreModule) Init() {
 
 	pacthKsCore := &task.RemoteTask{
 		Name:  "PacthKsCore",
-		Hosts: m.Runtime.GetHostsByRole(common.ETCD),
+		Hosts: m.Runtime.GetHostsByRole(common.Master),
 		Prepare: &prepare.PrepareCollection{
 			new(common.OnlyFirstMaster),
 			new(NotEqualDesiredVersion),
@@ -362,7 +435,7 @@ func (m *DeployKsCoreModule) Init() {
 
 	createKsCoreConfigManifests := &task.RemoteTask{
 		Name:  "CreateKsCoreConfigManifests",
-		Hosts: m.Runtime.GetHostsByRole(common.ETCD),
+		Hosts: m.Runtime.GetHostsByRole(common.Master),
 		Prepare: &prepare.PrepareCollection{
 			new(common.OnlyFirstMaster),
 			new(NotEqualDesiredVersion),
@@ -374,13 +447,49 @@ func (m *DeployKsCoreModule) Init() {
 
 	createKsCore := &task.RemoteTask{
 		Name:  "CreateKsCore",
-		Hosts: m.Runtime.GetHostsByRole(common.ETCD),
+		Hosts: m.Runtime.GetHostsByRole(common.Master),
 		Prepare: &prepare.PrepareCollection{
 			new(common.OnlyFirstMaster),
 			new(NotEqualDesiredVersion),
 		},
 		Action:   new(CreateKsCore),
-		Parallel: false,
+		Parallel: true,
+		Retry:    0,
+	}
+
+	patchKsCoreStatus := &task.RemoteTask{
+		Name:  "PatchKsCoreStatus",
+		Hosts: m.Runtime.GetHostsByRole(common.Master),
+		Prepare: &prepare.PrepareCollection{
+			new(common.OnlyFirstMaster),
+			new(NotEqualDesiredVersion),
+		},
+		Action:   new(PatchKsCoreStatus),
+		Parallel: true,
+		Retry:    0,
+	}
+
+	createKsRole := &task.RemoteTask{
+		Name:  "CreateKsRole",
+		Hosts: m.Runtime.GetHostsByRole(common.Master),
+		Prepare: &prepare.PrepareCollection{
+			new(common.OnlyFirstMaster),
+			new(NotEqualDesiredVersion),
+		},
+		Action:   new(CreateKsRole),
+		Parallel: true,
+		Retry:    0,
+	}
+
+	createKsConfig := &task.RemoteTask{
+		Name:  "CreateKsConfig",
+		Hosts: m.Runtime.GetHostsByRole(common.Master),
+		Prepare: &prepare.PrepareCollection{
+			new(common.OnlyFirstMaster),
+			new(NotEqualDesiredVersion),
+		},
+		Action:   new(CreateKsConfig),
+		Parallel: true,
 		Retry:    0,
 	}
 
@@ -389,5 +498,8 @@ func (m *DeployKsCoreModule) Init() {
 		pacthKsCore,
 		createKsCoreConfigManifests,
 		createKsCore,
+		patchKsCoreStatus,
+		createKsRole,
+		createKsConfig,
 	}
 }

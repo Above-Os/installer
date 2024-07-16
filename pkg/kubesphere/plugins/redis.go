@@ -167,7 +167,7 @@ func (m *DeployRedisModule) Init() {
 			new(NotEqualDesiredVersion),
 			new(common.GetMasterNum),
 		},
-		Action:   new(DeployRedisHA),
+		Action:   new(DeployRedisHA), // todo skip
 		Parallel: false,
 		Retry:    0,
 	}

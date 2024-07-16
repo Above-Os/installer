@@ -47,7 +47,7 @@ func (a *AddInstallerConfig) Execute(runtime connector.Runtime) error {
 	configurationBase64 := base64.StdEncoding.EncodeToString([]byte(a.KubeConf.Cluster.KubeSphere.Configurations))
 	if _, err := runtime.GetRunner().SudoCmd(
 		fmt.Sprintf("echo %s | base64 -d >> /etc/kubernetes/addons/kubesphere.yaml", configurationBase64),
-		true, false); err != nil {
+		false, false); err != nil {
 		return errors.Wrap(errors.WithStack(err), "add config to ks-installer manifests failed")
 	}
 	return nil
@@ -101,7 +101,7 @@ func (s *Setup) Execute(runtime connector.Runtime) error {
 			fmt.Sprintf("/usr/local/bin/kubectl -n kubesphere-monitoring-system create secret generic kube-etcd-client-certs "+
 				"--from-file=etcd-client-ca.crt=%s "+
 				"--from-file=etcd-client.crt=%s "+
-				"--from-file=etcd-client.key=%s", caFile, certFile, keyFile), true, false); err != nil {
+				"--from-file=etcd-client.key=%s", caFile, certFile, keyFile), false, false); err != nil {
 			if !strings.Contains(output, "exists") {
 				return err
 			}
@@ -118,7 +118,7 @@ func (s *Setup) Execute(runtime connector.Runtime) error {
 			fmt.Sprintf("/usr/local/bin/kubectl -n kubesphere-monitoring-system create secret generic kube-etcd-client-certs "+
 				"--from-file=etcd-client-ca.crt=%s "+
 				"--from-file=etcd-client.crt=%s "+
-				"--from-file=etcd-client.key=%s", caFile, certFile, keyFile), true, false); err != nil {
+				"--from-file=etcd-client.key=%s", caFile, certFile, keyFile), false, false); err != nil {
 			if !strings.Contains(output, "exists") {
 				return err
 			}

@@ -416,6 +416,12 @@ changed: [localhost]
 TASK [ks-core/ks-core : KubeSphere | Importing ks-core status] *****************
 changed: [localhost]
 
+
+
+#################################################################
+# 新的文件开始
+#################################################################
+---->>>>>> 对应 ./roles/ks-core/prepare/tasks/main.yaml
 TASK [ks-core/prepare : KubeSphere | Checking core components (1)] *************
 changed: [localhost]
 
@@ -443,6 +449,7 @@ changed: [localhost] => (item=ks-init)
 TASK [ks-core/prepare : KubeSphere | Initing KubeSphere] ***********************
 changed: [localhost] => (item=role-templates.yaml)
 
+--->>>>>>>>>>>>>>>  这里，./roles/ks-core/prepare/tasks.main.yaml 截止
 TASK [ks-core/prepare : KubeSphere | Generating kubeconfig-admin] **************
 skipping: [localhost]
 
@@ -462,7 +469,7 @@ task monitoring status is successful  (4/4)
 Collecting installation results ...
 
 
---->>>>>>>>>>>>>>>>> 进入新的 task
+--->>>>>>>>>>>>>>>>> 进入新的 task ./roles/ks-core/config/*
 [WARNING]: No inventory was parsed, only implicit localhost is available
 [WARNING]: provided hosts list is empty, only localhost is available. Note that
 the implicit localhost does not match 'all'
@@ -535,9 +542,12 @@ ok: [localhost]
 TASK [ks-core/config : KubeSphere | Creating manifests] ************************
 changed: [localhost] => (item={'name': 'kubesphere-config', 'file': 'kubesphere-config.yaml', 'type': 'cm'})
 
+---->>>>>>>>>>>>>>>>>> 这里 ./roles/ks-core/config/tasks/main.yaml 截止
 TASK [ks-core/config : KubeSphere | Initing KubeSphere] ************************
 changed: [localhost] => (item=kubesphere-config.yaml)
 
+
+---->>>>>>>>>>>>>>>>> 这里进入 ./roles/ks-core-config/tasks/ks-restart.yaml
 TASK [ks-core/config : OpenPitrix | Getting openpitrix jobs installation files] ***
 skipping: [localhost] => (item=openpitrix) 
 

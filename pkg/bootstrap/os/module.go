@@ -22,7 +22,6 @@ import (
 	"bytetrade.io/web3os/installer/pkg/bootstrap/os/templates"
 	"bytetrade.io/web3os/installer/pkg/common"
 	"bytetrade.io/web3os/installer/pkg/core/action"
-	"bytetrade.io/web3os/installer/pkg/core/module"
 	"bytetrade.io/web3os/installer/pkg/core/prepare"
 	"bytetrade.io/web3os/installer/pkg/core/task"
 	"bytetrade.io/web3os/installer/pkg/core/util"
@@ -30,21 +29,26 @@ import (
 
 // ~ ConfigSystemModule
 type ConfigSystemModule struct {
-	module.BaseTaskModule
+	common.KubeModule
 }
 
 func (c *ConfigSystemModule) Init() {
 	c.Name = "ConfigSystem"
 
-	timeSyncTask := &task.LocalTask{
-		Name:   "TimeSync",
-		Action: new(TimeSyncTask),
+	timeSyncTask := &task.RemoteTask{
+		Name:     "TimeSync",
+		Hosts:    c.Runtime.GetAllHosts(),
+		Action:   new(TimeSyncTask),
+		Parallel: false,
+		Retry:    0,
 	}
 
-	configProxyTask := &task.LocalTask{
-		Name:   "ConfigProxy",
-		Action: new(ConfigProxyTask),
-		Retry:  0,
+	configProxyTask := &task.RemoteTask{
+		Name:     "ConfigProxy",
+		Hosts:    c.Runtime.GetAllHosts(),
+		Action:   new(ConfigProxyTask),
+		Parallel: false,
+		Retry:    0,
 	}
 
 	c.Tasks = []task.Interface{

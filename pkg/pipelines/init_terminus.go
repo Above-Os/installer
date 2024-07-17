@@ -14,7 +14,6 @@ import (
 	"bytetrade.io/web3os/installer/pkg/core/logger"
 	"bytetrade.io/web3os/installer/pkg/core/module"
 	"bytetrade.io/web3os/installer/pkg/core/pipeline"
-	"bytetrade.io/web3os/installer/pkg/images"
 	"bytetrade.io/web3os/installer/pkg/phase/cluster"
 	"bytetrade.io/web3os/installer/pkg/storage"
 )
@@ -29,14 +28,10 @@ func InstallTerminusPipeline(args common.Argument) error {
 	m := []module.Module{
 		&precheck.TerminusGreetingsModule{},
 		&storage.SaveInstallConfigModule{},
-		// &packages.PackagesModule{},
-		// &scripts.CopyUninstallScriptModule{},
-		// &install.InstallTerminusModule{},
-		// + 这里开始
 		&precheck.PreCheckOsModule{}, // * 对应 precheck_os()
 		&patch.InstallDepsModule{},   // * 对应 install_deps
 		&os.ConfigSystemModule{},     // * 对应 config_system
-		&images.PreloadImagesModule{},
+		// &images.PreloadImagesModule{},
 	}
 
 	var kubeModules []module.Module

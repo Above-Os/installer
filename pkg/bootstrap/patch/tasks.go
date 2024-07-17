@@ -11,6 +11,7 @@ import (
 	"bytetrade.io/web3os/installer/pkg/core/action"
 	"bytetrade.io/web3os/installer/pkg/core/connector"
 	"bytetrade.io/web3os/installer/pkg/core/logger"
+	"bytetrade.io/web3os/installer/pkg/core/util"
 )
 
 // ~ PatchTask apt-get install
@@ -19,12 +20,11 @@ type PatchTask struct {
 }
 
 func (t *PatchTask) Execute(runtime connector.Runtime) error {
-	var host = runtime.GetRunner().Host
 	var cmd string
 	var debianFrontend string
 	var pre_reqs = "apt-transport-https ca-certificates curl"
 
-	if _, err := runtime.GetRunner().Host.GetCommand(common.CommandGPG); err != nil {
+	if _, err := runtime.GetRunner().SudoCmd(fmt.Sprintf("command -v %s", common.CommandGPG), false, false); err != nil {
 		pre_reqs = pre_reqs + " gnupg"
 	}
 
@@ -33,29 +33,29 @@ func (t *PatchTask) Execute(runtime connector.Runtime) error {
 		debianFrontend = "DEBIAN_FRONTEND=noninteractive"
 		fallthrough
 	case common.Ubuntu, common.Raspbian:
-		if _, _, err := host.Exec(fmt.Sprintf("%s update -qq", constants.PkgManager), false, false); err != nil {
+		if _, err := runtime.GetRunner().SudoCmd(fmt.Sprintf("%s update -qq", constants.PkgManager), false, false); err != nil {
 			logger.Errorf("update os error %v", err)
 			return err
 		}
 
-		if _, _, err := host.Exec("apt --fix-broken install -y", false, true); err != nil {
+		if _, err := runtime.GetRunner().SudoCmd("apt --fix-broken install -y", false, true); err != nil {
 			logger.Errorf("fix-broken install error %v", err)
 			return err
 		}
 
-		if _, _, err := host.Exec(fmt.Sprintf("%s %s install -y -qq %s", debianFrontend, constants.PkgManager, pre_reqs), false, true); err != nil {
+		if _, err := runtime.GetRunner().SudoCmd(fmt.Sprintf("%s %s install -y -qq %s", debianFrontend, constants.PkgManager, pre_reqs), false, true); err != nil {
 			logger.Errorf("install deps %s error %v", pre_reqs, err)
 			return err
 		}
 
 		var cmd = "conntrack socat apache2-utils ntpdate net-tools make gcc openssh-server bison flex"
-		if _, _, err := host.Exec(fmt.Sprintf("%s %s install -y %s", debianFrontend, constants.PkgManager, cmd), false, true); err != nil {
+		if _, err := runtime.GetRunner().SudoCmd(fmt.Sprintf("%s %s install -y %s", debianFrontend, constants.PkgManager, cmd), false, true); err != nil {
 			logger.Errorf("install deps %s error %v", cmd, err)
 			return err
 		}
 	case common.CentOs, common.Fedora, common.RHEl:
 		cmd = "conntrack socat httpd-tools ntpdate net-tools make gcc openssh-server"
-		if _, _, err := host.Exec(fmt.Sprintf("%s install -y %s", constants.PkgManager, cmd), false, true); err != nil {
+		if _, err := runtime.GetRunner().SudoCmd(fmt.Sprintf("%s install -y %s", constants.PkgManager, cmd), false, true); err != nil {
 			logger.Errorf("install deps %s error %v", cmd, err)
 			return err
 		}
@@ -66,7 +66,7 @@ func (t *PatchTask) Execute(runtime connector.Runtime) error {
 
 // ~ SocatTask
 type SocatTask struct {
-	action.BaseAction
+	common.KubeAction
 }
 
 func (t *SocatTask) Execute(runtime connector.Runtime) error {
@@ -76,19 +76,19 @@ func (t *SocatTask) Execute(runtime connector.Runtime) error {
 		return err
 	}
 	f := path.Join(filePath, fileName)
-	if _, _, err := runtime.GetRunner().Host.Exec(fmt.Sprintf("tar xzvf %s -C %s", f, filePath), false, false); err != nil {
+	if _, err := runtime.GetRunner().SudoCmd(fmt.Sprintf("tar xzvf %s -C %s", f, filePath), false, false); err != nil {
 		logger.Errorf("failed to extract %s %v", f, err)
 		return err
 	}
 
 	tp := path.Join(filePath, fmt.Sprintf("socat-%s", kubekeyapiv1alpha2.DefaultSocatVersion))
-	if err := runtime.GetRunner().Host.ChangeDir(tp); err == nil {
-		if _, _, err := runtime.GetRunner().Host.Exec("./configure --prefix=/usr && make -j4 && make install && strip socat", false, false); err != nil {
+	if err := util.ChangeDir(tp); err == nil {
+		if _, err := runtime.GetRunner().SudoCmd("./configure --prefix=/usr && make -j4 && make install && strip socat", false, false); err != nil {
 			logger.Errorf("failed to install socat %v", err)
 			return err
 		}
 	}
-	if err := runtime.GetRunner().Host.ChangeDir(runtime.GetRootDir()); err != nil {
+	if err := util.ChangeDir(runtime.GetRootDir()); err != nil {
 		logger.Errorf("failed to change dir %v", err)
 		return err
 	}
@@ -98,7 +98,7 @@ func (t *SocatTask) Execute(runtime connector.Runtime) error {
 
 // ~ ConntrackTask
 type ConntrackTask struct {
-	action.BaseAction
+	common.KubeAction
 }
 
 func (t *ConntrackTask) Execute(runtime connector.Runtime) error {
@@ -115,33 +115,33 @@ func (t *ConntrackTask) Execute(runtime connector.Runtime) error {
 	fl := path.Join(flexFilePath, flexFileName)
 	f := path.Join(filePath, fileName)
 
-	if _, _, err := runtime.GetRunner().Host.Exec(fmt.Sprintf("tar xzvf %s -C %s", fl, filePath), false, true); err != nil {
+	if _, err := runtime.GetRunner().SudoCmd(fmt.Sprintf("tar xzvf %s -C %s", fl, filePath), false, true); err != nil {
 		logger.Errorf("failed to extract %s %v", flexFilePath, err)
 		return err
 	}
 
-	if _, _, err := runtime.GetRunner().Host.Exec(fmt.Sprintf("tar xzvf %s -C %s", f, filePath), false, true); err != nil {
+	if _, err := runtime.GetRunner().SudoCmd(fmt.Sprintf("tar xzvf %s -C %s", f, filePath), false, true); err != nil {
 		logger.Errorf("failed to extract %s %v", f, err)
 		return err
 	}
 
 	// install
 	fp := path.Join(flexFilePath, fmt.Sprintf("flex-%s", kubekeyapiv1alpha2.DefaultFlexVersion))
-	if err := runtime.GetRunner().Host.ChangeDir(fp); err == nil {
-		if _, _, err := runtime.GetRunner().Host.Exec("autoreconf -i && ./configure --prefix=/usr && make -j4 && make install", false, true); err != nil {
+	if err := util.ChangeDir(fp); err == nil {
+		if _, err := runtime.GetRunner().SudoCmd("autoreconf -i && ./configure --prefix=/usr && make -j4 && make install", false, true); err != nil {
 			logger.Errorf("failed to install flex %v", err)
 			return err
 		}
 	}
 
 	tp := path.Join(filePath, fmt.Sprintf("conntrack-tools-conntrack-tools-%s", kubekeyapiv1alpha2.DefaultConntrackVersion))
-	if err := runtime.GetRunner().Host.ChangeDir(tp); err == nil {
-		if _, _, err := runtime.GetRunner().Host.Exec("autoreconf -i && ./configure --prefix=/usr && make -j4 && make install", false, true); err != nil {
+	if err := util.ChangeDir(tp); err == nil {
+		if _, err := runtime.GetRunner().SudoCmd("autoreconf -i && ./configure --prefix=/usr && make -j4 && make install", false, true); err != nil {
 			logger.Errorf("failed to install conntrack %v", err)
 			return err
 		}
 	}
-	if err := runtime.GetRunner().Host.ChangeDir(runtime.GetRootDir()); err != nil {
+	if err := util.ChangeDir(runtime.GetRootDir()); err != nil {
 		logger.Errorf("failed to change dir %v", err)
 		return err
 	}

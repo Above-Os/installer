@@ -45,7 +45,7 @@ func (s *Script) Execute(runtime connector.Runtime) error {
 	}
 
 	var cmd = fmt.Sprintf("%s bash %s %s", envs, s.File, strings.Join(s.Args, " "))
-	_, _, err := runtime.GetRunner().Host.Exec(cmd, s.PrintOutput, s.PrintLine)
+	_, err := runtime.GetRunner().SudoCmd(cmd, s.PrintOutput, s.PrintLine)
 	if err != nil {
 		return errors.Wrap(errors.WithStack(err), fmt.Sprintf("exec script %s failed, args: %v", s.File, s.Args))
 	}

@@ -98,16 +98,5 @@ type Host interface {
 	GetCache() *cache.Cache
 	SetCache(c *cache.Cache)
 
-	GetCommand(c string) (string, error)
-	GetServiceActive(s string) bool
-	IsExists(path string) bool
-	ChangeDir(path string) error
-	Move(src, dst string) error
-	Remove(path string) error
-	Untar(src, dst string) error
-	IsSymLink(path string) (bool, error)
-
-	Exec(name string, printOutput bool, printLine bool) (stdout string, code int, err error)
-	ExecWithChannel(name string, printOutput bool, printLine bool, output chan []interface{}) (stdout string, code int, err error)
 	Echo()
 }

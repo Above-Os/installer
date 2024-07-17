@@ -25,7 +25,7 @@ type GetCommandKubectl struct {
 }
 
 func (p *GetCommandKubectl) PreCheck(runtime connector.Runtime) (bool, error) {
-	cmd, err := runtime.GetRunner().Host.GetCommand(CommandKubectl)
+	cmd, err := runtime.GetRunner().SudoCmd(fmt.Sprintf("command -v %s", CommandKubectl), false, false)
 	if err != nil {
 		return true, nil
 	}

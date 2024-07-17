@@ -8,7 +8,6 @@ import (
 	"bytetrade.io/web3os/installer/pkg/core/connector"
 	"bytetrade.io/web3os/installer/pkg/core/logger"
 	"bytetrade.io/web3os/installer/pkg/core/prepare"
-	"bytetrade.io/web3os/installer/pkg/core/util"
 )
 
 type Ubuntu24AppArmorCheck struct {
@@ -25,7 +24,7 @@ func (p *Ubuntu24AppArmorCheck) PreCheck(runtime connector.Runtime) (bool, error
 	}
 
 	cmd := "apparmor_parser --version"
-	stdout, _, err := util.Exec(cmd, true, true)
+	stdout, err := runtime.GetRunner().SudoCmd(cmd, false, true)
 	if err != nil {
 		logger.Errorf("check apparmor version error %v", err)
 		return false, nil

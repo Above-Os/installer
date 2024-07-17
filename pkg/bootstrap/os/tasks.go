@@ -27,7 +27,6 @@ import (
 	"bytetrade.io/web3os/installer/pkg/bootstrap/os/repository"
 	"bytetrade.io/web3os/installer/pkg/common"
 	"bytetrade.io/web3os/installer/pkg/constants"
-	"bytetrade.io/web3os/installer/pkg/core/action"
 	"bytetrade.io/web3os/installer/pkg/core/connector"
 	"bytetrade.io/web3os/installer/pkg/core/logger"
 	"bytetrade.io/web3os/installer/pkg/utils"
@@ -35,13 +34,12 @@ import (
 
 // ~ TimeSyncTask
 type TimeSyncTask struct {
-	action.BaseAction
+	common.KubeAction
 }
 
 func (t *TimeSyncTask) Execute(runtime connector.Runtime) error {
-	var host = runtime.GetRunner().Host
 	var cmd = `sysctl -w kernel.printk="3 3 1 7"`
-	if _, _, err := host.Exec(cmd, true, false); err != nil {
+	if _, err := runtime.GetRunner().SudoCmd(cmd, false, true); err != nil {
 		logger.Errorf("failed to execute %s: %v", cmd, err)
 		return err
 	}
@@ -83,7 +81,7 @@ func (t *TimeSyncTask) Execute(runtime connector.Runtime) error {
 
 // ~ ConfigProxyTask
 type ConfigProxyTask struct {
-	action.BaseAction
+	common.KubeAction
 }
 
 func (t *ConfigProxyTask) Execute(runtime connector.Runtime) error {
@@ -92,7 +90,7 @@ func (t *ConfigProxyTask) Execute(runtime connector.Runtime) error {
 	}
 
 	var cmd = fmt.Sprintf("echo nameserver %s > /etc/resolv.conf", constants.Proxy)
-	if _, _, err := runtime.GetRunner().Host.Exec(cmd, true, true); err != nil {
+	if _, err := runtime.GetRunner().SudoCmd(cmd, false, true); err != nil {
 		logger.Errorf("failed to execute %s: %v", cmd, err)
 		return err
 	}
@@ -197,7 +195,7 @@ func (n *NodeExecScript) Execute(runtime connector.Runtime) error {
 		return errors.Wrap(errors.WithStack(err), "Failed to chmod +x init os script")
 	}
 
-	if _, err := runtime.GetRunner().SudoCmd(fmt.Sprintf("%s/initOS.sh", common.KubeScriptDir), true, false); err != nil {
+	if _, err := runtime.GetRunner().SudoCmd(fmt.Sprintf("%s/initOS.sh", common.KubeScriptDir), false, true); err != nil {
 		return errors.Wrap(errors.WithStack(err), "Failed to configure operating system")
 	}
 	return nil

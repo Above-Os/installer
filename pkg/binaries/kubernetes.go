@@ -60,20 +60,28 @@ func K8sFilesDownloadHTTP(kubeConf *common.KubeConf, path, version, arch string,
 		logger.Infof("%s downloading %s %s %s ...", common.LocalHost, arch, binary.ID, binary.Version)
 
 		binariesMap[binary.ID] = binary
-		if util.IsExist(binary.Path()) {
-			// download it again if it's incorrect
+
+		var exists = util.IsExist(binary.Path())
+		if exists {
+			p := binary.Path()
 			if err := binary.SHA256Check(); err != nil {
-				p := binary.Path()
 				_ = exec.Command("/bin/sh", "-c", fmt.Sprintf("rm -f %s", p)).Run()
 			} else {
-				logger.Infof("%s %s is existed", common.LocalHost, binary.ID)
+				if binary.ID == "helm" {
+					util.CopyFile(p, "/usr/local/bin/helm")
+					_ = exec.Command("/bin/sh", "-c", "chmod +x /usr/local/bin/helm").Run()
+				}
 				continue
 			}
 		}
 
-		if err := binary.Download(); err != nil {
-			return fmt.Errorf("Failed to download %s binary: %s error: %w ", binary.ID, binary.Url, err)
+		if !exists || binary.OverWrite {
+			logger.Infof("%s downloading %s %s %s ...", common.LocalHost, arch, binary.ID, binary.Version)
+			if err := binary.Download(); err != nil {
+				return fmt.Errorf("Failed to download %s binary: %s error: %w ", binary.ID, binary.Url, err)
+			}
 		}
+
 	}
 
 	pipelineCache.Set(common.KubeBinaries+"-"+arch, binariesMap)

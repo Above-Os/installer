@@ -23,7 +23,6 @@ import (
 	kubekeyapiv1alpha2 "bytetrade.io/web3os/installer/apis/kubekey/v1alpha2"
 	"bytetrade.io/web3os/installer/pkg/common"
 	"bytetrade.io/web3os/installer/pkg/constants"
-	"bytetrade.io/web3os/installer/pkg/core/action"
 	"bytetrade.io/web3os/installer/pkg/core/connector"
 	"bytetrade.io/web3os/installer/pkg/core/logger"
 	mapset "github.com/deckarep/golang-set"
@@ -32,7 +31,7 @@ import (
 
 // ~ InstallAppArmorTask
 type InstallAppArmorTask struct {
-	action.BaseAction
+	common.KubeAction
 }
 
 func (t *InstallAppArmorTask) Execute(runtime connector.Runtime) error {
@@ -42,7 +41,7 @@ func (t *InstallAppArmorTask) Execute(runtime connector.Runtime) error {
 		logger.Errorf("failed to download apparmor: %v", err)
 	}
 
-	if _, _, err := runtime.GetRunner().Host.Exec(fmt.Sprintf("dpkg -i %s", fileName), true, true); err != nil {
+	if _, err := runtime.GetRunner().SudoCmd(fmt.Sprintf("dpkg -i %s", fileName), false, true); err != nil {
 		logger.Errorf("failed to install apparmor: %v", err)
 		return err
 	}
@@ -92,6 +91,7 @@ func (d *Download) Execute(runtime connector.Runtime) error {
 			return err
 		}
 	}
+
 	return nil
 }
 

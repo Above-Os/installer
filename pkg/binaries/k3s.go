@@ -47,7 +47,6 @@ func K3sFilesDownloadHTTP(kubeConf *common.KubeConf, path, version, arch string,
 		binariesMap[binary.ID] = binary
 		var exists = util.IsExist(binary.Path())
 		if exists {
-			// download it again if it's incorrect
 			p := binary.Path()
 			if err := binary.SHA256Check(); err != nil {
 				_ = exec.Command("/bin/sh", "-c", fmt.Sprintf("rm -f %s", p)).Run()

@@ -12,10 +12,12 @@ type SaveInstallConfigModule struct {
 func (m *SaveInstallConfigModule) Init() {
 	m.Name = "SaveInstallConfig"
 
-	save := &task.LocalTask{
-		Name:   "Save",
-		Action: &SaveInstallConfigTask{},
-		Retry:  0,
+	save := &task.RemoteTask{
+		Name:     "Save",
+		Hosts:    m.Runtime.GetAllHosts(),
+		Action:   &SaveInstallConfigTask{},
+		Parallel: false,
+		Retry:    0,
 	}
 
 	m.Tasks = []task.Interface{save}

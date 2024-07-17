@@ -345,6 +345,10 @@ func (s *SyneKubeConfigToWorker) Execute(runtime connector.Runtime) error {
 		return errors.Wrap(errors.WithStack(err), "sudo scp config file to worker /root/.kube/config failed")
 	}
 
+	if _, err := runtime.GetRunner().SudoCmd("chmod 0600 /root/.kube/config", false, false); err != nil {
+		return errors.Wrap(errors.WithStack(err), "chmod 0600 /root/.kube/config failed")
+	}
+
 	// that doesn't work
 	//if err := runtime.GetRunner().SudoScp(filepath.Join(runtime.GetWorkDir(), firstMaster.GetName(), "admin.conf"), "$HOME/.kube/config"); err != nil {
 	//	return errors.Wrap(errors.WithStack(err), "sudo scp config file to worker $HOME/.kube/config failed")
@@ -359,6 +363,10 @@ func (s *SyneKubeConfigToWorker) Execute(runtime connector.Runtime) error {
 		getKubeConfigCmdUsr := "cp -f /root/.kube/config $HOME/.kube/config"
 		if _, err := runtime.GetRunner().SudoCmd(getKubeConfigCmdUsr, false, false); err != nil {
 			return errors.Wrap(errors.WithStack(err), "user copy /etc/kubernetes/admin.conf to $HOME/.kube/config failed")
+		}
+
+		if _, err := runtime.GetRunner().SudoCmd("chmod 0600 $HOME/.kube/config", false, false); err != nil {
+			return errors.Wrap(errors.WithStack(err), "chmod 0600 $HOME/.kube/config failed")
 		}
 
 		userId, err := runtime.GetRunner().Cmd("echo $(id -u)", false, false)

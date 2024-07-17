@@ -37,7 +37,6 @@ type SetProxyNameServer struct {
 }
 
 func (s *SetProxyNameServer) Execute(runtime connector.Runtime) error {
-	var host = runtime.RemoteHost()
 	proxy, ok := s.PipelineCache.Get(common.CacheProxy)
 	if !ok || proxy == nil {
 		return nil
@@ -48,8 +47,10 @@ func (s *SetProxyNameServer) Execute(runtime connector.Runtime) error {
 			return nil
 		}
 
-		host.Exec("cat /etc/resolv.conf > /etc/resolv.conf.bak", false, false)
-		if _, _, err := host.Exec(fmt.Sprintf("echo nameserver %s > /etc/resolv.conf", addr), false, true); err != nil {
+		if _, err := runtime.GetRunner().SudoCmd("cat /etc/resolv.conf > /etc/resolv.conf.bak", false, false); err != nil {
+			logger.Errorf("backup /etc/resolv.conf failed: %v", err)
+		}
+		if _, err := runtime.GetRunner().SudoCmd(fmt.Sprintf("echo nameserver %s > /etc/resolv.conf", addr), false, true); err != nil {
 			logger.Errorf("set nameserver %s failed: %v", addr, err)
 		}
 	}

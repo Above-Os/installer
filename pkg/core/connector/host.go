@@ -18,8 +18,6 @@ package connector
 
 import (
 	"fmt"
-	"os"
-	"os/exec"
 
 	"bytetrade.io/web3os/installer/pkg/core/cache"
 	"bytetrade.io/web3os/installer/pkg/core/util"
@@ -156,54 +154,6 @@ func (b *BaseHost) GetCache() *cache.Cache {
 
 func (b *BaseHost) SetCache(c *cache.Cache) {
 	b.Cache = c
-}
-
-func (b *BaseHost) GetCommand(c string) (string, error) {
-	return exec.LookPath(c)
-}
-
-func (b *BaseHost) IsSymLink(path string) (bool, error) {
-	fileInfo, err := os.Lstat(path)
-	if err != nil {
-		return false, err
-	}
-	return fileInfo.Mode()&os.ModeSymlink != 0, nil
-}
-
-func (b *BaseHost) GetServiceActive(s string) bool {
-	stdout, _, err := util.Exec(fmt.Sprintf("systemctl is-active %s", s), false, false)
-	if err != nil {
-		return false
-	}
-	return stdout == "active"
-}
-
-func (b *BaseHost) IsExists(path string) bool {
-	return util.IsExist(path)
-}
-
-func (b *BaseHost) ChangeDir(path string) error {
-	return util.ChangeDir(path)
-}
-
-func (b *BaseHost) Move(src, dst string) error {
-	return util.MoveFile(src, dst)
-}
-
-func (b *BaseHost) Remove(path string) error {
-	return util.RemoveFile(path)
-}
-
-func (b *BaseHost) Untar(src, dst string) error {
-	return util.Untar(src, dst)
-}
-
-func (b *BaseHost) Exec(name string, printOutput bool, printLine bool) (stdout string, code int, err error) {
-	return util.Exec(name, printOutput, printLine)
-}
-
-func (b *BaseHost) ExecWithChannel(name string, printOutput bool, printLine bool, output chan []interface{}) (stdout string, code int, err error) {
-	return util.ExecWithChannel(name, printOutput, printLine, output)
 }
 
 func (b *BaseHost) Echo() {

@@ -96,7 +96,7 @@ func NewCreateClusterPhase(runtime *common.KubeRuntime) []module.Module {
 	}
 
 	m := []module.Module{
-		&precheck.GreetingsModule{},
+		// &precheck.GreetingsModule{},
 		&precheck.NodePreCheckModule{},
 		&confirm.InstallConfirmModule{Skip: runtime.Arg.SkipConfirmCheck},
 		&artifact.UnArchiveModule{Skip: noArtifact},

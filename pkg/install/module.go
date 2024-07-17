@@ -29,20 +29,3 @@ func (m *InstallModule) Init() {
 
 	m.Tasks = []task.Interface{checkFileExists, copyInstallPackage}
 }
-
-// + 安装 full 包
-// ~ InstallTerminusModule
-type InstallTerminusModule struct {
-	common.KubeModule
-}
-
-func (m *InstallTerminusModule) Init() {
-	m.Name = "InstallTerminus"
-
-	runTerminus := &task.LocalTask{
-		Name:   "Install",
-		Action: new(Terminus),
-	}
-
-	m.Tasks = []task.Interface{runTerminus}
-}

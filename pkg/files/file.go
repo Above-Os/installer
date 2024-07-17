@@ -357,7 +357,7 @@ func (b *KubeBinary) UntarCmd() error {
 func (b *KubeBinary) GetTarCmd() string {
 	var cmd string
 	if b.ID == helm && b.Zone != "cn" {
-		cmd = fmt.Sprintf("cd %s && tar -zxf helm-%s-linux-%s.tar.gz && mv linux-%s/helm . && rm -rf ./linux-%s/",
+		cmd = fmt.Sprintf("cd %s && tar -zxf helm-%s-linux-%s.tar.gz && mv linux-%s/helm . && rm -rf ./linux-%s/ && cp ./helm /usr/local/bin/",
 			b.BaseDir, b.Version, b.Arch, b.Arch, b.Arch)
 	}
 	if b.ID == kubekey { // ! 这是测试的，不用管

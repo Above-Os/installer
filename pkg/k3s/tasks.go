@@ -395,6 +395,10 @@ func (c *CopyK3sKubeConfig) Execute(runtime connector.Runtime) error {
 		return errors.Wrap(errors.WithStack(err), "copy k3s kube config failed")
 	}
 
+	if _, err := runtime.GetRunner().SudoCmd("chmod 0600 $HOME/.kube/config", false, false); err != nil {
+		return errors.Wrap(errors.WithStack(err), "chmod k3s $HOME/.kube/config 0600 failed")
+	}
+
 	userMkdir := "mkdir -p $HOME/.kube"
 	if _, err := runtime.GetRunner().Cmd(userMkdir, false, false); err != nil {
 		return errors.Wrap(errors.WithStack(err), "user mkdir $HOME/.kube failed")
@@ -484,6 +488,10 @@ func (s *SyncKubeConfigToWorker) Execute(runtime connector.Runtime) error {
 		syncKubeConfigForRootCmd := fmt.Sprintf("echo '%s' > %s", newKubeConfig, "/root/.kube/config")
 		if _, err := runtime.GetRunner().SudoCmd(syncKubeConfigForRootCmd, false, false); err != nil {
 			return errors.Wrap(errors.WithStack(err), "sync kube config for root failed")
+		}
+
+		if _, err := runtime.GetRunner().SudoCmd("chmod 0600 /root/.kube/config", false, false); err != nil {
+			return errors.Wrap(errors.WithStack(err), "chmod k3s $HOME/.kube/config failed")
 		}
 
 		userConfigDirCmd := "mkdir -p $HOME/.kube"

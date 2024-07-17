@@ -67,6 +67,14 @@ func IsDir(path string) bool {
 	return fi.IsDir()
 }
 
+func IsSymLink(path string) (bool, error) {
+	fileInfo, err := os.Lstat(path)
+	if err != nil {
+		return false, err
+	}
+	return fileInfo.Mode()&os.ModeSymlink != 0, nil
+}
+
 func CountDirFiles(dirName string) int {
 	if !IsDir(dirName) {
 		return 0

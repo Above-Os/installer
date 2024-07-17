@@ -371,6 +371,10 @@ func (c *CopyKubeConfigForControlPlane) Execute(runtime connector.Runtime) error
 		return errors.Wrap(errors.WithStack(err), "user copy /etc/kubernetes/admin.conf to $HOME/.kube/config failed")
 	}
 
+	if _, err := runtime.GetRunner().SudoCmd("chmod 0600 $HOME/.kube/config", false, false); err != nil {
+		return errors.Wrap(errors.WithStack(err), "chmod $HOME/.kube/config failed")
+	}
+
 	userId, err := runtime.GetRunner().Cmd("echo $(id -u)", false, false)
 	if err != nil {
 		return errors.Wrap(errors.WithStack(err), "get user id failed")
@@ -456,6 +460,10 @@ func (s *SyncKubeConfigToWorker) Execute(runtime connector.Runtime) error {
 		syncKubeConfigForRootCmd := fmt.Sprintf("echo '%s' > %s", cluster.KubeConfig, "/root/.kube/config")
 		if _, err := runtime.GetRunner().SudoCmd(syncKubeConfigForRootCmd, false, false); err != nil {
 			return errors.Wrap(errors.WithStack(err), "sync kube config for root failed")
+		}
+
+		if _, err := runtime.GetRunner().SudoCmd("chmod 0600 /root/.kube/config", false, false); err != nil {
+			return errors.Wrap(errors.WithStack(err), "chmod $HOME/.kube/config failed")
 		}
 
 		userConfigDirCmd := "mkdir -p $HOME/.kube"

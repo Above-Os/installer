@@ -83,37 +83,45 @@ func (m *GetSysInfoModel) Init() {
 
 // ~ PrecheckOs
 type PreCheckOsModule struct {
-	module.BaseTaskModule
+	common.KubeModule
 }
 
 func (m *PreCheckOsModule) Init() {
 	m.Name = "PreCheckOs"
 
-	patchAppArmor := &task.LocalTask{
-		Name: "PatchAppArmor",
+	patchAppArmor := &task.RemoteTask{
+		Name:  "PatchAppArmor",
+		Hosts: m.Runtime.GetAllHosts(),
 		Prepare: &prepare.PrepareCollection{
 			&binaries.Ubuntu24AppArmorCheck{},
 		},
-		Action: new(binaries.InstallAppArmorTask),
-		Retry:  0,
+		Action:   new(binaries.InstallAppArmorTask),
+		Parallel: false,
+		Retry:    0,
 	}
 
-	raspbianCheck := &task.LocalTask{
-		Name:   "RaspbianCheck",
-		Action: new(RaspbianCheckTask),
-		Retry:  0,
+	raspbianCheck := &task.RemoteTask{
+		Name:     "RaspbianCheck",
+		Hosts:    m.Runtime.GetAllHosts(),
+		Action:   new(RaspbianCheckTask),
+		Parallel: false,
+		Retry:    0,
 	}
 
-	disableDNS := &task.LocalTask{
-		Name:   "DisableLocalDNS",
-		Action: new(DisableLocalDNSTask),
-		Retry:  0,
+	disableDNS := &task.RemoteTask{
+		Name:     "DisableLocalDNS",
+		Hosts:    m.Runtime.GetAllHosts(),
+		Action:   new(DisableLocalDNSTask),
+		Parallel: false,
+		Retry:    0,
 	}
 
-	copyPreInstallationDependencyFiles := &task.LocalTask{
-		Name:   "CopyPreInstallationDependencyFiles",
-		Action: new(CopyPreInstallationDependencyFilesTask),
-		Retry:  0,
+	copyPreInstallationDependencyFiles := &task.RemoteTask{
+		Name:     "CopyPreInstallationDependencyFiles",
+		Hosts:    m.Runtime.GetAllHosts(),
+		Action:   new(CopyPreInstallationDependencyFilesTask),
+		Parallel: false,
+		Retry:    0,
 	}
 
 	m.Tasks = []task.Interface{
@@ -126,15 +134,18 @@ func (m *PreCheckOsModule) Init() {
 
 // ~ TerminusGreetingsModule
 type TerminusGreetingsModule struct {
-	module.BaseTaskModule
+	common.KubeModule
 }
 
 func (h *TerminusGreetingsModule) Init() {
 	h.Name = "TerminusGreeting"
 
-	hello := &task.LocalTask{
-		Name:   "Greetings",
-		Action: new(TerminusGreetingsTask),
+	hello := &task.RemoteTask{
+		Name:     "Greetings",
+		Hosts:    h.Runtime.GetAllHosts(),
+		Action:   new(TerminusGreetingsTask),
+		Parallel: false,
+		Retry:    0,
 	}
 
 	h.Tasks = []task.Interface{

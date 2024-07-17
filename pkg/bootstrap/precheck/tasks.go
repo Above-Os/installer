@@ -40,30 +40,29 @@ import (
 
 // ~ RaspbianCheckTask
 type RaspbianCheckTask struct {
-	action.BaseAction
+	common.KubeAction
 }
 
 func (t *RaspbianCheckTask) Execute(runtime connector.Runtime) error {
 	// if util.IsExist(common.RaspbianCmdlineFile) || util.IsExist(common.RaspbianFirmwareFile) {
 	if constants.OsPlatform == common.Raspbian {
-		if _, err := runtime.GetRunner().Host.GetCommand(common.CommandIptables); err != nil {
+		if _, err := runtime.GetRunner().SudoCmd(fmt.Sprintf("command -v %s", common.CommandIptables), false, false); err != nil {
 			var cmd = "apt install -y iptables"
-			host := runtime.GetRunner().Host
 
-			_, _, err = host.Exec(cmd, true, true)
+			_, err = runtime.GetRunner().SudoCmd(cmd, false, true)
 			if err != nil {
 				logger.Errorf("%s install iptables error %v", common.Raspbian, err)
 				return err
 			}
 			cmd = "systemctl disable --user gvfs-udisks2-volume-monitor"
-			_, _, err = host.Exec(cmd, true, true)
+			_, err = runtime.GetRunner().SudoCmd(cmd, false, true)
 			if err != nil {
 				logger.Errorf("%s exec %s error %v", common.Raspbian, cmd, err)
 				return err
 			}
 
 			cmd = "systemctl stop --user gvfs-udisks2-volume-monitor"
-			_, _, err = host.Exec(cmd, true, true)
+			_, err = runtime.GetRunner().SudoCmd(cmd, false, true)
 			if err != nil {
 				logger.Errorf("%s exec %s error %v", common.Raspbian, cmd, err)
 				return err
@@ -79,38 +78,38 @@ func (t *RaspbianCheckTask) Execute(runtime connector.Runtime) error {
 
 // ~ DisableLocalDNSTask
 type DisableLocalDNSTask struct {
-	action.BaseAction
+	common.KubeAction
 }
 
 func (t *DisableLocalDNSTask) Execute(runtime connector.Runtime) error {
 	var cmd string
-	var host = runtime.GetRunner().Host
 	switch constants.OsPlatform {
 	case common.Ubuntu, common.Debian, common.Raspbian:
-		if ok := runtime.GetRunner().Host.GetServiceActive("systemd-resolved"); ok {
+		stdout, _ := runtime.GetRunner().SudoCmdExt("systemctl is-active systemd-resolved", false, false)
+		if stdout == "inactive" {
 			cmd = "systemctl stop systemd-resolved.service"
-			if _, _, err := host.Exec(cmd, true, true); err != nil {
+			if _, err := runtime.GetRunner().SudoCmd(cmd, false, true); err != nil {
 				logger.Errorf("exec %s error %v", cmd, err)
 				return err
 			}
 			cmd = "systemctl disable systemd-resolved.service"
-			if _, _, err := host.Exec(cmd, true, true); err != nil {
+			if _, err := runtime.GetRunner().SudoCmd(cmd, false, true); err != nil {
 				logger.Errorf("exec %s error %v", cmd, err)
 				return err
 			}
-			if host.IsExists("/usr/bin/systemd-resolve") {
-				if err := host.Move("/usr/bin/systemd-resolve", "/usr/bin/systemd-resolve.bak"); err != nil {
+			if utils.IsExist("/usr/bin/systemd-resolve") {
+				if _, err := runtime.GetRunner().SudoCmd("mv /usr/bin/systemd-resolve /usr/bin/systemd-resolve.bak", false, false); err != nil {
 					logger.Errorf("move /usr/bin/systemd-resolve error %v", err)
 					return err
 				}
 			}
-			ok, err := host.IsSymLink("/etc/resolv.conf")
+			ok, err := utils.IsSymLink("/etc/resolv.conf")
 			if err != nil {
 				logger.Errorf("check /etc/resolv.conf error %v", err)
 				return err
 			}
 			if ok {
-				if _, _, err := host.Exec("unlink /etc/resolv.conf && touch /etc/resolv.conf", true, true); err != nil {
+				if _, err := runtime.GetRunner().SudoCmd("unlink /etc/resolv.conf && touch /etc/resolv.conf", false, true); err != nil {
 					logger.Errorf("unlink /etc/resolv.conf error %v", err)
 					return err
 				}
@@ -121,15 +120,15 @@ func (t *DisableLocalDNSTask) Execute(runtime connector.Runtime) error {
 				return err
 			}
 		} else {
-			if _, _, err := host.Exec("cat /etc/resolv.conf > /etc/resolv.conf.bak", true, true); err != nil {
+			if _, err := runtime.GetRunner().SudoCmd("cat /etc/resolv.conf > /etc/resolv.conf.bak", false, true); err != nil {
 				logger.Errorf("backup /etc/resolv.conf error %v", err)
 				return err
 			}
 		}
 	}
 
-	if stdout, _, _ := host.Exec("hostname -i &>/dev/null", false, true); stdout == "" {
-		if _, _, err := host.Exec(fmt.Sprintf("echo %s $HOSTNAME >> /etc/hosts", constants.LocalIp), true, true); err != nil {
+	if stdout, _ := runtime.GetRunner().SudoCmd("hostname -i &>/dev/null", false, true); stdout == "" {
+		if _, err := runtime.GetRunner().SudoCmd(fmt.Sprintf("echo %s $HOSTNAME >> /etc/hosts", constants.LocalIp), false, true); err != nil {
 			return err
 		}
 	}
@@ -140,8 +139,8 @@ func (t *DisableLocalDNSTask) Execute(runtime connector.Runtime) error {
 			logger.Errorf("config /etc/resolv.conf error %v", err)
 			return err
 		}
-		if host.IsExists("/etc/resolv.conf.bak") {
-			if err := host.Remove("/etc/resolv.conf.bak"); err != nil {
+		if utils.IsExist("/etc/resolv.conf.bak") {
+			if err := utils.DeleteFile("/etc/resolv.conf.bak"); err != nil {
 				logger.Errorf("remove /etc/resolv.conf.bak error %v", err)
 				return err
 			}
@@ -154,24 +153,23 @@ func (t *DisableLocalDNSTask) Execute(runtime connector.Runtime) error {
 func ConfigResolvConf(runtime connector.Runtime) error {
 	var err error
 	var cmd string
-	var host = runtime.GetRunner().Host
 
 	if constants.CloudVendor == common.AliYun {
 		cmd = `echo "nameserver 100.100.2.136" > /etc/resolv.conf`
-		if _, _, err = host.Exec(cmd, true, true); err != nil {
+		if _, err = runtime.GetRunner().SudoCmd(cmd, false, true); err != nil {
 			logger.Errorf("exec %s error %v", cmd, err)
 			return err
 		}
 	}
 
 	cmd = `echo "nameserver 1.0.0.1" >> /etc/resolv.conf`
-	if _, _, err = host.Exec(cmd, true, true); err != nil {
+	if _, err = runtime.GetRunner().SudoCmd(cmd, false, true); err != nil {
 		logger.Errorf("exec %s error %v", cmd, err)
 		return err
 	}
 
 	cmd = `echo "nameserver 1.1.1.1" >> /etc/resolv.conf`
-	if _, _, err = host.Exec(cmd, true, true); err != nil {
+	if _, err = runtime.GetRunner().SudoCmd(cmd, false, true); err != nil {
 		logger.Errorf("exec %s error %v", cmd, err)
 		return err
 	}
@@ -184,8 +182,7 @@ type CopyPreInstallationDependencyFilesTask struct {
 }
 
 func (t *CopyPreInstallationDependencyFilesTask) Execute(runtime connector.Runtime) error {
-	if runtime.GetRunner().Host.IsExists("/opt/deps/") {
-		// runtime.GetRunner().Host.Exec("")
+	if utils.IsExist("/opt/deps/") {
 		// todo 拷贝预安装的依赖文件
 	}
 	return nil
@@ -198,10 +195,9 @@ type GetKubeVersionTask struct {
 }
 
 func (t *GetKubeVersionTask) Execute(runtime connector.Runtime) error {
-	var host = runtime.GetRunner().Host
 	var f = "/etc/kke/version"
-	if ok := host.IsExists(f); ok {
-		stdout, _, err := host.Exec("awk -F '=' '/KUBE/{printf \"%s\",$2}' "+f, false, true)
+	if ok := utils.IsExist(f); ok {
+		stdout, err := runtime.GetRunner().SudoCmd("awk -F '=' '/KUBE/{printf \"%s\",$2}' "+f, false, true)
 		if err != nil {
 			logger.Errorf("get kube version error %v", err)
 		}
@@ -210,7 +206,7 @@ func (t *GetKubeVersionTask) Execute(runtime connector.Runtime) error {
 		}
 	}
 
-	stdout, _, err := host.Exec("/usr/local/bin/kubectl get nodes -o jsonpath='{.items[0].status.nodeInfo.kubeletVersion}'", false, false)
+	stdout, err := runtime.GetRunner().SudoCmd("/usr/local/bin/kubectl get nodes -o jsonpath='{.items[0].status.nodeInfo.kubeletVersion}'", false, false)
 	if err != nil {
 		return nil
 	}
@@ -326,15 +322,16 @@ func (t *GetCGroupsTask) Execute(runtime connector.Runtime) error {
 
 // ~ TerminusGreetingsTask
 type TerminusGreetingsTask struct {
-	action.BaseAction
+	common.KubeAction
 }
 
 func (h *TerminusGreetingsTask) Execute(runtime connector.Runtime) error {
-	stdout, _, err := runtime.GetRunner().Host.Exec("echo 'Greetings, Terminus!!!!!' ", false, false)
+	stdout, err := runtime.GetRunner().SudoCmd("echo 'Greetings, Terminus!!!!!' ", false, true)
 	if err != nil {
 		return err
 	}
 	logger.Infof("TerminusGreetingsTask %s", stdout)
+
 	return nil
 }
 
@@ -344,7 +341,7 @@ type GreetingsTask struct {
 }
 
 func (h *GreetingsTask) Execute(runtime connector.Runtime) error {
-	_, err := runtime.GetRunner().SudoCmd("echo 'Greetings, KubeKey!!!!! hahahaha!!!!'", true, false)
+	_, err := runtime.GetRunner().SudoCmd("echo 'Greetings, KubeKey!!!!! hahahaha!!!!'", false, true)
 	if err != nil {
 		return err
 	}
@@ -639,27 +636,25 @@ type GetStorageKeyTask struct {
 }
 
 func (t *GetStorageKeyTask) Execute(runtime connector.Runtime) error {
-	var host = runtime.GetRunner().Host
-
-	if stdout, _, err := host.Exec("/usr/local/bin/kubectl get terminus terminus -o jsonpath='{.metadata.annotations.bytetrade\\.io/s3-ak}'", false, false); err != nil {
+	if stdout, err := runtime.GetRunner().SudoCmd("/usr/local/bin/kubectl get terminus terminus -o jsonpath='{.metadata.annotations.bytetrade\\.io/s3-ak}'", false, false); err != nil {
 		logger.Errorf("get s3 access key error %v", err)
 	} else if stdout != "" {
 		t.PipelineCache.Set(common.CacheSTSAccessKey, stdout)
 	}
 
-	if stdout, _, err := host.Exec("/usr/local/bin/kubectl get terminus terminus -o jsonpath='{.metadata.annotations.bytetrade\\.io/s3-sk}'", false, false); err != nil {
+	if stdout, err := runtime.GetRunner().SudoCmd("/usr/local/bin/kubectl get terminus terminus -o jsonpath='{.metadata.annotations.bytetrade\\.io/s3-sk}'", false, false); err != nil {
 		logger.Errorf("get s3 secret key error %v", err)
 	} else if stdout != "" {
 		t.PipelineCache.Set(common.CacheSTSSecretKey, stdout)
 	}
 
-	if stdout, _, err := host.Exec("/usr/local/bin/kubectl get terminus terminus -o jsonpath='{.metadata.annotations.bytetrade\\.io/s3-sts}'", false, false); err != nil {
+	if stdout, err := runtime.GetRunner().SudoCmd("/usr/local/bin/kubectl get terminus terminus -o jsonpath='{.metadata.annotations.bytetrade\\.io/s3-sts}'", false, false); err != nil {
 		logger.Errorf("get s3 sts token error %v", err)
 	} else if stdout != "" {
 		t.PipelineCache.Set(common.CacheSTSToken, stdout)
 	}
 
-	if stdout, _, err := host.Exec("/usr/local/bin/kubectl get terminus terminus -o jsonpath='{.metadata.annotations.bytetrade\\.io/cluster-id}'", false, false); err != nil {
+	if stdout, err := runtime.GetRunner().SudoCmd("/usr/local/bin/kubectl get terminus terminus -o jsonpath='{.metadata.annotations.bytetrade\\.io/cluster-id}'", false, false); err != nil {
 		logger.Errorf("get cluster id error %v", err)
 	} else if stdout != "" {
 		t.PipelineCache.Set(common.CacheSTSClusterId, stdout)

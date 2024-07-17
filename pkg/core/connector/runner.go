@@ -69,6 +69,23 @@ func (r *Runner) SudoCmd(cmd string, printOutput bool, printLine bool) (string, 
 	return r.Cmd(SudoPrefix(cmd), printOutput, printLine)
 }
 
+// ~ Extension
+func (r *Runner) SudoCmdExt(cmd string, printOutput bool, printLine bool) (string, error) {
+	if r.Conn == nil {
+		return "", errors.New("no ssh connection available")
+	}
+
+	stdout, _, err := r.Conn.Exec(SudoPrefix(cmd), r.Host, printLine)
+
+	if printOutput {
+		logger.Debugf("[exec] %s CMD: %s, OUTPUT: \n%s", r.Host.GetName(), cmd, stdout)
+	}
+
+	logger.Infof("[exec] %s CMD: %s, OUTPUT: %s", r.Host.GetName(), cmd, stdout)
+
+	return stdout, err
+}
+
 func (r *Runner) Fetch(local, remote string) error {
 	if r.Conn == nil {
 		return errors.New("no ssh connection available")
@@ -91,7 +108,7 @@ func (r *Runner) Scp(local, remote string) error {
 		logger.Debugf("scp local file %s to remote %s failed: %v", local, remote, err)
 		return err
 	}
-	logger.Debugf("scp local file %s to remote %s success", local, remote)
+	logger.Infof("scp local file %s to remote %s success", local, remote)
 	return nil
 }
 

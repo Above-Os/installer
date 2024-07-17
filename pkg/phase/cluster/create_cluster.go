@@ -115,7 +115,7 @@ func NewCreateClusterPhase(runtime *common.KubeRuntime) []module.Module {
 		&kubernetes.InstallKubeBinariesModule{},
 		&loadbalancer.KubevipModule{Skip: !runtime.Cluster.ControlPlaneEndpoint.IsInternalLBEnabledVip()},
 		&kubernetes.InitKubernetesModule{},
-		&dns.ClusterDNSModule{},
+		&dns.ClusterDNSModule{}, // todo 这里面会检查 coredns 服务的运行状态；反复检查多次
 		&kubernetes.StatusModule{},
 		&kubernetes.JoinNodesModule{},
 		&loadbalancer.KubevipModule{Skip: !runtime.Cluster.ControlPlaneEndpoint.IsInternalLBEnabledVip()},
@@ -130,7 +130,17 @@ func NewCreateClusterPhase(runtime *common.KubeRuntime) []module.Module {
 		&addons.AddonsModule{},
 		&storage.DeployLocalVolumeModule{Skip: skipLocalStorage},
 		&kubesphere.DeployModule{Skip: !runtime.Cluster.KubeSphere.Enabled}, // todo 这里这么延后？
-		&kubesphere.CheckResultModule{Skip: !runtime.Cluster.KubeSphere.Enabled},
+		// todo 在这里插入新的代码
+		&ksplugins.DeployKsPluginsModule{},
+		&ksplugins.DeploySnapshotControllerModule{},
+		&ksplugins.DeployRedisModule{},
+		&ksplugins.CreateKubeSphereSecretModule{},
+		&ksplugins.DeployKsCoreConfigModule{},     // ! ks-core-config
+		&ksplugins.CreateMonitorDashboardModule{}, // todo 这里暂时是测试，先放这里
+		&ksplugins.CreateNotificationModule{},     // todo 这里暂时是测试，先放这里
+		&ksplugins.DeployPrometheusModule{},
+		&ksplugins.DeployKsCoreModule{}, // ! 这里创建 ks-core，也就是 ks-apiserver
+		// &kubesphere.CheckResultModule{Skip: !runtime.Cluster.KubeSphere.Enabled},
 	}
 
 	return m

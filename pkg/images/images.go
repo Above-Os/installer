@@ -19,6 +19,8 @@ package images
 import (
 	"fmt"
 	"os"
+	"path"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -26,6 +28,7 @@ import (
 	"bytetrade.io/web3os/installer/pkg/common"
 	"bytetrade.io/web3os/installer/pkg/core/connector"
 	"bytetrade.io/web3os/installer/pkg/core/logger"
+	"bytetrade.io/web3os/installer/pkg/core/util"
 	"github.com/pkg/errors"
 )
 
@@ -103,6 +106,30 @@ func (images *Images) PullImages(runtime connector.Runtime, kubeConf *common.Kub
 
 	host := runtime.RemoteHost()
 
+	// todo 加载本地的镜像
+	var imagePath = path.Join(runtime.GetRootDir(), "images")
+	if util.IsExist(imagePath) {
+		filepath.Walk(imagePath, func(path string, info os.FileInfo, err error) error {
+			if err != nil {
+				return err
+			}
+			if info.IsDir() {
+				return nil
+			}
+			if !strings.Contains(info.Name(), ".tar.gz") {
+				return nil
+			}
+
+			var cmd = fmt.Sprintf("gunzip -c %s | ctr -n k8s.io images import -", path)
+			if _, err = runtime.GetRunner().SudoCmd(cmd, false, true); err != nil {
+				logger.Errorf("import image %s failed", path)
+				return err
+			}
+			return nil
+		})
+	}
+
+	// todo 这里需要完善，比如提前加载镜像
 	for _, image := range images.Images {
 		switch {
 		case host.IsRole(common.Master) && image.Group == kubekeyapiv1alpha2.Master && image.Enable,
@@ -110,16 +137,14 @@ func (images *Images) PullImages(runtime connector.Runtime, kubeConf *common.Kub
 			(host.IsRole(common.Master) || host.IsRole(common.Worker)) && image.Group == kubekeyapiv1alpha2.K8s && image.Enable,
 			host.IsRole(common.ETCD) && image.Group == kubekeyapiv1alpha2.Etcd && image.Enable:
 
-			logger.Debugf("%s downloading image: %s", host.GetName(), image.ImageName())
-			if _, err := runtime.GetRunner().SudoCmd(fmt.Sprintf("env PATH=$PATH %s inspecti -q %s", pullCmd, image.ImageName()), false, false); err == nil {
+			if _, err := runtime.GetRunner().SudoCmdExt(fmt.Sprintf("%s inspecti -q %s", pullCmd, image.ImageName()), false, false); err == nil {
 				logger.Infof("%s pull image %s exists", pullCmd, image.ImageName())
-				fmt.Printf("%s pull image %s exists\n", pullCmd, image.ImageName())
 				continue
 			}
 
-			fmt.Printf("%s downloading image %s\n", pullCmd, image.ImageName())
-			logger.Infof("%s downloading image: %s", host.GetName(), image.ImageName())
-			if _, err := runtime.GetRunner().SudoCmd(fmt.Sprintf("env PATH=$PATH %s pull %s", pullCmd, image.ImageName()), false, false); err != nil {
+			// fmt.Printf("%s downloading image %s\n", pullCmd, image.ImageName())
+			logger.Debugf("%s downloading image: %s - %s", host.GetName(), image.ImageName(), runtime.RemoteHost().GetName())
+			if _, err := runtime.GetRunner().SudoCmd(fmt.Sprintf("%s pull %s", pullCmd, image.ImageName()), false, false); err != nil {
 				return errors.Wrap(err, "pull image failed")
 			}
 		default:

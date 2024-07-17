@@ -146,7 +146,7 @@ func GetImage(runtime connector.ModuleRuntime, kubeConf *common.KubeConf, name s
 		corednsTag = "1.8.6"
 	}
 
-	logger.Debugf("pauseTag: %s, corednsTag: %s", pauseTag, corednsTag)
+	// logger.Debugf("pauseTag: %s, corednsTag: %s", pauseTag, corednsTag)
 
 	ImageList := map[string]Image{
 		"pause":                   {RepoAddr: kubeConf.Cluster.Registry.PrivateRegistry, Namespace: kubekeyv1alpha2.DefaultKubeImageNamespace, Repo: "pause", Tag: pauseTag, Group: kubekeyv1alpha2.K8s, Enable: true},

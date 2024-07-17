@@ -23,7 +23,7 @@ Content-Type: application/json
     "config": {
         "terminus_os_domainname": "",
         "terminus_os_username": "zhaoyu",
-        "kube_type": "k3s",
+        "kube_type": "k8s",
         "vendor": "private",
         "gpu_enable": 0,
         "gpu_share": 0,

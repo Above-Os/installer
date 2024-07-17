@@ -384,7 +384,7 @@ type RestartETCD struct {
 }
 
 func (r *RestartETCD) Execute(runtime connector.Runtime) error {
-	if _, err := runtime.GetRunner().SudoCmd("systemctl daemon-reload && systemctl restart etcd && systemctl enable etcd", true, false); err != nil {
+	if _, err := runtime.GetRunner().SudoCmd("systemctl daemon-reload && systemctl restart etcd && systemctl enable etcd", false, false); err != nil {
 		return errors.Wrap(errors.WithStack(err), "start etcd failed")
 	}
 	return nil

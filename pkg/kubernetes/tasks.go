@@ -336,13 +336,13 @@ func (k *KubeadmInit) Execute(runtime connector.Runtime) error {
 		initCmd = initCmd + " --skip-phases=addon/kube-proxy"
 	}
 
-	if _, err := runtime.GetRunner().SudoCmd(initCmd, true, false); err != nil {
+	if _, err := runtime.GetRunner().SudoCmd(initCmd, false, true); err != nil {
 		// kubeadm reset and then retry
 		resetCmd := "/usr/local/bin/kubeadm reset -f"
 		if k.KubeConf.Cluster.Kubernetes.ContainerRuntimeEndpoint != "" {
 			resetCmd = resetCmd + " --cri-socket " + k.KubeConf.Cluster.Kubernetes.ContainerRuntimeEndpoint
 		}
-		_, _ = runtime.GetRunner().SudoCmd(resetCmd, true, false)
+		_, _ = runtime.GetRunner().SudoCmd(resetCmd, false, true)
 		return errors.Wrap(errors.WithStack(err), "init kubernetes cluster failed")
 	}
 	return nil
@@ -396,12 +396,12 @@ type RemoveMasterTaint struct {
 func (r *RemoveMasterTaint) Execute(runtime connector.Runtime) error {
 	if _, err := runtime.GetRunner().SudoCmd(fmt.Sprintf(
 		"/usr/local/bin/kubectl taint nodes %s node-role.kubernetes.io/master=:NoSchedule-",
-		runtime.RemoteHost().GetName()), true, false); err != nil {
+		runtime.RemoteHost().GetName()), false, true); err != nil {
 		logger.Warn(err.Error())
 	}
 	if _, err := runtime.GetRunner().SudoCmd(fmt.Sprintf(
 		"/usr/local/bin/kubectl taint nodes %s node-role.kubernetes.io/control-plane=:NoSchedule-",
-		runtime.RemoteHost().GetName()), true, false); err != nil {
+		runtime.RemoteHost().GetName()), false, true); err != nil {
 		logger.Warn(err.Error())
 	}
 	return nil
@@ -415,7 +415,7 @@ type AddWorkerLabel struct {
 func (a *AddWorkerLabel) Execute(runtime connector.Runtime) error {
 	if _, err := runtime.GetRunner().SudoCmd(fmt.Sprintf(
 		"/usr/local/bin/kubectl label --overwrite node %s node-role.kubernetes.io/worker=",
-		runtime.RemoteHost().GetName()), true, false); err != nil {
+		runtime.RemoteHost().GetName()), false, true); err != nil {
 		return errors.Wrap(errors.WithStack(err), "add worker label failed")
 	}
 	return nil
@@ -882,7 +882,7 @@ func OverrideCoreDNSService(runtime connector.Runtime, kubeAction common.KubeAct
 	host := runtime.RemoteHost()
 
 	generateCoreDNDSvc := &task.RemoteTask{
-		Name:  "GenerateCoreDNSSvc",
+		Name:  "GenerateCoreDNSSvc(k8s)",
 		Desc:  "generate coredns service",
 		Hosts: []connector.Host{host},
 		Prepare: &prepare.PrepareCollection{

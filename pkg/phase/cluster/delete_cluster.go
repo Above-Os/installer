@@ -50,7 +50,6 @@ func GetCurrentKubeVersion() string {
 				stdout = strings.ReplaceAll(stdout, "+k3s2", "-k3s")
 			}
 		}
-
 		if fileVersion != "" {
 			if stdout != "" && strings.Contains(stdout, fileVersion) {
 				constants.InstalledKubeVersion = fileVersion
@@ -60,7 +59,6 @@ func GetCurrentKubeVersion() string {
 				constants.InstalledKubeVersion = stdout
 			}
 		}
-
 	}
 	goto SKIP
 

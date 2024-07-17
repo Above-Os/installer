@@ -25,12 +25,11 @@ func UninstallTerminusPipeline() error {
 	m := []module.Module{
 		&precheck.GetStorageKeyModule{},
 	}
-
 	var kubeModules []module.Module
 	switch runtime.Cluster.Kubernetes.Type {
 	case common.K3s:
 		kubeModules = cluster.NewK3sDeleteClusterPhase(runtime)
-	case common.K8s:
+	case common.Kubernetes:
 		kubeModules = cluster.NewK8sDeleteClusterPhase(runtime)
 	default:
 		return fmt.Errorf("invalid kubernetes type: %s", runtime.Cluster.Kubernetes.Type)

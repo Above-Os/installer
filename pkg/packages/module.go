@@ -21,12 +21,15 @@ func (m *PackagesModule) Init() {
 		Retry:  0,
 	}
 
-	untar := &task.LocalTask{
-		Name:   "Decompress",
-		Desc:   "Decompress installer package",
-		Action: new(PackageUntar),
-		Retry:  0,
-	}
+	// untar := &task.LocalTask{
+	// 	Name:   "Decompress",
+	// 	Desc:   "Decompress installer package",
+	// 	Action: new(PackageUntar),
+	// 	Retry:  0,
+	// }
 
-	m.Tasks = []task.Interface{download, untar}
+	m.Tasks = []task.Interface{
+		download,
+		//untar,
+	}
 }

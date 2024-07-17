@@ -52,20 +52,19 @@ func DownloadInstallPackage(kubeConf *common.KubeConf, path, version, arch strin
 
 func DownloadPackage(kubeConf *common.KubeConf, path, version, arch string, pipelineCache *cache.Cache) error {
 	// todo 这里会涉及多个文件的下载，且还会涉及 md5 的校验；同时还包括本地文件检查
-	// file1 := files.NewKubeBinary("file1", arch, version, path)
-	// file2 := files.NewKubeBinary("file2", arch, version, path)
-	// file3 := files.NewKubeBinary("file3", arch, version, path)
-	file4 := files.NewKubeBinary("kubekey", arch, "0.1.20", path) // todo test kubekey
+	file1 := files.NewKubeBinary("file1", arch, version, path)
+	file2 := files.NewKubeBinary("file2", arch, version, path)
+	file3 := files.NewKubeBinary("file3", arch, version, path)
+	file4 := files.NewKubeBinary("full-package", arch, version, path)
+	// file4 := files.NewKubeBinary("kubekey", arch, "0.1.20", path) // todo test kubekey
 
-	downloadFiles := []*files.KubeBinary{file4}
+	downloadFiles := []*files.KubeBinary{file1, file2, file3, file4}
 
 	filesMap := make(map[string]*files.KubeBinary)
 	for _, downloadFile := range downloadFiles {
 		if err := downloadFile.CreateBaseDir(); err != nil {
 			return errors.Wrapf(errors.WithStack(err), "create file %s base dir failed", downloadFile.FileName)
 		}
-
-		// logger.Infof(common.LocalHost, "downloading %s %s %s ...", arch, downloadFile.ID, downloadFile.Version)
 
 		filesMap[downloadFile.ID] = downloadFile
 		if util.IsExist(downloadFile.Path()) {

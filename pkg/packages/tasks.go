@@ -34,7 +34,13 @@ type PackageDownload struct {
 
 func (d *PackageDownload) Execute(runtime connector.Runtime) error {
 	provider := runtime.GetStorage()
-	if err := DownloadInstallPackage(d.KubeConf, runtime.GetPackageDir(), "0.0.1", kubekeyapiv1alpha2.DefaultArch, d.PipelineCache, provider); err != nil {
+	if provider == nil {
+	}
+	// if err := DownloadInstallPackage(d.KubeConf, runtime.GetPackageDir(), "0.0.1", kubekeyapiv1alpha2.DefaultArch, d.PipelineCache, provider); err != nil {
+	// 	return err
+	// }
+
+	if err := DownloadPackage(d.KubeConf, runtime.GetPackageDir(), "0.0.1", kubekeyapiv1alpha2.DefaultArch, d.PipelineCache); err != nil {
 		return err
 	}
 

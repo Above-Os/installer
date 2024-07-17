@@ -4,7 +4,7 @@ import (
 	"bytetrade.io/web3os/installer/pkg/common"
 	"bytetrade.io/web3os/installer/pkg/core/module"
 	"bytetrade.io/web3os/installer/pkg/core/pipeline"
-	ksplugins "bytetrade.io/web3os/installer/pkg/kubesphere/plugins"
+	"bytetrade.io/web3os/installer/pkg/packages"
 )
 
 func DebugCommand() error {
@@ -23,7 +23,7 @@ func DebugCommand() error {
 	}
 
 	m := []module.Module{
-		&ksplugins.CreateKubeSphereSecretModule{},
+		&packages.PackagesModule{},
 	}
 
 	p := pipeline.Pipeline{

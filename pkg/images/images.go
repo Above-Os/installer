@@ -123,7 +123,7 @@ func (images *Images) PullImages(runtime connector.Runtime, kubeConf *common.Kub
 			var cmd = fmt.Sprintf("gunzip -c %s | ctr -n k8s.io images import -", path)
 			if _, err = runtime.GetRunner().SudoCmd(cmd, false, true); err != nil {
 				logger.Errorf("import image %s failed", path)
-				return err
+				return nil
 			}
 			return nil
 		})

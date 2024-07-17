@@ -7,6 +7,8 @@ import (
 	"path/filepath"
 
 	ctrl "bytetrade.io/web3os/installer/controllers"
+	"bytetrade.io/web3os/installer/pkg/bootstrap/os"
+	"bytetrade.io/web3os/installer/pkg/bootstrap/patch"
 	"bytetrade.io/web3os/installer/pkg/bootstrap/precheck"
 	"bytetrade.io/web3os/installer/pkg/common"
 	"bytetrade.io/web3os/installer/pkg/core/logger"
@@ -31,9 +33,9 @@ func InstallTerminusPipeline(args common.Argument) error {
 		// &scripts.CopyUninstallScriptModule{},
 		// &install.InstallTerminusModule{},
 		// + 这里开始
-		// &precheck.PreCheckOsModule{}, // * 对应 precheck_os()
-		// &patch.InstallDepsModule{},   // * 对应 install_deps
-		// &os.ConfigSystemModule{},     // * 对应 config_system
+		&precheck.PreCheckOsModule{}, // * 对应 precheck_os()
+		&patch.InstallDepsModule{},   // * 对应 install_deps
+		&os.ConfigSystemModule{},     // * 对应 config_system
 		&images.PreloadImagesModule{},
 	}
 

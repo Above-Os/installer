@@ -37,9 +37,6 @@ import (
 	"bytetrade.io/web3os/installer/pkg/utils"
 	"github.com/cavaliergopher/grab/v3"
 	"github.com/pkg/errors"
-
-	"github.com/k0kubun/go-ansi"
-	"github.com/schollz/progressbar/v3"
 )
 
 const (
@@ -440,9 +437,7 @@ func (b *KubeBinary) Download() error {
 
 		client := grab.NewClient()
 		req, _ := grab.NewRequest(fmt.Sprintf("%s/%s", b.BaseDir, b.FileName), b.Url)
-		req.IgnoreBadStatusCodes = true
-		req.IgnoreRemoteTime = true
-		req.RateLimiter = NewLimiter(1024 * 1024) // todo
+		// req.RateLimiter = NewLimiter(1024 * 1024) // todo
 		req.HTTPRequest = req.HTTPRequest.WithContext(context.Background())
 		ctx, cancel := context.WithTimeout(req.HTTPRequest.Context(), 5*time.Minute)
 		defer cancel()
@@ -453,58 +448,32 @@ func (b *KubeBinary) Download() error {
 		t := time.NewTicker(500 * time.Millisecond)
 		defer t.Stop()
 
-		// +
-		var bar = progressbar.NewOptions64(totalSize,
-			progressbar.OptionSetWriter(ansi.NewAnsiStdout()),
-			progressbar.OptionClearOnFinish(),
-			progressbar.OptionEnableColorCodes(true),
-			progressbar.OptionShowBytes(true),
-			progressbar.OptionSetRenderBlankState(true),
-			progressbar.OptionClearOnFinish(),
-			progressbar.OptionSetWidth(15),
-			// progressbar.OptionSetDescription(fmt.Sprintf("[cyan][1/3][downloading] %s  ", b.FileName)),
-			progressbar.OptionSetTheme(progressbar.Theme{
-				Saucer:        "[green]=[reset]",
-				SaucerHead:    "[green]>[reset]",
-				SaucerPadding: " ",
-				BarStart:      "[",
-				BarEnd:        "]",
-			}))
-		defer bar.Close()
-
-		bar.Clear()
-		bar.Describe(fmt.Sprintf("[cyan][1/3][downloading] %s  ", b.FileName))
-
+		var downloaded int64
 	Loop:
 		for {
 			select {
 			case <-t.C:
-				downloaded := resp.BytesComplete()
-
-				// todo 打印日志
-				bar.Add64(downloaded)
-				// b.PrintOutput = false
-				// var progressInfo string
-				// if totalSize != 0 {
-				// 	result := float64(downloaded) / float64(totalSize)
-				// 	progressInfo = fmt.Sprintf("transferred %s %s / %s (%.2f%%) / speed: %s", b.FileName, utils.FormatBytes(resp.BytesComplete()), utils.FormatBytes(totalSize), math.Round(result*10000)/100, utils.FormatBytes(int64(resp.BytesPerSecond())))
-				// 	if b.PrintOutput {
-				// 		fmt.Println(progressInfo)
-				// 	}
-				// 	logger.Info(progressInfo)
-				// 	line <- []interface{}{fmt.Sprintf("downloading %s %s (%0.2f%%)", b.FileName, utils.FormatBytes(resp.BytesComplete()), math.Round(result*10000)/100),
-				// 		common.StateDownload, math.Round(result * 10000 / float64(common.DefaultInstallSteps))}
-				// } else {
-				// 	progressInfo = fmt.Sprintf("transferred %s %s / speed: %s\n", b.FileName, utils.FormatBytes(resp.BytesComplete()), utils.FormatBytes(int64(resp.BytesPerSecond())))
-				// 	if b.PrintOutput {
-				// 		fmt.Println(progressInfo)
-				// 	}
-				// 	logger.Infof(progressInfo)
-				// 	line <- []interface{}{fmt.Sprintf("downloading %s %s", b.FileName, utils.FormatBytes(resp.BytesComplete())),
-				// 		common.StateDownload, math.Round(1 * 10000 / float64(common.DefaultInstallSteps))}
-				// }
+				downloaded = resp.BytesComplete()
+				var progressInfo string
+				if totalSize != 0 {
+					result := float64(downloaded) / float64(totalSize)
+					progressInfo = fmt.Sprintf("transferred %s %s / %s (%.2f%%) / speed: %s", b.FileName, utils.FormatBytes(resp.BytesComplete()), utils.FormatBytes(totalSize), math.Round(result*10000)/100, utils.FormatBytes(int64(resp.BytesPerSecond())))
+					if b.PrintOutput {
+						fmt.Println(progressInfo)
+					}
+					logger.Info(progressInfo)
+					line <- []interface{}{fmt.Sprintf("downloading %s %s (%0.2f%%)", b.FileName, utils.FormatBytes(resp.BytesComplete()), math.Round(result*10000)/100),
+						common.StateDownload, math.Round(result * 10000 / float64(common.DefaultInstallSteps))}
+				} else {
+					progressInfo = fmt.Sprintf("transferred %s %s / speed: %s\n", b.FileName, utils.FormatBytes(resp.BytesComplete()), utils.FormatBytes(int64(resp.BytesPerSecond())))
+					if b.PrintOutput {
+						fmt.Println(progressInfo)
+					}
+					logger.Infof(progressInfo)
+					line <- []interface{}{fmt.Sprintf("downloading %s %s", b.FileName, utils.FormatBytes(resp.BytesComplete())),
+						common.StateDownload, math.Round(1 * 10000 / float64(common.DefaultInstallSteps))}
+				}
 			case <-resp.Done:
-				bar.Finish() // +
 				break Loop
 			}
 		}
@@ -520,20 +489,12 @@ func (b *KubeBinary) Download() error {
 			continue
 		}
 
-		// +
-		bar.Describe(fmt.Sprintf("[cyan][2/3][decompression] %s...", b.FileName))
-
-		// bar.Write([]byte(fmt.Sprintf("[cyan][2/3][decompression] %s...", b.FileName)))
 		if err = b.UntarCmd(); err != nil { // only for helm and kubekey
 			logger.Errorf("decompression failed: %v", err)
 			time.Sleep(1 * time.Second)
 			continue
 		}
-		bar.Finish() // +
 
-		// +
-		bar.Describe(fmt.Sprintf("[cyan][3/3][check sum] %s...", b.FileName))
-		// bar.Write([]byte(fmt.Sprintf("[cyan][3/3][check sum] %s...", b.FileName)))
 		if err := b.SHA256Check(); err != nil { // ~ checksum
 			logger.Errorf("SHA256 check failed: %v", err)
 			if i == 1 {
@@ -545,9 +506,8 @@ func (b *KubeBinary) Download() error {
 			time.Sleep(2 * time.Second)
 			continue
 		}
-		bar.Finish() // +
-		logger.Infof("%s download succeeded", b.FileName)
 
+		logger.Debugf("%s download succeeded", b.FileName)
 		line <- []interface{}{fmt.Sprintf("%s download succeeded", b.FileName), common.StateDownload, math.Round(1 * 10000 / float64(common.DefaultInstallSteps))}
 		break
 	}

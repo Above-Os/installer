@@ -149,7 +149,7 @@ type DisableContainerd struct {
 
 func (d *DisableContainerd) Execute(runtime connector.Runtime) error {
 	if _, err := runtime.GetRunner().SudoCmd(
-		"systemctl disable containerd && systemctl stop containerd", true, false); err != nil {
+		"systemctl disable containerd && systemctl stop containerd", false, true); err != nil {
 		return errors.Wrap(errors.WithStack(err), fmt.Sprintf("disable and stop containerd failed"))
 	}
 
@@ -170,7 +170,7 @@ func (d *DisableContainerd) Execute(runtime connector.Runtime) error {
 	}
 
 	for _, file := range files {
-		_, _ = runtime.GetRunner().SudoCmd(fmt.Sprintf("rm -rf %s", file), true, false)
+		_, _ = runtime.GetRunner().SudoCmd(fmt.Sprintf("rm -rf %s", file), false, true)
 	}
 	return nil
 }

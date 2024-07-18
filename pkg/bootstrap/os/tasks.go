@@ -249,7 +249,7 @@ type ResetNetworkConfig struct {
 
 func (r *ResetNetworkConfig) Execute(runtime connector.Runtime) error {
 	for _, cmd := range networkResetCmds {
-		_, _ = runtime.GetRunner().SudoCmd(cmd, true, false)
+		_, _ = runtime.GetRunner().SudoCmdExt(cmd, false, false)
 	}
 	return nil
 }
@@ -262,7 +262,7 @@ type UninstallETCD struct {
 func (s *UninstallETCD) Execute(runtime connector.Runtime) error {
 	_, _ = runtime.GetRunner().SudoCmd("systemctl stop etcd && exit 0", false, false)
 	for _, file := range etcdFiles {
-		_, _ = runtime.GetRunner().SudoCmd(fmt.Sprintf("rm -rf %s", file), true, false)
+		_, _ = runtime.GetRunner().SudoCmd(fmt.Sprintf("rm -rf %s", file), false, true)
 	}
 	return nil
 }
@@ -296,7 +296,7 @@ func (r *RemoveNodeFiles) Execute(runtime connector.Runtime) error {
 	}
 
 	for _, file := range nodeFiles {
-		_, _ = runtime.GetRunner().SudoCmd(fmt.Sprintf("rm -rf %s", file), true, false)
+		_, _ = runtime.GetRunner().SudoCmd(fmt.Sprintf("rm -rf %s", file), false, true)
 	}
 	return nil
 }
@@ -308,7 +308,7 @@ type RemoveFiles struct {
 
 func (r *RemoveFiles) Execute(runtime connector.Runtime) error {
 	for _, file := range clusterFiles {
-		_, _ = runtime.GetRunner().SudoCmd(fmt.Sprintf("rm -rf %s", file), true, false)
+		_, _ = runtime.GetRunner().SudoCmd(fmt.Sprintf("rm -rf %s", file), false, true)
 	}
 	return nil
 }
@@ -609,7 +609,7 @@ func (n *NodeConfigureNtpServer) Execute(runtime connector.Runtime) error {
 		}
 
 		// tells chronyd to cancel any remaining correction that was being slewed and jump the system clock by the equivalent amount, making it correct immediately.
-		if _, err := runtime.GetRunner().SudoCmd("chronyc makestep > /dev/null && chronyc sources", true, false); err != nil {
+		if _, err := runtime.GetRunner().SudoCmd("chronyc makestep > /dev/null && chronyc sources", false, true); err != nil {
 			return errors.Wrap(err, "chronyc makestep failed")
 		}
 	}

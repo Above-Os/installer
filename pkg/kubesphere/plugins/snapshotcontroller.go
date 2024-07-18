@@ -2,11 +2,13 @@ package plugins
 
 import (
 	"context"
+	"fmt"
 	"path"
 	"time"
 
 	"bytetrade.io/web3os/installer/pkg/common"
 	"bytetrade.io/web3os/installer/pkg/core/connector"
+	"bytetrade.io/web3os/installer/pkg/core/logger"
 	"bytetrade.io/web3os/installer/pkg/core/prepare"
 	"bytetrade.io/web3os/installer/pkg/core/task"
 	"bytetrade.io/web3os/installer/pkg/kubernetes"
@@ -21,6 +23,12 @@ type DeploySnapshotController struct {
 }
 
 func (t *DeploySnapshotController) Execute(runtime connector.Runtime) error {
+	var scrd = path.Join(runtime.GetFilesDir(), "apps", "snapshot-controller", "crds", "snapshot.storage.k8s.io_volumesnapshot.yaml")
+	var cmd = fmt.Sprintf("/usr/local/bin/kubectl apply -f %s --force", scrd)
+	if _, err := runtime.GetRunner().SudoCmd(cmd, false, true); err != nil {
+		logger.Errorf("Install snapshot controller failed: %v", err)
+	}
+
 	config, err := ctrl.GetConfig()
 	if err != nil {
 		return err
@@ -42,7 +50,8 @@ func (t *DeploySnapshotController) Execute(runtime connector.Runtime) error {
 		"Namespace": common.NamespaceKubeSystem,
 	}
 
-	if err := utils.InstallCharts(ctx, actionConfig, settings, appName, appPath, "", common.NamespaceKubeSystem, values); err != nil {
+	if err := utils.InstallCharts(ctx, actionConfig, settings, appName, appPath, "",
+		common.NamespaceKubeSystem, values); err != nil {
 		return err
 	}
 

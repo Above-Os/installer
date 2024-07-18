@@ -3,12 +3,35 @@ package terminus
 import (
 	"path"
 
+	"bytetrade.io/web3os/installer/pkg/common"
 	"bytetrade.io/web3os/installer/pkg/core/action"
 	corecommon "bytetrade.io/web3os/installer/pkg/core/common"
 	"bytetrade.io/web3os/installer/pkg/core/module"
 	"bytetrade.io/web3os/installer/pkg/core/task"
 	"bytetrade.io/web3os/installer/pkg/scripts"
 )
+
+// ~ ClearIPsModule
+// called when performing the uninstall operation
+type ClearIPsModule struct {
+	common.KubeModule
+}
+
+func (m *ClearIPsModule) Init() {
+	m.Name = "ClearIPs"
+
+	killContainerd := &task.RemoteTask{
+		Name:     "KillContainerd",
+		Hosts:    m.Runtime.GetHostsByRole(common.Master),
+		Action:   new(KillContainerd),
+		Parallel: true,
+		Retry:    0,
+	}
+
+	m.Tasks = []task.Interface{
+		killContainerd,
+	}
+}
 
 // ~ UninstallTerminusCliModule
 type UninstallTerminusCliModule struct {

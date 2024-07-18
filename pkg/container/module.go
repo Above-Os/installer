@@ -180,6 +180,8 @@ func (i *UninstallContainerModule) Init() {
 	i.Desc = "Uninstall container manager"
 
 	switch i.KubeConf.Cluster.Kubernetes.ContainerManager {
+	case common.Docker:
+		i.Tasks = UninstallDocker(i)
 	case common.Containerd:
 		i.Tasks = UninstallContainerd(i)
 	case common.Crio:
@@ -188,6 +190,24 @@ func (i *UninstallContainerModule) Init() {
 		// TODO: Add the steps of iSula's installation.
 	default:
 		logger.Fatalf("Unsupported container runtime: %s", strings.TrimSpace(i.KubeConf.Cluster.Kubernetes.ContainerManager))
+	}
+}
+
+func UninstallDocker(m *UninstallContainerModule) []task.Interface {
+
+	disableDocker := &task.RemoteTask{
+		Name:  "DisableDocker",
+		Desc:  "Disable docker",
+		Hosts: m.Runtime.GetHostsByRole(common.K8s),
+		Prepare: &prepare.PrepareCollection{
+			&DockerExist{Not: false},
+		},
+		Action:   new(DisableDocker),
+		Parallel: true,
+	}
+
+	return []task.Interface{
+		disableDocker,
 	}
 }
 

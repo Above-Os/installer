@@ -109,7 +109,7 @@ type DeployNetworkPlugin struct {
 
 func (d *DeployNetworkPlugin) Execute(runtime connector.Runtime) error {
 	if _, err := runtime.GetRunner().SudoCmd(
-		"/usr/local/bin/kubectl apply -f /etc/kubernetes/network-plugin.yaml --force", true, false); err != nil {
+		"/usr/local/bin/kubectl apply -f /etc/kubernetes/network-plugin.yaml --force", false, true); err != nil {
 		return errors.Wrap(errors.WithStack(err), "deploy network plugin failed")
 	}
 	return nil

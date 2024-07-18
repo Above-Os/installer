@@ -504,7 +504,7 @@ func (k *KubeadmReset) Execute(runtime connector.Runtime) error {
 	if k.KubeConf.Cluster.Kubernetes.ContainerRuntimeEndpoint != "" {
 		resetCmd = resetCmd + " --cri-socket " + k.KubeConf.Cluster.Kubernetes.ContainerRuntimeEndpoint
 	}
-	_, _ = runtime.GetRunner().SudoCmd(resetCmd, true, false)
+	_, _ = runtime.GetRunner().SudoCmd(resetCmd, false, true)
 	return nil
 }
 

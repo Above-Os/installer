@@ -156,7 +156,7 @@ func patchKubeadmSecret(runtime connector.Runtime) error {
 	for _, cert := range externalEtcdCerts {
 		_, err := runtime.GetRunner().SudoCmd(
 			fmt.Sprintf("/usr/local/bin/kubectl --kubeconfig=/etc/kubernetes/admin.conf patch -n kube-system secret kubeadm-certs -p '{\\\"data\\\": {\\\"%s\\\": \\\"\\\"}}'", cert),
-			true, false)
+			false, true)
 		if err != nil {
 			return errors.Wrap(errors.WithStack(err), "patch kubeadm secret failed")
 		}

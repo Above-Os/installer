@@ -73,7 +73,7 @@ func (g *GetStatus) Execute(runtime connector.Runtime) error {
 	}
 
 	if exist {
-		etcdEnv, err := runtime.GetRunner().SudoCmd("cat /etc/etcd.env | grep ETCD_NAME", true, false)
+		etcdEnv, err := runtime.GetRunner().SudoCmd("cat /etc/etcd.env | grep ETCD_NAME", false, true)
 		if err != nil {
 			return err
 		}

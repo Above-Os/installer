@@ -9,11 +9,13 @@ import (
 	"bytetrade.io/web3os/installer/pkg/core/module"
 	"bytetrade.io/web3os/installer/pkg/core/pipeline"
 	"bytetrade.io/web3os/installer/pkg/phase/cluster"
+	"bytetrade.io/web3os/installer/pkg/storage"
 )
 
 func UninstallTerminusPipeline() error {
 	var args = common.Argument{
 		KubernetesVersion: cluster.GetCurrentKubeVersion(),
+		ContainerManager:  common.Containerd,
 		DeleteCRI:         true,
 	}
 
@@ -36,6 +38,7 @@ func UninstallTerminusPipeline() error {
 	}
 
 	m = append(m, kubeModules...)
+	m = append(m, &storage.RemoveStorage{})
 
 	p := pipeline.Pipeline{
 		Name:    "Delete Terminus",

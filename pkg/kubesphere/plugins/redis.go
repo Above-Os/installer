@@ -14,7 +14,6 @@ import (
 	"bytetrade.io/web3os/installer/pkg/core/task"
 	"bytetrade.io/web3os/installer/pkg/utils"
 	"github.com/pkg/errors"
-	kubeErr "k8s.io/apimachinery/pkg/api/errors"
 	ctrl "sigs.k8s.io/controller-runtime"
 )
 
@@ -29,8 +28,8 @@ func (t *CreateRedisSecret) Execute(runtime connector.Runtime) error {
 		return fmt.Errorf("get redis password from module cache failed")
 	}
 
-	if _, err := runtime.GetRunner().SudoCmd(fmt.Sprintf("/usr/local/bin/kubectl -n %s create secret generic redis-secret --from-literal=auth=%s", common.NamespaceKubesphereSystem, redisPwd), false, true); err != nil {
-		if !kubeErr.IsAlreadyExists(err) {
+	if stdout, err := runtime.GetRunner().SudoCmdExt(fmt.Sprintf("/usr/local/bin/kubectl -n %s create secret generic redis-secret --from-literal=auth=%s", common.NamespaceKubesphereSystem, redisPwd), false, true); err != nil {
+		if err != nil && !strings.Contains(stdout, "already exists") {
 			return errors.Wrap(errors.WithStack(err), "create redis secret failed")
 		}
 	}
@@ -44,13 +43,15 @@ type BackupRedisManifests struct {
 }
 
 func (t *BackupRedisManifests) Execute(runtime connector.Runtime) error {
-	rver, err := runtime.GetRunner().SudoCmd(fmt.Sprintf("/usr/local/bin/kubectl get pod -n %s -l app=%s,tier=database,version=%s-4.0 | wc -l",
+	rver, err := runtime.GetRunner().SudoCmdExt(fmt.Sprintf("/usr/local/bin/kubectl get pod -n %s -l app=%s,tier=database,version=%s-4.0 | wc -l",
 		common.NamespaceKubesphereSystem, common.ChartNameRedis, common.ChartNameRedis), false, false)
 
+	fmt.Println("---1---", rver)
+	fmt.Println("---2---", err)
 	if err != nil || strings.Contains(rver, "No resources found") {
 		return nil
 	}
-
+	fmt.Println("---3---")
 	rver = strings.ReplaceAll(rver, "No resources found in kubesphere-system namespace.", "")
 	rver = strings.ReplaceAll(rver, "\r\n", "")
 	rver = strings.ReplaceAll(rver, "\n", "")
@@ -135,7 +136,7 @@ func (m *DeployRedisModule) Init() {
 	m.Name = "DeployRedis"
 
 	createRedisSecret := &task.RemoteTask{
-		Name:  "DeployRedis",
+		Name:  "CreateRedisSecret",
 		Hosts: m.Runtime.GetHostsByRole(common.Master),
 		Prepare: &prepare.PrepareCollection{
 			new(common.OnlyFirstMaster),

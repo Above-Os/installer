@@ -13,8 +13,33 @@ import (
 	"bytetrade.io/web3os/installer/pkg/core/util"
 	"bytetrade.io/web3os/installer/pkg/files"
 	"bytetrade.io/web3os/installer/pkg/model"
+	"bytetrade.io/web3os/installer/pkg/utils"
 	"github.com/pkg/errors"
 )
+
+// ~ MkStorageDir
+type MkStorageDir struct {
+	common.KubeAction
+}
+
+func (t *MkStorageDir) Execute(runtime connector.Runtime) error {
+	var storageVendor, _ = t.PipelineCache.GetMustString(common.CacheStorageVendor)
+	var terminusRoot = "/terminus"
+	var dataDir = "/osdata"
+
+	if storageVendor == "true" {
+		if utils.IsExist(dataDir) {
+			if utils.IsExist(terminusRoot) {
+				_, _ = runtime.GetRunner().SudoCmdExt(fmt.Sprintf("rm -rf %s", terminusRoot), false, false)
+			}
+			_, _ = runtime.GetRunner().SudoCmdExt(fmt.Sprintf("mkdir -p %s%s", dataDir, terminusRoot), false, false)
+			_, _ = runtime.GetRunner().SudoCmdExt(fmt.Sprintf("ln -s %s%s %s", dataDir, terminusRoot, terminusRoot), false, false)
+		}
+
+	}
+
+	return nil
+}
 
 // ~ DownloadStorageCli
 type DownloadStorageCli struct {

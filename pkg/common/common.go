@@ -174,4 +174,10 @@ const (
 	CacheSecretsNum    = "secrets_num"
 	CacheJwtSecret     = "jwt_secret"
 	CacheCrdsNUm       = "users_iam_num"
+
+	CacheMinioPath     = "minio_binary_path"
+	CacheMinioDataPath = "minio_data_path"
+	CacheMinioPassword = "minio_password"
+
+	CacheMinioOperatorPath = "minio_operator_path"
 )

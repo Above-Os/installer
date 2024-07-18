@@ -18,6 +18,8 @@ package os
 
 import (
 	"fmt"
+	"io/ioutil"
+	"path"
 	"path/filepath"
 	"strings"
 
@@ -29,6 +31,7 @@ import (
 	"bytetrade.io/web3os/installer/pkg/constants"
 	"bytetrade.io/web3os/installer/pkg/core/connector"
 	"bytetrade.io/web3os/installer/pkg/core/logger"
+	"bytetrade.io/web3os/installer/pkg/core/util"
 	"bytetrade.io/web3os/installer/pkg/utils"
 )
 
@@ -44,37 +47,37 @@ func (t *TimeSyncTask) Execute(runtime connector.Runtime) error {
 		return err
 	}
 
-	// ntpdatePath, err := host.GetCommand(common.CommandNtpdate)
-	// if err != nil {
-	// 	logger.Errorf("ntpdate lookup error %v", err)
-	// 	return err
-	// }
-	// hwclockPath, err := host.GetCommand(common.CommandHwclock)
-	// if err != nil {
-	// 	logger.Errorf("hwclock lookup error %v", err)
-	// 	return err
-	// }
+	ntpdatePath, err := util.GetCommand(common.CommandNtpdate)
+	if err != nil {
+		logger.Errorf("ntpdate lookup error %v", err)
+		return err
+	}
+	hwclockPath, err := util.GetCommand(common.CommandHwclock)
+	if err != nil {
+		logger.Errorf("hwclock lookup error %v", err)
+		return err
+	}
 
-	// 	cronContent := fmt.Sprintf(`#!/bin/sh
-	// %s -b -u pool.ntp.org && %s -w
-	// exit 0`, ntpdatePath, hwclockPath)
-	// 	cronFile := path.Join(runtime.GetRootDir(), "cron.ntpdate")
+	cronContent := fmt.Sprintf(`#!/bin/sh
+	%s -b -u pool.ntp.org && %s -w
+	exit 0`, ntpdatePath, hwclockPath)
+	cronFile := path.Join(runtime.GetRootDir(), "cron.ntpdate")
 
-	// if err := ioutil.WriteFile(cronFile, []byte(cronContent), 0700); err != nil {
-	// 	logger.Errorf("Failed to write cron.ntpdate: %v", err)
-	// 	return err
-	// }
+	if err := ioutil.WriteFile(cronFile, []byte(cronContent), 0700); err != nil {
+		logger.Errorf("Failed to write cron.ntpdate: %v", err)
+		return err
+	}
 
-	// if _, _, err := host.Exec(fmt.Sprintf("/bin/sh %s", cronFile), true, true); err != nil {
-	// 	logger.Errorf("failed to execute cron.ntpdate: %v", err)
-	// 	return err
-	// }
+	if _, err := runtime.GetRunner().SudoCmd(fmt.Sprintf("/bin/sh %s", cronFile), false, true); err != nil {
+		logger.Errorf("failed to execute cron.ntpdate: %v", err)
+		return err
+	}
 
-	// cmd = fmt.Sprintf("cat %s > /etc/cron.daily/ntpdate && chmod 0700 /etc/cron.daily/ntpdate && rm -rf %s", cronFile, cronFile)
-	// if _, _, err := host.Exec(cmd, true, true); err != nil {
-	// 	logger.Errorf("failed to execute %s: %v", cmd, err)
-	// 	return err
-	// }
+	cmd = fmt.Sprintf("cat %s > /etc/cron.daily/ntpdate && chmod 0700 /etc/cron.daily/ntpdate && rm -rf %s", cronFile, cronFile)
+	if _, err := runtime.GetRunner().SudoCmd(cmd, false, true); err != nil {
+		logger.Errorf("failed to execute %s: %v", cmd, err)
+		return err
+	}
 
 	return nil
 }

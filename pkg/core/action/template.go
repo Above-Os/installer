@@ -21,6 +21,7 @@ import (
 	"path/filepath"
 	"text/template"
 
+	"bytetrade.io/web3os/installer/pkg/core/common"
 	"bytetrade.io/web3os/installer/pkg/core/connector"
 	"bytetrade.io/web3os/installer/pkg/core/util"
 	"github.com/pkg/errors"
@@ -41,7 +42,7 @@ func (t *Template) Execute(runtime connector.Runtime) error {
 	}
 
 	fileName := filepath.Join(runtime.GetHostWorkDir(), t.Template.Name())
-	if err := util.WriteFile(fileName, []byte(templateStr)); err != nil {
+	if err := util.WriteFile(fileName, []byte(templateStr), common.FileMode0644); err != nil {
 		return errors.Wrap(errors.WithStack(err), fmt.Sprintf("write file %s failed", fileName))
 	}
 

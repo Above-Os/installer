@@ -6,6 +6,30 @@ import (
 	"bytetrade.io/web3os/installer/pkg/core/task"
 )
 
+// ~ InstallStorageModule
+type InstallStorageModule struct {
+	common.KubeModule
+}
+
+func (m *InstallStorageModule) Init() {
+	m.Name = "InstallStorage"
+
+	mkStorageDir := &task.RemoteTask{
+		Name:  "CreateStorageDir",
+		Hosts: m.Runtime.GetAllHosts(),
+		Prepare: &prepare.PrepareCollection{
+			&CheckStorageVendor{},
+		},
+		Action:   new(MkStorageDir),
+		Parallel: false,
+		Retry:    0,
+	}
+
+	m.Tasks = []task.Interface{
+		mkStorageDir,
+	}
+}
+
 // ~ RemoveMountModule
 type RemoveMountModule struct {
 	common.KubeModule

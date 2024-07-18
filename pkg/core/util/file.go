@@ -187,7 +187,7 @@ func MoveFile(src, dst string) error {
 	return nil
 }
 
-func WriteFile(fileName string, content []byte) error {
+func WriteFile(fileName string, content []byte, perm os.FileMode) error {
 	dir := filepath.Dir(fileName)
 	if _, err := os.Stat(dir); os.IsNotExist(err) {
 		if err = os.MkdirAll(dir, 0755); err != nil {
@@ -195,7 +195,7 @@ func WriteFile(fileName string, content []byte) error {
 		}
 	}
 
-	if err := ioutil.WriteFile(fileName, content, 0644); err != nil {
+	if err := ioutil.WriteFile(fileName, content, perm); err != nil {
 		return err
 	}
 	return nil
@@ -305,4 +305,8 @@ func Untar(src, dst string) error {
 			file.Close()
 		}
 	}
+}
+
+func GetCommand(c string) (string, error) {
+	return exec.LookPath(c)
 }

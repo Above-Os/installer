@@ -41,30 +41,33 @@ import (
 )
 
 const (
-	kubeadm    = "kubeadm"
-	kubelet    = "kubelet"
-	kubectl    = "kubectl"
-	kubecni    = "kubecni"
-	etcd       = "etcd"
-	helm       = "helm"
-	amd64      = "amd64"
-	arm64      = "arm64"
-	k3s        = "k3s"
-	k8e        = "k8e"
-	docker     = "docker"
-	crictl     = "crictl"
-	registry   = "registry"
-	harbor     = "harbor"
-	compose    = "compose"
-	containerd = "containerd"
-	runc       = "runc"
-	apparmor   = "apparmor"
-	socat      = "socat"
-	flex       = "flex"
-	conntrack  = "conntrack"
-	velero     = "velero"
-	awscli     = "awscli"
-	ossutil    = "ossutil"
+	kubeadm       = "kubeadm"
+	kubelet       = "kubelet"
+	kubectl       = "kubectl"
+	kubecni       = "kubecni"
+	etcd          = "etcd"
+	helm          = "helm"
+	amd64         = "amd64"
+	arm64         = "arm64"
+	k3s           = "k3s"
+	k8e           = "k8e"
+	docker        = "docker"
+	crictl        = "crictl"
+	registry      = "registry"
+	harbor        = "harbor"
+	compose       = "compose"
+	containerd    = "containerd"
+	runc          = "runc"
+	apparmor      = "apparmor"
+	socat         = "socat"
+	flex          = "flex"
+	conntrack     = "conntrack"
+	velero        = "velero"
+	awscli        = "awscli"
+	ossutil       = "ossutil"
+	minio         = "minio"
+	miniooperator = "minio-operator"
+	redis         = "redis"
 
 	// todo 安装包会进行拆分，可能不会再有 full 包了
 	// todo 所以我可以假设 f1.tar.gz f2.tar.gz f3.tar.gz ...
@@ -128,145 +131,158 @@ func NewKubeBinary(name, arch, version, prePath string) *KubeBinary {
 	case etcd:
 		component.Type = ETCD
 		component.FileName = fmt.Sprintf("etcd-%s-linux-%s.tar.gz", version, arch)
-		component.Url = fmt.Sprintf("https://github.com/coreos/etcd/releases/download/%s/etcd-%s-linux-%s.tar.gz", version, version, arch)
+		component.Url = fmt.Sprintf(EtcdUrl, version, version, arch)
 		if component.Zone == "cn" {
-			component.Url = fmt.Sprintf(
-				"https://kubernetes-release.pek3b.qingstor.com/etcd/release/download/%s/etcd-%s-linux-%s.tar.gz",
-				component.Version, component.Version, component.Arch)
+			component.Url = fmt.Sprintf(EtcdUrlCN, component.Version, component.Version, component.Arch)
 		}
 	case kubeadm:
 		component.Type = KUBE
 		component.FileName = kubeadm
-		component.Url = fmt.Sprintf("https://storage.googleapis.com/kubernetes-release/release/%s/bin/linux/%s/kubeadm", version, arch)
+		component.Url = fmt.Sprintf(KubeadmUrl, version, arch)
 		if component.Zone == "cn" {
-			component.Url = fmt.Sprintf("https://kubernetes-release.pek3b.qingstor.com/release/%s/bin/linux/%s/kubeadm", version, arch)
+			component.Url = fmt.Sprintf(KubeadmUrlCN, version, arch)
 		}
 	case kubelet:
 		component.Type = KUBE
 		component.FileName = kubelet
-		component.Url = fmt.Sprintf("https://storage.googleapis.com/kubernetes-release/release/%s/bin/linux/%s/kubelet", version, arch)
+		component.Url = fmt.Sprintf(KubeletUrl, version, arch)
 		if component.Zone == "cn" {
-			component.Url = fmt.Sprintf("https://kubernetes-release.pek3b.qingstor.com/release/%s/bin/linux/%s/kubelet", version, arch)
+			component.Url = fmt.Sprintf(KubeletUrlCN, version, arch)
 		}
 	case kubectl:
 		component.Type = KUBE
 		component.FileName = kubectl
-		component.Url = fmt.Sprintf("https://storage.googleapis.com/kubernetes-release/release/%s/bin/linux/%s/kubectl", version, arch)
+		component.Url = fmt.Sprintf(KubectlUrl, version, arch)
 		if component.Zone == "cn" {
-			component.Url = fmt.Sprintf("https://kubernetes-release.pek3b.qingstor.com/release/%s/bin/linux/%s/kubectl", version, arch)
+			component.Url = fmt.Sprintf(KubectlUrlCN, version, arch)
 		}
 	case kubecni:
 		component.Type = CNI
 		component.FileName = fmt.Sprintf("cni-plugins-linux-%s-%s.tgz", arch, version)
-		component.Url = fmt.Sprintf("https://github.com/containernetworking/plugins/releases/download/%s/cni-plugins-linux-%s-%s.tgz", version, arch, version)
+		component.Url = fmt.Sprintf(KubecniUrl, version, arch, version)
 		if component.Zone == "cn" {
-			component.Url = fmt.Sprintf("https://containernetworking.pek3b.qingstor.com/plugins/releases/download/%s/cni-plugins-linux-%s-%s.tgz", version, arch, version)
+			component.Url = fmt.Sprintf(KubecniUrlCN, version, arch, version)
 		}
 	case helm:
 		component.Type = HELM
 		component.FileName = fmt.Sprintf("helm-%s-linux-%s.tar.gz", version, arch)
 		component.CheckSum = true
-		component.Url = fmt.Sprintf("https://get.helm.sh/helm-%s-linux-%s.tar.gz", version, arch)
+		component.Url = fmt.Sprintf(HelmUrl, version, arch)
 		if component.Zone == "cn" {
-			component.Url = fmt.Sprintf("https://kubernetes-helm.pek3b.qingstor.com/linux-%s/%s/helm", arch, version)
+			component.Url = fmt.Sprintf(HelmUrlCN, arch, version)
 		}
 	case docker:
 		component.Type = DOCKER
 		component.FileName = fmt.Sprintf("docker-%s.tgz", version)
-		component.Url = fmt.Sprintf("https://download.docker.com/linux/static/stable/%s/docker-%s.tgz", utils.ArchAlias(arch), version)
+		component.Url = fmt.Sprintf(DockerUrl, utils.ArchAlias(arch), version)
 		if component.Zone == "cn" {
-			component.Url = fmt.Sprintf("https://mirrors.aliyun.com/docker-ce/linux/static/stable/%s/docker-%s.tgz", utils.ArchAlias(arch), version)
+			component.Url = fmt.Sprintf(DockerUrlCN, utils.ArchAlias(arch), version)
 		}
 	case crictl:
 		component.Type = CRICTL
 		component.FileName = fmt.Sprintf("crictl-%s-linux-%s.tar.gz", version, arch)
-		component.Url = fmt.Sprintf("https://github.com/kubernetes-sigs/cri-tools/releases/download/%s/crictl-%s-linux-%s.tar.gz", version, version, arch)
+		component.Url = fmt.Sprintf(CrictlUrl, version, version, arch)
 		if component.Zone == "cn" {
-			component.Url = fmt.Sprintf("https://kubernetes-release.pek3b.qingstor.com/cri-tools/releases/download/%s/crictl-%s-linux-%s.tar.gz", version, version, arch)
+			component.Url = fmt.Sprintf(CrictlUrlCN, version, version, arch)
 		}
 	case k3s:
 		component.Type = KUBE
 		component.FileName = k3s
-		component.Url = fmt.Sprintf("https://github.com/k3s-io/k3s/releases/download/%s+k3s1/k3s", version)
+		component.Url = fmt.Sprintf(K3sUrl, version)
 		if arch == arm64 {
-			component.Url = fmt.Sprintf("https://github.com/k3s-io/k3s/releases/download/%s+k3s1/k3s-%s", version, arch)
+			component.Url = fmt.Sprintf(K3sArmUrl, version, arch)
 		}
 		if component.Zone == "cn" {
-			component.Url = fmt.Sprintf("https://kubernetes-release.pek3b.qingstor.com/k3s/releases/download/%s+k3s1/linux/%s/k3s", version, arch)
+			component.Url = fmt.Sprintf(K3sUrlCN, version, arch)
 		}
 	case k8e:
 		component.Type = KUBE
 		component.FileName = k8e
-		component.Url = fmt.Sprintf("https://github.com/xiaods/k8e/releases/download/%s+k8e2/k8e", version)
+		component.Url = fmt.Sprintf(K8eUrl, version)
 		if arch == arm64 {
-			component.Url = fmt.Sprintf("https://github.com/xiaods/k8e/releases/download/%s+k8e2/k8e-%s", version, arch)
+			component.Url = fmt.Sprintf(K8eArmUrl, version, arch)
 		}
 	case registry:
 		component.Type = REGISTRY
 		component.FileName = fmt.Sprintf("registry-%s-linux-%s.tar.gz", version, arch)
-		component.Url = fmt.Sprintf("https://github.com/kubesphere/kubekey/releases/download/v2.0.0-alpha.1/registry-%s-linux-%s.tar.gz", version, arch)
+		component.Url = fmt.Sprintf(RegistryUrl, version, arch)
 		if component.Zone == "cn" {
-			component.Url = fmt.Sprintf("https://kubernetes-release.pek3b.qingstor.com/registry/%s/registry-%s-linux-%s.tar.gz", version, version, arch)
+			component.Url = fmt.Sprintf(RegistryUrlCN, version, version, arch)
 		}
 		component.BaseDir = filepath.Join(prePath, component.Type, component.ID, component.Version, component.Arch)
 	case harbor:
 		component.Type = REGISTRY
 		component.FileName = fmt.Sprintf("harbor-offline-installer-%s.tgz", version)
-		component.Url = fmt.Sprintf("https://github.com/goharbor/harbor/releases/download/%s/harbor-offline-installer-%s.tgz", version, version)
+		component.Url = fmt.Sprintf(HarborUrl, version, version)
 		if component.Zone == "cn" {
-			component.Url = fmt.Sprintf("https://kubernetes-release.pek3b.qingstor.com/harbor/releases/download/%s/harbor-offline-installer-%s.tgz", version, version)
+			component.Url = fmt.Sprintf(HarborUrlCN, version, version)
 		}
 		component.BaseDir = filepath.Join(prePath, component.Type, component.ID, component.Version, component.Arch)
 	case compose:
 		component.Type = REGISTRY
 		component.FileName = "docker-compose-linux-x86_64"
-		component.Url = fmt.Sprintf("https://github.com/docker/compose/releases/download/%s/docker-compose-linux-x86_64", version)
+		component.Url = fmt.Sprintf(ComposeUrl, version)
 		if component.Zone == "cn" {
-			component.Url = fmt.Sprintf("https://kubernetes-release.pek3b.qingstor.com/docker/compose/releases/download/%s/docker-compose-linux-x86_64", version)
+			component.Url = fmt.Sprintf(ComposeUrlCN, version)
 		}
 		component.BaseDir = filepath.Join(prePath, component.Type, component.ID, component.Version, component.Arch)
 	case containerd:
 		component.Type = CONTAINERD
 		component.FileName = fmt.Sprintf("containerd-%s-linux-%s.tar.gz", version, arch)
-		component.Url = fmt.Sprintf("https://github.com/containerd/containerd/releases/download/v%s/containerd-%s-linux-%s.tar.gz", version, version, arch)
+		component.Url = fmt.Sprintf(ContainerdUrl, version, version, arch)
 		if component.Zone == "cn" {
-			component.Url = fmt.Sprintf("https://kubernetes-release.pek3b.qingstor.com/containerd/containerd/releases/download/v%s/containerd-%s-linux-%s.tar.gz", version, version, arch)
+			component.Url = fmt.Sprintf(ContainerdUrlCN, version, version, arch)
 		}
 	case runc:
 		component.Type = RUNC
 		component.FileName = fmt.Sprintf("runc.%s", arch)
-		component.Url = fmt.Sprintf("https://github.com/opencontainers/runc/releases/download/%s/runc.%s", version, arch)
+		component.Url = fmt.Sprintf(RuncUrl, version, arch)
 		if component.Zone == "cn" {
-			component.Url = fmt.Sprintf("https://kubernetes-release.pek3b.qingstor.com/opencontainers/runc/releases/download/%s/runc.%s", version, arch)
+			component.Url = fmt.Sprintf(RunUrlCN, version, arch)
 		}
-	case apparmor:
-		component.Type = COMPONENT
-		component.FileName = fmt.Sprintf("apparmor_%s-0ubuntu1_%s.deb", version, arch)
-		var parent = fmt.Sprintf("https://launchpad.net/ubuntu/+source/apparmor/%s-0ubuntu1/+build", version)
-		switch arch {
-		case cm.Arm, cm.Arm7, cm.Armv7l, cm.Armhf:
-			component.Url = fmt.Sprintf("%s/28430859/+files/apparmor_%s-0ubuntu1_armhf.deb", parent, version)
-		case cm.Arm64:
-			component.Url = fmt.Sprintf("%s/28428841/+files/apparmor_%s-0ubuntu1_arm64.deb", parent, version)
-		case cm.PPC64el, cm.PPC64le:
-			component.Url = fmt.Sprintf("%s/28428843/+files/apparmor_%s-0ubuntu1_ppc64el.deb", parent, version)
-		default:
-			component.Url = fmt.Sprintf("%s/28428840/+files/apparmor_%s-0ubuntu1_amd64.deb", parent, version)
-		}
-		component.CheckSum = false
-		component.BaseDir = filepath.Join(prePath)
-	case awscli:
+	case awscli: // + component
 		component.Type = COMPONENT
 		component.FileName = "awscli-exe-linux-x86_64.zip"
-		component.Url = "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip"
+		component.Url = AWSCliUrl
 		component.CheckSum = false
 		component.BaseDir = filepath.Join(prePath, component.Type)
-	case ossutil:
+	case ossutil: // 1.7.18, linux-386 linux-arm(64)  linx-amd64  mac-amd64 mac-arm64 windows-386 windows-amd64
 		component.Type = COMPONENT
-		// 1.7.18
-		// linux-386 linux-arm(64)  linx-amd64  mac-amd64 mac-arm64 windows-386 windows-amd64
 		component.FileName = fmt.Sprintf("ossutil-v%s-%s.zip", version, arch)
-		component.Url = fmt.Sprintf("https://github.com/aliyun/ossutil/releases/download/v%s/%s", version, component.FileName)
+		component.Url = fmt.Sprintf(OSSUtilUrl, version, component.FileName)
+		component.CheckSum = false
+		component.BaseDir = filepath.Join(prePath, component.Type)
+	case minio:
+		component.Type = COMPONENT
+		component.FileName = "minio"
+		component.Url = fmt.Sprintf(MinioUrl, arch, version)
+		component.CheckSum = false
+		component.BaseDir = filepath.Join(prePath, component.Type)
+	case miniooperator:
+		component.Type = COMPONENT
+		component.FileName = fmt.Sprintf("minio-operator-v%s-linux-%s.tar.gz", version, arch)
+		component.Url = fmt.Sprintf(MinioOperatorUrl, version, version, arch)
+		component.CheckSum = false
+		component.BaseDir = filepath.Join(prePath, component.Type)
+	case redis:
+		component.Type = COMPONENT
+		component.FileName = fmt.Sprintf("redis-%s.tar.gz", version)
+		component.Url = fmt.Sprintf(RedisUrl, version)
+		component.CheckSum = false
+		component.BaseDir = filepath.Join(prePath, component.Type)
+	case apparmor: // + patch
+		component.Type = PATCH
+		component.FileName = fmt.Sprintf("apparmor_%s-0ubuntu1_%s.deb", version, arch)
+		switch arch {
+		case cm.Arm, cm.Arm7, cm.Armv7l, cm.Armhf:
+			component.Url = fmt.Sprintf(AppArmorArmUrl, version, version)
+		case cm.Arm64:
+			component.Url = fmt.Sprintf(AppArmorArm64Url, version, version)
+		case cm.PPC64el, cm.PPC64le:
+			component.Url = fmt.Sprintf(AppArmorPPC64Url, version, version)
+		default:
+			component.Url = fmt.Sprintf(AppArmorUrl, version, version)
+		}
 		component.CheckSum = false
 		component.BaseDir = filepath.Join(prePath, component.Type)
 	case socat:
@@ -288,7 +304,7 @@ func NewKubeBinary(name, arch, version, prePath string) *KubeBinary {
 		component.Url = fmt.Sprintf("https://github.com/fqrouter/conntrack-tools/archive/refs/tags/conntrack-tools-%s.tar.gz", version)
 		component.CheckSum = false
 		component.BaseDir = filepath.Join(prePath, component.Type)
-	case file1: // + test 这里是新增的文件类型，后面应该都是跟安装包有关
+	case file1: // ! test 这里是新增的文件类型，后面应该都是跟安装包有关
 		// todo 要区分内外网了，公网肯定是走 CDN
 		component.Type = INSTALLER
 		component.FileName = fmt.Sprintf("file1_%s_v%s.tar.gz", arch, version)
@@ -305,7 +321,7 @@ func NewKubeBinary(name, arch, version, prePath string) *KubeBinary {
 		component.Type = INSTALLER
 		component.FileName = fmt.Sprintf("kubekey-ext-v%s-linux-%s.tar.gz", version, arch)
 		component.Url = fmt.Sprintf("https://github.com/beclab/kubekey-ext/releases/download/%s/kubekey-ext-v%s-linux-%s.tar.gz", version, version, arch)
-	case fullpkg: // + test 模拟 full 包下载和安装
+	case fullpkg: // ! test 模拟 full 包下载和安装
 		component.Type = INSTALLER
 		component.FileName = fmt.Sprintf("install-wizard-full.tar.gz")
 		// component.Url = "http://192.168.50.32/install-wizard-full.tar.gz"

@@ -398,12 +398,12 @@ type RemoveMasterTaint struct {
 }
 
 func (r *RemoveMasterTaint) Execute(runtime connector.Runtime) error {
-	if _, err := runtime.GetRunner().SudoCmd(fmt.Sprintf(
+	if _, err := runtime.GetRunner().SudoCmdExt(fmt.Sprintf(
 		"/usr/local/bin/kubectl taint nodes %s node-role.kubernetes.io/master=:NoSchedule-",
 		runtime.RemoteHost().GetName()), false, true); err != nil {
 		logger.Warn(err.Error())
 	}
-	if _, err := runtime.GetRunner().SudoCmd(fmt.Sprintf(
+	if _, err := runtime.GetRunner().SudoCmdExt(fmt.Sprintf(
 		"/usr/local/bin/kubectl taint nodes %s node-role.kubernetes.io/control-plane=:NoSchedule-",
 		runtime.RemoteHost().GetName()), false, true); err != nil {
 		logger.Warn(err.Error())

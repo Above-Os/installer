@@ -23,7 +23,7 @@ func (t *CreateKsCore) Execute(runtime connector.Runtime) error {
 	var cmd = fmt.Sprintf("kubectl  get pod -n %s -l 'app=redis,tier=database,version=redis-4.0' -o jsonpath='{.items[0].status.phase}'", common.NamespaceKubesphereSystem)
 	rphase, err := runtime.GetRunner().SudoCmdExt(cmd, false, false)
 	if rphase != "Running" {
-		return fmt.Errorf("redis-server is not running, retry...")
+		return fmt.Errorf("Redis State %s", rphase)
 	}
 
 	masterNumIf, ok := t.PipelineCache.Get(common.CacheMasterNum)

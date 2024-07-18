@@ -378,7 +378,7 @@ func (n *NodePreCheck) Execute(runtime connector.Runtime) error {
 			cmd = connector.SudoPrefix(cmd)
 		}
 
-		res, err := runtime.GetRunner().Cmd(cmd, false, false)
+		res, err := runtime.GetRunner().CmdExt(cmd, false, false)
 		switch software {
 		case showmount:
 			software = nfs
@@ -400,7 +400,7 @@ func (n *NodePreCheck) Execute(runtime connector.Runtime) error {
 		}
 	}
 
-	output, err := runtime.GetRunner().Cmd("date +\"%Z %H:%M:%S\"", false, false)
+	output, err := runtime.GetRunner().CmdExt("date +\"%Z %H:%M:%S\"", false, false)
 	if err != nil {
 		results["time"] = ""
 	} else {

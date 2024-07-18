@@ -81,7 +81,7 @@ type DeployNodeLocalDNS struct {
 }
 
 func (d *DeployNodeLocalDNS) Execute(runtime connector.Runtime) error {
-	if _, err := runtime.GetRunner().SudoCmd("/usr/local/bin/kubectl apply -f /etc/kubernetes/nodelocaldns.yaml", false, true); err != nil {
+	if _, err := runtime.GetRunner().SudoCmdExt("/usr/local/bin/kubectl apply -f /etc/kubernetes/nodelocaldns.yaml", false, false); err != nil {
 		return errors.Wrap(errors.WithStack(err), "deploy nodelocaldns failed")
 	}
 	return nil
@@ -125,7 +125,7 @@ type ApplyNodeLocalDNSConfigMap struct {
 }
 
 func (a *ApplyNodeLocalDNSConfigMap) Execute(runtime connector.Runtime) error {
-	if _, err := runtime.GetRunner().SudoCmd("/usr/local/bin/kubectl apply -f /etc/kubernetes/nodelocaldnsConfigmap.yaml", true, false); err != nil {
+	if _, err := runtime.GetRunner().SudoCmdExt("/usr/local/bin/kubectl apply -f /etc/kubernetes/nodelocaldnsConfigmap.yaml", false, false); err != nil {
 		return errors.Wrap(errors.WithStack(err), "apply nodelocaldns configmap failed")
 	}
 	return nil

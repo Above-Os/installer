@@ -61,6 +61,23 @@ func (r *Runner) Cmd(cmd string, printOutput bool, printLine bool) (string, erro
 	return stdout, nil
 }
 
+// ~ Extension
+func (r *Runner) CmdExt(cmd string, printOutput bool, printLine bool) (string, error) {
+	if r.Conn == nil {
+		return "", errors.New("no ssh connection available")
+	}
+
+	stdout, _, err := r.Conn.Exec(cmd, r.Host, printLine)
+
+	if printOutput {
+		logger.Debugf("[exec] %s CMD: %s, OUTPUT: \n%s", r.Host.GetName(), cmd, stdout)
+	}
+
+	logger.Infof("[exec] %s CMD: %s, OUTPUT: %s", r.Host.GetName(), cmd, stdout)
+
+	return stdout, err
+}
+
 func (r *Runner) SudoExec(cmd string, printOutput bool, printLine bool) (string, int, error) {
 	return r.Exec(SudoPrefix(cmd), printOutput, printLine)
 }

@@ -38,7 +38,7 @@ func UninstallTerminusPipeline() error {
 	}
 
 	m = append(m, kubeModules...)
-	m = append(m, &storage.RemoveStorage{})
+	m = append(m, &storage.RemoveStorageModule{}, &storage.RemoveMountModule{}, &storage.RemoveMountModule{})
 
 	p := pipeline.Pipeline{
 		Name:    "Delete Terminus",

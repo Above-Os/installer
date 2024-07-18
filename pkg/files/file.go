@@ -30,6 +30,7 @@ import (
 	"time"
 
 	cm "bytetrade.io/web3os/installer/pkg/common"
+	"bytetrade.io/web3os/installer/pkg/constants"
 	"bytetrade.io/web3os/installer/pkg/core/common"
 	"bytetrade.io/web3os/installer/pkg/core/logger"
 	"bytetrade.io/web3os/installer/pkg/core/storage"
@@ -62,6 +63,8 @@ const (
 	flex       = "flex"
 	conntrack  = "conntrack"
 	velero     = "velero"
+	awscli     = "awscli"
+	ossutil    = "ossutil"
 
 	// todo 安装包会进行拆分，可能不会再有 full 包了
 	// todo 所以我可以假设 f1.tar.gz f2.tar.gz f3.tar.gz ...
@@ -97,6 +100,7 @@ type KubeBinary struct {
 	Type                string
 	ID                  string
 	FileName            string
+	Os                  string
 	Arch                string
 	Version             string
 	Url                 string
@@ -114,6 +118,7 @@ type KubeBinary struct {
 func NewKubeBinary(name, arch, version, prePath string) *KubeBinary {
 	component := new(KubeBinary)
 	component.ID = name
+	component.Os = constants.OsType
 	component.Arch = arch
 	component.Version = version
 	component.CheckSum = true
@@ -250,6 +255,20 @@ func NewKubeBinary(name, arch, version, prePath string) *KubeBinary {
 		}
 		component.CheckSum = false
 		component.BaseDir = filepath.Join(prePath)
+	case awscli:
+		component.Type = COMPONENT
+		component.FileName = "awscli-exe-linux-x86_64.zip"
+		component.Url = "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip"
+		component.CheckSum = false
+		component.BaseDir = filepath.Join(prePath, component.Type)
+	case ossutil:
+		component.Type = COMPONENT
+		// 1.7.18
+		// linux-386 linux-arm(64)  linx-amd64  mac-amd64 mac-arm64 windows-386 windows-amd64
+		component.FileName = fmt.Sprintf("ossutil-v%s-%s.zip", version, arch)
+		component.Url = fmt.Sprintf("https://github.com/aliyun/ossutil/releases/download/v%s/%s", version, component.FileName)
+		component.CheckSum = false
+		component.BaseDir = filepath.Join(prePath, component.Type)
 	case socat:
 		component.Type = PATCH
 		component.FileName = fmt.Sprintf("socat-%s.tar.gz", version)
@@ -356,14 +375,22 @@ func (b *KubeBinary) UntarCmd() error {
 
 func (b *KubeBinary) GetTarCmd() string {
 	var cmd string
-	if b.ID == helm && b.Zone != "cn" {
-		cmd = fmt.Sprintf("cd %s && tar -zxf helm-%s-linux-%s.tar.gz && mv linux-%s/helm . && rm -rf ./linux-%s/ && cp ./helm /usr/local/bin/",
-			b.BaseDir, b.Version, b.Arch, b.Arch, b.Arch)
-	}
-	if b.ID == kubekey { // ! 这是测试的，不用管
+	switch b.ID {
+	case helm:
+		if b.Zone != "cn" {
+			cmd = fmt.Sprintf("cd %s && tar -zxf helm-%s-linux-%s.tar.gz && mv linux-%s/helm . && rm -rf ./linux-%s/ && cp ./helm /usr/local/bin/",
+				b.BaseDir, b.Version, b.Arch, b.Arch, b.Arch)
+		}
+	case kubekey: // ! 这是测试的，不用管
 		cmd = fmt.Sprintf("cd %s && tar -zxf kubekey-ext-v%s-linux-%s.tar.gz",
 			b.BaseDir, b.Version, b.Arch)
+	case awscli:
+		cmd = fmt.Sprintf("cd %s && unzip -q %s && ./aws/install --update", b.BaseDir, b.FileName)
+	case ossutil:
+		cmd = fmt.Sprintf("cd %s && unzip -q %s && mv ./ossutil-v%s-%s-%s/* /usr/local/sbin/",
+			b.BaseDir, b.FileName, b.Version, b.Os, b.Arch)
 	}
+
 	return cmd
 }
 

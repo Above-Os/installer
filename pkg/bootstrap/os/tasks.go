@@ -319,12 +319,12 @@ type DaemonReload struct {
 }
 
 func (d *DaemonReload) Execute(runtime connector.Runtime) error {
-	if _, err := runtime.GetRunner().SudoCmd("systemctl daemon-reload && exit 0", false, false); err != nil {
+	if _, err := runtime.GetRunner().SudoCmdExt("systemctl daemon-reload && exit 0", false, false); err != nil {
 		return errors.Wrap(errors.WithStack(err), "systemctl daemon-reload failed")
 	}
 
 	// try to restart the cotainerd after /etc/cni has been removed
-	_, _ = runtime.GetRunner().SudoCmd("systemctl restart containerd", false, false)
+	_, _ = runtime.GetRunner().SudoCmdExt("systemctl restart containerd", false, false)
 	return nil
 }
 

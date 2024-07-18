@@ -32,13 +32,28 @@ type GetStorageKeyModule struct {
 }
 
 func (m *GetStorageKeyModule) Init() {
-	m.Name = "GetStorageKey"
+	m.Name = "GetStorage"
 
-	getStorageKeyTask := &task.LocalTask{
-		Name:   "GetStorageKey",
-		Action: new(GetStorageKeyTask),
+	getStorageKeyTask := &task.RemoteTask{
+		Name:     "GetStorageKey",
+		Hosts:    m.Runtime.GetHostsByRole(common.Master),
+		Action:   new(GetStorageKeyTask),
+		Parallel: false,
+		Retry:    0,
 	}
-	m.Tasks = []task.Interface{getStorageKeyTask}
+
+	getStorageVendor := &task.RemoteTask{
+		Name:     "GetStorageVendor",
+		Hosts:    m.Runtime.GetHostsByRole(common.Master),
+		Action:   new(GetStorageVendor),
+		Parallel: false,
+		Retry:    0,
+	}
+
+	m.Tasks = []task.Interface{
+		getStorageKeyTask,
+		getStorageVendor,
+	}
 }
 
 // ~ GetKubeVersionModule

@@ -60,6 +60,7 @@ const (
 	DefaultSocatVersion            = "1.7.3.4"
 	DefaultFlexVersion             = "2.6.4"
 	DefaultConntrackVersion        = "1.4.1"
+	DefaultOssUtilVersion          = "1.7.18"
 
 	DefaultMaxPods             = 200
 	DefaultPodPidsLimit        = 10000

@@ -636,30 +636,47 @@ type GetStorageKeyTask struct {
 }
 
 func (t *GetStorageKeyTask) Execute(runtime connector.Runtime) error {
-	if stdout, err := runtime.GetRunner().SudoCmd("/usr/local/bin/kubectl get terminus terminus -o jsonpath='{.metadata.annotations.bytetrade\\.io/s3-ak}'", false, false); err != nil {
-		logger.Errorf("get s3 access key error %v", err)
+	if stdout, err := runtime.GetRunner().SudoCmdExt("/usr/local/bin/kubectl get terminus terminus -o jsonpath='{.metadata.annotations.bytetrade\\.io/s3-ak}'", false, false); err != nil {
+		logger.Errorf("get storage access key error %v", err)
 	} else if stdout != "" {
 		t.PipelineCache.Set(common.CacheSTSAccessKey, stdout)
 	}
 
-	if stdout, err := runtime.GetRunner().SudoCmd("/usr/local/bin/kubectl get terminus terminus -o jsonpath='{.metadata.annotations.bytetrade\\.io/s3-sk}'", false, false); err != nil {
-		logger.Errorf("get s3 secret key error %v", err)
+	if stdout, err := runtime.GetRunner().SudoCmdExt("/usr/local/bin/kubectl get terminus terminus -o jsonpath='{.metadata.annotations.bytetrade\\.io/s3-sk}'", false, false); err != nil {
+		logger.Errorf("get storage secret key error %v", err)
 	} else if stdout != "" {
 		t.PipelineCache.Set(common.CacheSTSSecretKey, stdout)
 	}
 
-	if stdout, err := runtime.GetRunner().SudoCmd("/usr/local/bin/kubectl get terminus terminus -o jsonpath='{.metadata.annotations.bytetrade\\.io/s3-sts}'", false, false); err != nil {
-		logger.Errorf("get s3 sts token error %v", err)
+	if stdout, err := runtime.GetRunner().SudoCmdExt("/usr/local/bin/kubectl get terminus terminus -o jsonpath='{.metadata.annotations.bytetrade\\.io/s3-sts}'", false, false); err != nil {
+		logger.Errorf("get storage sts token error %v", err)
 	} else if stdout != "" {
 		t.PipelineCache.Set(common.CacheSTSToken, stdout)
 	}
 
-	if stdout, err := runtime.GetRunner().SudoCmd("/usr/local/bin/kubectl get terminus terminus -o jsonpath='{.metadata.annotations.bytetrade\\.io/cluster-id}'", false, false); err != nil {
+	if stdout, err := runtime.GetRunner().SudoCmdExt("/usr/local/bin/kubectl get terminus terminus -o jsonpath='{.metadata.annotations.bytetrade\\.io/cluster-id}'", false, false); err != nil {
 		logger.Errorf("get cluster id error %v", err)
 	} else if stdout != "" {
 		t.PipelineCache.Set(common.CacheSTSClusterId, stdout)
 	}
 
 	constants.InstalledKubeVersion = ""
+	return nil
+}
+
+// ~ GetStorageVendor
+type GetStorageVendor struct {
+	common.KubeAction
+}
+
+func (t *GetStorageVendor) Execute(runtime connector.Runtime) error {
+	storageVendor := os.Getenv("TERMINUS_IS_CLOUD_VERSION")
+	storageType := os.Getenv("STORAGE")
+	storageBucket := os.Getenv("S3_BUCKET")
+
+	t.PipelineCache.Set(common.CacheStorageVendor, storageVendor)
+	t.PipelineCache.Set(common.CacheStorageType, storageType)
+	t.PipelineCache.Set(common.CacheStorageBucket, storageBucket)
+
 	return nil
 }

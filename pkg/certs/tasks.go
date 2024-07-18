@@ -407,8 +407,8 @@ type UninstallAutoRenewCerts struct {
 }
 
 func (u *UninstallAutoRenewCerts) Execute(runtime connector.Runtime) error {
-	_, _ = runtime.GetRunner().SudoCmd("systemctl disable k8s-certs-renew.timer 1>/dev/null 2>/dev/null", true, false)
-	_, _ = runtime.GetRunner().SudoCmd("systemctl stop k8s-certs-renew.timer 1>/dev/null 2>/dev/null", true, false)
+	_, _ = runtime.GetRunner().SudoCmd("systemctl disable k8s-certs-renew.timer 1>/dev/null 2>/dev/null", false, false)
+	_, _ = runtime.GetRunner().SudoCmd("systemctl stop k8s-certs-renew.timer 1>/dev/null 2>/dev/null", false, false)
 
 	files := []string{
 		filepath.Join("/usr/local/bin/kube-scripts/", templates.K8sCertsRenewScript.Name()),
@@ -416,7 +416,7 @@ func (u *UninstallAutoRenewCerts) Execute(runtime connector.Runtime) error {
 		filepath.Join("/etc/systemd/system/", templates.K8sCertsRenewTimer.Name()),
 	}
 	for _, file := range files {
-		_, _ = runtime.GetRunner().SudoCmd(fmt.Sprintf("rm -rf %s", file), true, false)
+		_, _ = runtime.GetRunner().SudoCmd(fmt.Sprintf("rm -rf %s", file), false, false)
 	}
 
 	return nil

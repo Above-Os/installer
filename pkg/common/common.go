@@ -158,13 +158,15 @@ const (
 
 	CacheKubectlKey = "cmd_kubectl"
 
-	CacheSTSAccessKey = "sts_access_key"
-	CacheSTSSecretKey = "sts_secret_key"
-	CacheSTSToken     = "sts_token"
-	CacheSTSClusterId = "sts_cluster_id"
-	CacheProxy        = "proxy"
+	CacheStorageVendor = "storage_vendor"
+	CacheStorageType   = "storage_type"
+	CacheStorageBucket = "storage_bucket"
+	CacheSTSAccessKey  = "sts_access_key"
+	CacheSTSSecretKey  = "sts_secret_key"
+	CacheSTSToken      = "sts_token"
+	CacheSTSClusterId  = "sts_cluster_id"
+	CacheProxy         = "proxy"
 
-	CacheStorageClass  = "storage_class"
 	CacheEnableHA      = "enable_ha"
 	CacheMasterNum     = "master_num"
 	CacheNodeNum       = "node_num"

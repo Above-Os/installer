@@ -36,8 +36,6 @@ func CliInstallTerminusPipeline(kubeType string, proxy string) error {
 		arg.Proxy = proxy
 	}
 
-	return nil // +
-
 	switch kubeType {
 	case common.K3s:
 		arg.KubernetesVersion = common.DefaultK3sVersion

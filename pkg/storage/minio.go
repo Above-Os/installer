@@ -26,7 +26,7 @@ type CheckMinioState struct {
 }
 
 func (t *CheckMinioState) Execute(runtime connector.Runtime) error {
-	var cmd = "systemctl --no-pager --no-pager -n 0 status minio" // 这里可以考虑用 is-active 来验证
+	var cmd = "systemctl --no-pager -n 0 status minio" // 这里可以考虑用 is-active 来验证
 	stdout, err := runtime.GetRunner().SudoCmdExt(cmd, false, false)
 	if err != nil {
 		return fmt.Errorf("Minio Pending")

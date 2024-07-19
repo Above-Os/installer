@@ -3,6 +3,7 @@ package storage
 import (
 	"fmt"
 	"os/exec"
+	"time"
 
 	kubekeyapiv1alpha2 "bytetrade.io/web3os/installer/apis/kubekey/v1alpha2"
 	"bytetrade.io/web3os/installer/pkg/common"
@@ -43,22 +44,31 @@ func (m *InstallJuiceFsModule) Init() {
 		Prepare:  &CheckJuiceFsExists{},
 		Action:   new(InstallJuiceFs),
 		Parallel: false,
-		Retry:    0,
+		Retry:    1,
 	}
 
 	enableJuiceFsService := &task.RemoteTask{
 		Name:     "EnableJuiceFsService",
 		Hosts:    m.Runtime.GetAllHosts(),
-		Prepare:  &CheckJuiceFsExists{},
 		Action:   new(EnableJuiceFsService),
 		Parallel: false,
 		Retry:    0,
+	}
+
+	checkJuiceFsState := &task.RemoteTask{
+		Name:     "CheckJuiceFsState",
+		Hosts:    m.Runtime.GetAllHosts(),
+		Action:   new(CheckJuiceFsState),
+		Parallel: false,
+		Retry:    5,
+		Delay:    5 * time.Second,
 	}
 
 	m.Tasks = []task.Interface{
 		downloadJuiceFs,
 		installJuiceFs,
 		enableJuiceFsService,
+		checkJuiceFsState,
 	}
 }
 
@@ -68,6 +78,10 @@ type CheckJuiceFsExists struct {
 }
 
 func (p *CheckJuiceFsExists) PreCheck(runtime connector.Runtime) (bool, error) {
+	if !utils.IsExist(JuiceFsDataDir) {
+		utils.Mkdir(JuiceFsDataDir)
+	}
+
 	if utils.IsExist(JuiceFsFile) {
 		return false, nil
 	}
@@ -87,6 +101,9 @@ func (t *DownloadJuiceFs) Execute(runtime connector.Runtime) error {
 		return errors.Wrapf(errors.WithStack(err), "create file %s base dir failed", binary.FileName)
 	}
 
+	t.ModuleCache.Set(common.CacheJuiceFsPath, binary.BaseDir)
+	t.ModuleCache.Set(common.CacheJuiceFsFileName, binary.FileName)
+
 	var exists = util.IsExist(binary.Path())
 	if exists {
 		p := binary.Path()
@@ -104,9 +121,6 @@ func (t *DownloadJuiceFs) Execute(runtime connector.Runtime) error {
 		}
 	}
 
-	t.ModuleCache.Set(common.CacheJuiceFsPath, binary.BaseDir)
-	t.ModuleCache.Set(common.CacheJuiceFsFileName, binary.FileName)
-
 	return nil
 }
 
@@ -120,73 +134,30 @@ func (t *InstallJuiceFs) Execute(runtime connector.Runtime) error {
 	var juiceFsBaseDir, _ = t.ModuleCache.GetMustString(common.CacheJuiceFsPath)
 	var juiceFsFileName, _ = t.ModuleCache.GetMustString(common.CacheJuiceFsFileName)
 
-	fmt.Println("---1---", juiceFsBaseDir)
-	fmt.Println("---2---", juiceFsFileName)
-
-	return fmt.Errorf("--------")
-
 	if redisPassword == "" {
 		return fmt.Errorf("redis password not found")
 	}
 
-	var cmd = fmt.Sprintf("cd %s && tar -zxf ./%s && chmod +x juicefs && install juicefs /usr/local/bin && install juicefs /sbin/mount.juicefs", juiceFsBaseDir, juiceFsFileName)
+	var cmd = fmt.Sprintf("cd %s && tar -zxf ./%s && chmod +x juicefs && install juicefs /usr/local/bin && install juicefs /sbin/mount.juicefs && rm -rf ./LICENSE ./README.md ./README_CN.md ./juicefs", juiceFsBaseDir, juiceFsFileName)
 	if _, err := runtime.GetRunner().SudoCmdExt(cmd, false, true); err != nil {
 		return err
 	}
 
-	var storageStr = getStorageTypeStr(t.PipelineCache, t.ModuleCache, t.KubeConf.Arg.Storage.StorageType)
+	var storageVendor = t.KubeConf.Arg.Storage.StorageVendor
+	var storageType = t.KubeConf.Arg.Storage.StorageType
+	var storageClusterId = t.KubeConf.Arg.Storage.StorageClusterId
+	var storageStr = getStorageTypeStr(t.PipelineCache, t.ModuleCache, storageVendor, storageType, storageClusterId)
 
 	var redisService = fmt.Sprintf("redis://:%s@%s:6379/1", redisPassword, constants.LocalIp)
 	cmd = fmt.Sprintf("%s format %s --storage %s", JuiceFsFile, redisService, t.KubeConf.Arg.Storage.StorageType)
 	cmd = cmd + storageStr
 
+	fmt.Println("---1---", cmd)
 	if _, err := runtime.GetRunner().SudoCmd(cmd, false, true); err != nil {
 		return err
 	}
 
 	return nil
-}
-
-func getStorageTypeStr(pc, mc *cache.Cache, storageType string) string {
-	var storageClusterId, _ = pc.GetMustString(common.CacheSTSClusterId)
-	var formatStr string
-
-	switch storageType {
-	case common.Minio:
-		formatStr = getMinioStr(pc)
-	case common.OSS, common.S3:
-		formatStr = getCloudStr(pc)
-	}
-
-	formatStr = formatStr + fmt.Sprintf(" %s --trash-days 0", storageClusterId)
-
-	return formatStr
-}
-
-func getCloudStr(pc *cache.Cache) string {
-	var storageBucket, _ = pc.GetMustString(common.CacheStorageBucket)
-	var storageVendor, _ = pc.GetMustString(common.CacheStorageVendor)
-	var storageAccessKey, _ = pc.GetMustString(common.CacheSTSAccessKey)
-	var storageSecretKey, _ = pc.GetMustString(common.CacheSTSSecretKey)
-	var storageToken, _ = pc.GetMustString(common.CacheSTSToken)
-
-	var str = fmt.Sprintf(" --bucket %s", storageBucket)
-	if storageVendor == "true" {
-		if storageToken != "" {
-			str = str + fmt.Sprintf(" --session-token %s", storageToken)
-		}
-	}
-	if storageAccessKey != "" && storageSecretKey != "" {
-		str = str + fmt.Sprintf(" --access-key %s --secret-key %s", storageAccessKey, storageSecretKey)
-	}
-
-	return str
-}
-
-func getMinioStr(pc *cache.Cache) string {
-	var minioPassword, _ = pc.GetMustString(common.CacheMinioPassword)
-	return fmt.Sprintf(" --bucket http://%s:9000/%s --access-key %s --secret-key -%s",
-		constants.LocalIp, cc.TerminusDir, MinioRootUser, minioPassword)
 }
 
 // ~ EnableJuiceFsService
@@ -197,7 +168,7 @@ type EnableJuiceFsService struct {
 func (t *EnableJuiceFsService) Execute(runtime connector.Runtime) error {
 	var redisPassword, _ = t.PipelineCache.GetMustString(common.CacheHostRedisPassword)
 	var redisService = fmt.Sprintf("redis://:%s@%s:6379/1", redisPassword, constants.LocalIp)
-
+	fmt.Println("---2---", redisService)
 	var data = util.Data{
 		"JuiceFsBinPath":    JuiceFsFile,
 		"JuiceFsCachePath":  JuiceFsCacheDir,
@@ -225,13 +196,70 @@ func (t *EnableJuiceFsService) Execute(runtime connector.Runtime) error {
 		return err
 	}
 
-	if _, err := runtime.GetRunner().SudoCmd("systemctl --no-pager status juicefs", false, false); err != nil {
-		return err
+	return nil
+}
+
+// ~ CheckJuiceFsState
+type CheckJuiceFsState struct {
+	common.KubeAction
+}
+
+func (t *CheckJuiceFsState) Execute(runtime connector.Runtime) error {
+	if _, err := runtime.GetRunner().SudoCmd("systemctl --no-pager -n 0 status juicefs", false, false); err != nil {
+		return fmt.Errorf("JuiceFs Pending")
 	}
 
-	if _, err := runtime.GetRunner().SudoCmd(fmt.Sprintf("sleep 3 && test -d %s/.trash", JuiceFsMountPointDir), false, false); err != nil {
+	if _, err := runtime.GetRunner().SudoCmd(fmt.Sprintf("test -d %s/.trash", JuiceFsMountPointDir), false, false); err != nil {
 		return err
 	}
 
 	return nil
+}
+
+func getStorageTypeStr(pc, mc *cache.Cache, storageVendor, storageType, storageClusterId string) string {
+	var formatStr string
+	var fsName string
+
+	switch storageType {
+	case common.Minio:
+		formatStr = getMinioStr(pc)
+	case common.OSS, common.S3:
+		formatStr = getCloudStr(pc)
+	}
+
+	if storageVendor == "true" { // todo 这里要处理 cloud 上的  token
+		fsName = storageClusterId
+	} else {
+		fsName = "rootfs"
+	}
+
+	formatStr = formatStr + fmt.Sprintf(" %s --trash-days 0", fsName)
+
+	return formatStr
+}
+
+func getCloudStr(pc *cache.Cache) string {
+	var storageBucket, _ = pc.GetMustString(common.CacheStorageBucket)
+	var storageVendor, _ = pc.GetMustString(common.CacheStorageVendor)
+	var storageAccessKey, _ = pc.GetMustString(common.CacheSTSAccessKey)
+	var storageSecretKey, _ = pc.GetMustString(common.CacheSTSSecretKey)
+	var storageToken, _ = pc.GetMustString(common.CacheSTSToken)
+
+	var str = fmt.Sprintf(" --bucket %s", storageBucket)
+	if storageVendor == "true" {
+		if storageToken != "" {
+			str = str + fmt.Sprintf(" --session-token %s", storageToken)
+		}
+	}
+	if storageAccessKey != "" && storageSecretKey != "" {
+		str = str + fmt.Sprintf(" --access-key %s --secret-key %s", storageAccessKey, storageSecretKey)
+	}
+
+	return str
+}
+
+func getMinioStr(pc *cache.Cache) string {
+	var minioPassword, _ = pc.GetMustString(common.CacheMinioPassword)
+	return fmt.Sprintf(" --bucket http://%s:9000/%s --access-key %s --secret-key %s",
+		constants.LocalIp, cc.TerminusDir, MinioRootUser, minioPassword)
 }

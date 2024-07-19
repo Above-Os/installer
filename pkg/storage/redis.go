@@ -77,7 +77,7 @@ type ConfigRedis struct {
 }
 
 func (t *ConfigRedis) Execute(runtime connector.Runtime) error {
-	var redisPassword, _ = utils.GeneratePassword(16)
+	var redisPassword, _ = utils.GeneratePassword(16) // todo 如果多次执行，这里有可能密码会变？
 	if !utils.IsExist(RedisRootDir) {
 		utils.Mkdir(RedisConfigDir)
 		utils.Mkdir(RedisDataDir)

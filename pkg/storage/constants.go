@@ -25,6 +25,7 @@ var (
 	RedisCliInstalledFile    = path.Join(Root, "usr", "local", "bin", "redis-cli")
 
 	JuiceFsFile          = path.Join(Root, "usr", "local", "bin", "juicefs")
+	JuiceFsDataDir       = path.Join(Root, cc.TerminusDir, "data", "juicefs")
 	JuiceFsCacheDir      = path.Join(Root, cc.TerminusDir, "jfscache")
 	JuiceFsMountPointDir = path.Join(Root, cc.TerminusDir, "rootfs")
 	JuiceFsServiceFile   = path.Join(Root, "etc", "systemd", "system", "juicefs.service")

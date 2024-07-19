@@ -53,15 +53,22 @@ func (t *InstallMinioOperator) Execute(runtime connector.Runtime) error {
 		}
 	}
 
-	_, _ = runtime.GetRunner().SudoCmd(fmt.Sprintf("tar zxvf %s", binary.Path()), false, true)
-	_, _ = runtime.GetRunner().SudoCmd(fmt.Sprintf("install -m 755 %s/minio-operator /usr/local/bin/minio-operator", binary.BaseDir), false, true)
+	if _, err := runtime.GetRunner().SudoCmd(fmt.Sprintf("tar zxvf %s", binary.Path()), false, true); err != nil {
+		return err
+	}
+	if _, err := runtime.GetRunner().SudoCmd(fmt.Sprintf("install -m 755 %s/minio-operator %s", binary.BaseDir, MinioOperatorFile), false, true); err != nil {
+		return err
+	}
 
 	var minioData, _ = t.PipelineCache.GetMustString(common.CacheMinioDataPath)
 	var minioPassword, _ = t.PipelineCache.GetMustString(common.CacheMinioPassword)
-	var cmd = fmt.Sprintf("/usr/local/bin/minio-operator init --address %s --cafile /etc/ssl/etcd/ssl/ca.pem --certfile /etc/ssl/etcd/ssl/node-%s.pem --keyfile /etc/ssl/etcd/ssl/node-%s-key.pem --volume %s --password %s",
-		constants.LocalIp, runtime.RemoteHost().GetName(), runtime.RemoteHost().GetName(), minioData, minioPassword)
+	var cmd = fmt.Sprintf("%s init --address %s --cafile /etc/ssl/etcd/ssl/ca.pem --certfile /etc/ssl/etcd/ssl/node-%s.pem --keyfile /etc/ssl/etcd/ssl/node-%s-key.pem --volume %s --password %s",
+		MinioOperatorFile, constants.LocalIp, runtime.RemoteHost().GetName(),
+		runtime.RemoteHost().GetName(), minioData, minioPassword)
 
-	_, _ = runtime.GetRunner().SudoCmd(cmd, false, true)
+	if _, err := runtime.GetRunner().SudoCmd(cmd, false, true); err != nil {
+		return err
+	}
 
 	return nil
 }

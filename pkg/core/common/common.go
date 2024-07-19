@@ -43,6 +43,7 @@ const (
 	FileMode0755 = 0755
 	FileMode0644 = 0644
 	FileMode0600 = 0600
+	FileMode0640 = 0640
 
 	TmpDir = "/tmp/kubekey/" // todo 这个不知道是干嘛的
 

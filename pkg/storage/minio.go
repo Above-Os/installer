@@ -3,14 +3,13 @@ package storage
 import (
 	"fmt"
 	"os/exec"
-	"path"
 
 	kubekeyapiv1alpha2 "bytetrade.io/web3os/installer/apis/kubekey/v1alpha2"
 	"github.com/pkg/errors"
 
 	"bytetrade.io/web3os/installer/pkg/common"
 	"bytetrade.io/web3os/installer/pkg/constants"
-	corecommon "bytetrade.io/web3os/installer/pkg/core/common"
+	cc "bytetrade.io/web3os/installer/pkg/core/common"
 	"bytetrade.io/web3os/installer/pkg/core/connector"
 	"bytetrade.io/web3os/installer/pkg/core/logger"
 	"bytetrade.io/web3os/installer/pkg/core/task"
@@ -21,7 +20,6 @@ import (
 )
 
 // ~ CheckMinioState
-// + todo debug
 type CheckMinioState struct {
 	common.KubeAction
 }
@@ -43,18 +41,67 @@ type EnableMinio struct {
 }
 
 func (t *EnableMinio) Execute(runtime connector.Runtime) error {
-	var minioDataPath, _ = t.PipelineCache.GetMustString(common.CacheMinioDataPath)
-	if minioDataPath == "" {
-		return errors.New("get minio data path failed")
+	if _, err := runtime.GetRunner().SudoCmd("groupadd -r minio", false, false); err != nil {
+		return err
 	}
-	_, _ = runtime.GetRunner().SudoCmdExt("groupadd -r minio", false, false)
-	_, _ = runtime.GetRunner().SudoCmdExt("useradd -M -r -g minio minio", false, false)
-	_, _ = runtime.GetRunner().SudoCmdExt(fmt.Sprintf("chown minio:minio %s", minioDataPath), false, false)
+	if _, err := runtime.GetRunner().SudoCmd("useradd -M -r -g minio minio", false, false); err != nil {
+		return err
+	}
+	if _, err := runtime.GetRunner().SudoCmd(fmt.Sprintf("chown minio:minio %s", MinioDataDir), false, false); err != nil {
+		return err
+	}
 
-	_, _ = runtime.GetRunner().SudoCmdExt("systemctl daemon-reload", false, false)
-	_, _ = runtime.GetRunner().SudoCmd("systemctl restart minio", false, true)
-	_, _ = runtime.GetRunner().SudoCmd("systemctl enable minio", false, true)
-	_, _ = runtime.GetRunner().SudoCmd("systemctl --no-pager status minio", false, true)
+	if _, err := runtime.GetRunner().SudoCmdExt("systemctl daemon-reload", false, false); err != nil {
+		return err
+	}
+	if _, err := runtime.GetRunner().SudoCmd("systemctl restart minio", false, false); err != nil {
+		return err
+	}
+	if _, err := runtime.GetRunner().SudoCmd("systemctl enable minio", false, false); err != nil {
+		return err
+	}
+	if _, err := runtime.GetRunner().SudoCmd("systemctl --no-pager status minio", false, false); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// ~ ConfigMinio
+type ConfigMinio struct {
+	common.KubeAction
+}
+
+func (t *ConfigMinio) Execute(runtime connector.Runtime) error {
+	// write file
+	var minioPassword, _ = utils.GeneratePassword(16)
+	var data = util.Data{
+		"MinioCommand": MinioFile,
+	}
+	minioServiceStr, err := util.Render(minioTemplates.MinioService, data)
+	if err != nil {
+		return errors.Wrap(errors.WithStack(err), "render minio service template failed")
+	}
+	if err := util.WriteFile(MinioServiceFile, []byte(minioServiceStr), cc.FileMode0644); err != nil {
+		return errors.Wrap(errors.WithStack(err), fmt.Sprintf("write minio service %s failed", MinioServiceFile))
+	}
+
+	data = util.Data{
+		"MinioDataPath": MinioDataDir,
+		"LocalIP":       constants.LocalIp,
+		"User":          MinioRootUser,
+		"Password":      minioPassword,
+	}
+	minioEnvStr, err := util.Render(minioTemplates.MinioEnv, data)
+	if err != nil {
+		return errors.Wrap(errors.WithStack(err), "render minio env template failed")
+	}
+
+	if err := util.WriteFile(MinioConfigFile, []byte(minioEnvStr), cc.FileMode0644); err != nil {
+		return errors.Wrap(errors.WithStack(err), fmt.Sprintf("write minio env %s failed", MinioConfigFile))
+	}
+
+	t.PipelineCache.Set(common.CacheMinioPassword, minioPassword)
 
 	return nil
 }
@@ -65,71 +112,8 @@ type InstallMinio struct {
 }
 
 func (t *InstallMinio) Execute(runtime connector.Runtime) error {
-	minioPath, _ := t.PipelineCache.GetMustString(common.CacheMinioPath)
-	if minioPath == "" {
-		return errors.New("get minio path failed")
-	}
-	var minioDataPath = path.Join("terminus", "data", "minio", "vol1")
-
-	if !utils.IsExist(minioDataPath) {
-		utils.Mkdir(minioDataPath)
-	}
-
-	if _, err := runtime.GetRunner().SudoCmdExt(fmt.Sprintf("chmod +x %s", minioPath), false, false); err != nil {
-		logger.Errorf("chmod +x %s error: %v", minioPath, err)
-		return err
-	}
-
-	if _, err := runtime.GetRunner().SudoCmdExt(fmt.Sprintf("install %s /usr/local/bin", minioPath), false, false); err != nil {
-		logger.Errorf("install minio %s error: %v", minioPath, err)
-		return err
-	}
-
-	// write file
-	var minioCmd = "/usr/local/bin/minio"
-	var minioPassword, _ = utils.GeneratePassword(16)
-	var minioServiceFile = "/etc/systemd/system/minio.service"
-	var minioEnvFile = "/etc/default/minio"
-	var data = util.Data{
-		"MinioCommand": minioCmd,
-	}
-	minioServiceStr, err := util.Render(minioTemplates.MinioService, data)
-	if err != nil {
-		return errors.Wrap(errors.WithStack(err), "render minio service template failed")
-	}
-	if err := util.WriteFile(minioServiceFile, []byte(minioServiceStr), corecommon.FileMode0644); err != nil {
-		return errors.Wrap(errors.WithStack(err), fmt.Sprintf("write minio service %s failed", minioServiceFile))
-	}
-
-	data = util.Data{
-		"MinioDataPath": minioDataPath,
-		"LocalIP":       constants.LocalIp,
-		"User":          MinioRootUser,
-		"Password":      minioPassword,
-	}
-	minioEnvStr, err := util.Render(minioTemplates.MinioEnv, data)
-	if err != nil {
-		return errors.Wrap(errors.WithStack(err), "render minio env template failed")
-	}
-
-	if err := util.WriteFile(minioEnvFile, []byte(minioEnvStr), corecommon.FileMode0644); err != nil {
-		return errors.Wrap(errors.WithStack(err), fmt.Sprintf("write minio env %s failed", minioEnvFile))
-	}
-
-	t.PipelineCache.Set(common.CacheMinioDataPath, minioDataPath)
-	t.PipelineCache.Set(common.CacheMinioPassword, minioPassword)
-
-	return nil
-}
-
-// ~ DownloadMinio
-type DownloadMinio struct {
-	common.KubeAction
-}
-
-func (t *DownloadMinio) Execute(runtime connector.Runtime) error {
 	var arch = constants.OsArch
-	binary := files.NewKubeBinary("minio", arch, kubekeyapiv1alpha2.DefalutMultusVersion, runtime.GetWorkDir())
+	binary := files.NewKubeBinary("minio", arch, kubekeyapiv1alpha2.DefaultMinioVersion, runtime.GetWorkDir())
 
 	if err := binary.CreateBaseDir(); err != nil {
 		return errors.Wrapf(errors.WithStack(err), "create file %s base dir failed", binary.FileName)
@@ -152,9 +136,31 @@ func (t *DownloadMinio) Execute(runtime connector.Runtime) error {
 		}
 	}
 
+	var cmd = fmt.Sprintf("cd %s && cp %s ./minio && chmod +x minio && install minio /usr/local/bin", binary.Path(), binary.FileName)
+	if _, err := runtime.GetRunner().SudoCmd(cmd, false, false); err != nil {
+		return err
+	}
+
 	t.PipelineCache.Set(common.CacheMinioPath, binary.Path())
 
 	return nil
+}
+
+// ~ CheckMinioExists
+type CheckMinioExists struct {
+	common.KubePrepare
+}
+
+func (p *CheckMinioExists) PreCheck(runtime connector.Runtime) (bool, error) {
+	if !utils.IsExist(MinioDataDir) {
+		utils.Mkdir(MinioDataDir)
+	}
+
+	if !utils.IsExist(MinioFile) {
+		return false, nil
+	}
+
+	return true, nil
 }
 
 // - InstallMinioModule
@@ -165,22 +171,24 @@ type InstallMinioModule struct {
 func (m *InstallMinioModule) Init() {
 	m.Name = "InstallMinio"
 
-	downloadMinio := &task.RemoteTask{
-		Name:     "Download",
-		Hosts:    m.Runtime.GetAllHosts(),
-		Action:   &DownloadMinio{},
-		Parallel: false,
-	}
-
 	installMinio := &task.RemoteTask{
-		Name:     "Install",
+		Name:     "InstallMinio",
 		Hosts:    m.Runtime.GetAllHosts(),
+		Prepare:  &CheckMinioExists{},
 		Action:   &InstallMinio{},
 		Parallel: false,
 	}
 
+	configMinio := &task.RemoteTask{
+		Name:     "ConfigMinio",
+		Hosts:    m.Runtime.GetAllHosts(),
+		Prepare:  &CheckMinioExists{},
+		Action:   &ConfigMinio{},
+		Parallel: false,
+	}
+
 	enableMinio := &task.RemoteTask{
-		Name:     "Enable",
+		Name:     "EnableMinioService",
 		Hosts:    m.Runtime.GetAllHosts(),
 		Action:   &EnableMinio{},
 		Parallel: false,
@@ -196,8 +204,8 @@ func (m *InstallMinioModule) Init() {
 	}
 
 	m.Tasks = []task.Interface{
-		downloadMinio,
 		installMinio,
+		configMinio,
 		enableMinio,
 		checkMinioState,
 	}

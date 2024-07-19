@@ -3,7 +3,6 @@ package storage
 import (
 	"fmt"
 	"os/exec"
-	"path"
 
 	kubekeyapiv1alpha2 "bytetrade.io/web3os/installer/apis/kubekey/v1alpha2"
 	"bytetrade.io/web3os/installer/pkg/common"
@@ -35,8 +34,7 @@ type CheckJuiceFsExists struct {
 }
 
 func (p *CheckJuiceFsExists) PreCheck(runtime connector.Runtime) (bool, error) {
-	var juiceBinPath = path.Join("usr", "local", "bin", "juicefs")
-	if utils.IsExist(juiceBinPath) {
+	if utils.IsExist(JuiceFsFile) {
 		return false, nil
 	}
 
@@ -49,8 +47,7 @@ type DownloadJuiceFs struct {
 }
 
 func (t *DownloadJuiceFs) Execute(runtime connector.Runtime) error {
-
-	binary := files.NewKubeBinary("redis", constants.OsArch, kubekeyapiv1alpha2.DefaultJuiceFsVersion, runtime.GetWorkDir())
+	binary := files.NewKubeBinary("juicefs", constants.OsArch, kubekeyapiv1alpha2.DefaultJuiceFsVersion, runtime.GetWorkDir())
 
 	if err := binary.CreateBaseDir(); err != nil {
 		return errors.Wrapf(errors.WithStack(err), "create file %s base dir failed", binary.FileName)
@@ -102,10 +99,10 @@ func (t *InstallJuiceFs) Execute(runtime connector.Runtime) error {
 	var storageStr = getStorageTypeStr(t.PipelineCache, t.ModuleCache)
 
 	var redisService = fmt.Sprintf("redis://:%s@%s:6379/1", redisPassword, constants.LocalIp)
-	cmd = fmt.Sprintf("/usr/local/bin/juicefs format %s --storage %s", redisService, storageType)
+	cmd = fmt.Sprintf("%s format %s --storage %s", JuiceFsFile, redisService, storageType)
 	cmd = cmd + storageStr
 
-	if _, err := runtime.GetRunner().SudoCmdExt(cmd, false, true); err != nil {
+	if _, err := runtime.GetRunner().SudoCmd(cmd, false, true); err != nil {
 		return err
 	}
 
@@ -119,7 +116,7 @@ func getStorageTypeStr(pc, mc *cache.Cache) string {
 
 	switch storageType {
 	case common.Minio:
-		formatStr = getMinioStr(pc, mc)
+		formatStr = getMinioStr(pc)
 	case common.OSS, common.S3:
 		formatStr = getCloudStr(pc)
 	}
@@ -149,7 +146,7 @@ func getCloudStr(pc *cache.Cache) string {
 	return str
 }
 
-func getMinioStr(pc, mc *cache.Cache) string {
+func getMinioStr(pc *cache.Cache) string {
 	var minioPassword, _ = pc.GetMustString(common.CacheMinioPassword)
 	return fmt.Sprintf(" --bucket http://%s:9000/%s --access-key %s --secret-key -%s",
 		constants.LocalIp, cc.TerminusDir, MinioRootUser, minioPassword)
@@ -161,27 +158,22 @@ type EnableJuiceFsService struct {
 }
 
 func (t *EnableJuiceFsService) Execute(runtime connector.Runtime) error {
-	var juiceFsServiceFile = path.Join("etc", "systemd", "system", "juicefs.service")
-	var juiceFsBinPath = path.Join("usr", "local", "bin", "juicefs")
-	var juiceFsCacheDir = path.Join(cc.TerminusDir, "jfscache")
-	var juiceFsMountPoint = path.Join(cc.TerminusDir, "rootfs")
 	var redisPassword, _ = t.PipelineCache.GetMustString(common.CacheHostRedisPassword)
-
 	var redisService = fmt.Sprintf("redis://:%s@%s:6379/1", redisPassword, constants.LocalIp)
 
 	var data = util.Data{
-		"JuiceFsBinPath":    juiceFsBinPath,
-		"JuiceFsCachePath":  juiceFsCacheDir,
+		"JuiceFsBinPath":    JuiceFsFile,
+		"JuiceFsCachePath":  JuiceFsCacheDir,
 		"JuiceFsMetaDb":     redisService,
-		"JuiceFsMountPoint": juiceFsMountPoint,
+		"JuiceFsMountPoint": JuiceFsMountPointDir,
 	}
 
 	juiceFsServiceStr, err := util.Render(juicefsTemplates.JuicefsService, data)
 	if err != nil {
 		return errors.Wrap(errors.WithStack(err), "render juicefs service template failed")
 	}
-	if err := util.WriteFile(juiceFsServiceFile, []byte(juiceFsServiceStr), corecommon.FileMode0644); err != nil {
-		return errors.Wrap(errors.WithStack(err), fmt.Sprintf("write juicefs service %s failed", juiceFsServiceFile))
+	if err := util.WriteFile(JuiceFsServiceFile, []byte(juiceFsServiceStr), corecommon.FileMode0644); err != nil {
+		return errors.Wrap(errors.WithStack(err), fmt.Sprintf("write juicefs service %s failed", JuiceFsServiceFile))
 	}
 
 	if _, err := runtime.GetRunner().SudoCmd("systemctl daemon-reload", false, false); err != nil {
@@ -200,7 +192,7 @@ func (t *EnableJuiceFsService) Execute(runtime connector.Runtime) error {
 		return err
 	}
 
-	if _, err := runtime.GetRunner().SudoCmd(fmt.Sprintf("sleep 3 && test -d %s/.trash", juiceFsMountPoint), false, false); err != nil {
+	if _, err := runtime.GetRunner().SudoCmd(fmt.Sprintf("sleep 3 && test -d %s/.trash", JuiceFsMountPointDir), false, false); err != nil {
 		return err
 	}
 

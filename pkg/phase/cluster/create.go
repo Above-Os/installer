@@ -22,7 +22,8 @@ func CreateTerminus(args common.Argument, runtime *common.KubeRuntime) *pipeline
 		&os.ConfigSystemModule{},     // * 对应 config_system
 		&storage.InitStorageModule{Skip: storageVendor != "true"},
 		&storage.InstallMinioModule{Skip: storageType != "minio"},
-		&storage.InstallJuiceFsModule{},
+		&storage.InstallRedisModule{},
+		// &storage.InstallJuiceFsModule{},
 	}
 
 	var kubeModules []module.Module

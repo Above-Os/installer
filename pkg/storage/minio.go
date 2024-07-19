@@ -27,11 +27,11 @@ type CheckMinioState struct {
 func (t *CheckMinioState) Execute(runtime connector.Runtime) error {
 	var cmd = "systemctl --no-pager status minio"
 	stdout, err := runtime.GetRunner().SudoCmdExt(cmd, false, false)
-	fmt.Println("---minio / 1---", stdout)
-	fmt.Println("---minio / 2---", err)
 	if err != nil {
 		return fmt.Errorf("Minio Pending")
 	}
+
+	logger.Debug(utils.RemoveAnsiCodes(stdout))
 	return nil
 }
 
@@ -41,15 +41,9 @@ type EnableMinio struct {
 }
 
 func (t *EnableMinio) Execute(runtime connector.Runtime) error {
-	if _, err := runtime.GetRunner().SudoCmd("groupadd -r minio", false, false); err != nil {
-		return err
-	}
-	if _, err := runtime.GetRunner().SudoCmd("useradd -M -r -g minio minio", false, false); err != nil {
-		return err
-	}
-	if _, err := runtime.GetRunner().SudoCmd(fmt.Sprintf("chown minio:minio %s", MinioDataDir), false, false); err != nil {
-		return err
-	}
+	_, _ = runtime.GetRunner().SudoCmdExt("groupadd -r minio", false, false)
+	_, _ = runtime.GetRunner().SudoCmdExt("useradd -M -r -g minio minio", false, false)
+	_, _ = runtime.GetRunner().SudoCmdExt(fmt.Sprintf("chown minio:minio %s", MinioDataDir), false, false)
 
 	if _, err := runtime.GetRunner().SudoCmdExt("systemctl daemon-reload", false, false); err != nil {
 		return err
@@ -58,9 +52,6 @@ func (t *EnableMinio) Execute(runtime connector.Runtime) error {
 		return err
 	}
 	if _, err := runtime.GetRunner().SudoCmd("systemctl enable minio", false, false); err != nil {
-		return err
-	}
-	if _, err := runtime.GetRunner().SudoCmd("systemctl --no-pager status minio", false, false); err != nil {
 		return err
 	}
 
@@ -136,7 +127,7 @@ func (t *InstallMinio) Execute(runtime connector.Runtime) error {
 		}
 	}
 
-	var cmd = fmt.Sprintf("cd %s && cp %s ./minio && chmod +x minio && install minio /usr/local/bin", binary.Path(), binary.FileName)
+	var cmd = fmt.Sprintf("cd %s && chmod +x minio && install minio /usr/local/bin", binary.BaseDir)
 	if _, err := runtime.GetRunner().SudoCmd(cmd, false, false); err != nil {
 		return err
 	}
@@ -152,16 +143,15 @@ type CheckMinioExists struct {
 }
 
 func (p *CheckMinioExists) PreCheck(runtime connector.Runtime) (bool, error) {
-	fmt.Println("---1 / CheckMinioExists---")
 	if !utils.IsExist(MinioDataDir) {
 		utils.Mkdir(MinioDataDir)
 	}
 
 	if !utils.IsExist(MinioFile) {
-		return false, nil
+		return true, nil
 	}
 
-	return true, nil
+	return false, nil
 }
 
 // - InstallMinioModule
@@ -188,7 +178,6 @@ func (m *InstallMinioModule) Init() {
 	configMinio := &task.RemoteTask{
 		Name:     "ConfigMinio",
 		Hosts:    m.Runtime.GetAllHosts(),
-		Prepare:  &CheckMinioExists{},
 		Action:   &ConfigMinio{},
 		Parallel: false,
 	}

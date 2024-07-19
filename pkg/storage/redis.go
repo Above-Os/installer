@@ -28,6 +28,7 @@ type CheckRedisServiceState struct {
 func (t *CheckRedisServiceState) Execute(runtime connector.Runtime) error {
 	var rpwd, _ = t.PipelineCache.GetMustString(common.CacheHostRedisPassword)
 	var cmd = fmt.Sprintf("%s -h %s -a %s ping", RedisCliFile, constants.LocalIp, rpwd)
+	fmt.Println("---cmd---", cmd)
 	if pong, _ := runtime.GetRunner().SudoCmd(cmd, false, false); pong != "PONG" {
 		return fmt.Errorf("failed to connect redis server: %s:6379", constants.LocalIp)
 	}
@@ -128,6 +129,8 @@ func (t *InstallRedis) Execute(runtime connector.Runtime) error {
 	}
 
 	var exists = util.IsExist(binary.Path())
+	fmt.Println("---1---", exists)
+	fmt.Println("---2---", binary.Path())
 	if exists {
 		p := binary.Path()
 		if err := binary.SHA256Check(); err != nil {
@@ -144,12 +147,13 @@ func (t *InstallRedis) Execute(runtime connector.Runtime) error {
 		}
 	}
 
+	return fmt.Errorf("hahahha")
 	if _, err := runtime.GetRunner().SudoCmdExt(fmt.Sprintf("cd %s && tar xf ./%s", binary.BaseDir, binary.FileName), false, false); err != nil {
 		return errors.Wrapf(errors.WithStack(err), "untar redis failed")
 	}
 
 	var cmd = fmt.Sprintf("cd %s/redis-%s && make -j%d && make install", binary.BaseDir, binary.Version, constants.CpuPhysicalCount)
-	if _, err := runtime.GetRunner().SudoCmdExt(cmd, false, true); err != nil {
+	if _, err := runtime.GetRunner().SudoCmdExt(cmd, false, false); err != nil {
 		return err
 	}
 	if _, err := runtime.GetRunner().SudoCmdExt(fmt.Sprintf("ln -s %s %s", RedisServerInstalledFile, RedisServerFile), false, true); err != nil {
@@ -171,7 +175,7 @@ func (m *InstallRedisModule) Init() {
 	m.Name = "InstallRedis"
 
 	installRedis := &task.RemoteTask{
-		Name:     "InstallRedis",
+		Name:     "Install",
 		Hosts:    m.Runtime.GetAllHosts(),
 		Action:   new(InstallRedis),
 		Parallel: false,
@@ -179,7 +183,7 @@ func (m *InstallRedisModule) Init() {
 	}
 
 	configRedis := &task.RemoteTask{
-		Name:     "ConfigRedis",
+		Name:     "Config",
 		Hosts:    m.Runtime.GetAllHosts(),
 		Action:   new(ConfigRedis),
 		Parallel: false,
@@ -195,7 +199,7 @@ func (m *InstallRedisModule) Init() {
 	}
 
 	checkRedisServiceState := &task.RemoteTask{
-		Name:     "CheckRedisServiceState",
+		Name:     "CheckState",
 		Hosts:    m.Runtime.GetAllHosts(),
 		Action:   new(CheckRedisServiceState),
 		Parallel: false,

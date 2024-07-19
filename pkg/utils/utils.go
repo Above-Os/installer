@@ -222,3 +222,8 @@ func GeneratePassword(length int) (string, error) {
 	}
 	return string(password), nil
 }
+
+func RemoveAnsiCodes(input string) string {
+	ansiEscape := regexp.MustCompile(`\x1b\[[0-9;]*m`)
+	return ansiEscape.ReplaceAllString(input, "")
+}

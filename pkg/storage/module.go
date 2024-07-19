@@ -16,7 +16,6 @@ func (m *InitStorageModule) IsSkip() bool {
 	return m.Skip
 }
 
-// todo 整个 storage 的安装都放入这里
 func (m *InitStorageModule) Init() {
 	m.Name = "InitStorage"
 

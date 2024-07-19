@@ -67,15 +67,15 @@ type GetSysInfoModel struct {
 }
 
 func (m *GetSysInfoModel) Init() {
-	m.Name = "GetMachineInfo"
+	m.Name = "GetInfo"
 
 	getSysInfoTask := &task.LocalTask{
-		Name:   "GetMachineInfo",
+		Name:   "GetSysInfo",
 		Action: new(GetSysInfoTask),
 	}
 
 	getInstalledVersionTask := &task.LocalTask{
-		Name:   "GetInstalledVersion",
+		Name:   "GetKubeVersion",
 		Action: new(GetKubeVersionTask),
 	}
 
@@ -144,27 +144,6 @@ func (m *PreCheckOsModule) Init() {
 		raspbianCheck,
 		disableDNS,
 		copyPreInstallationDependencyFiles,
-	}
-}
-
-// ~ TerminusGreetingsModule
-type TerminusGreetingsModule struct {
-	common.KubeModule
-}
-
-func (h *TerminusGreetingsModule) Init() {
-	h.Name = "TerminusGreeting"
-
-	hello := &task.RemoteTask{
-		Name:     "Greetings",
-		Hosts:    h.Runtime.GetAllHosts(),
-		Action:   new(TerminusGreetingsTask),
-		Parallel: false,
-		Retry:    0,
-	}
-
-	h.Tasks = []task.Interface{
-		hello,
 	}
 }
 

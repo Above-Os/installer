@@ -13,13 +13,6 @@ import (
 func InitEnv(o *ApiOptions) {
 	fmt.Println(constants.Logo)
 
-	workDir, err := utils.WorkDir()
-	if err != nil {
-		fmt.Println("working path error", err)
-		os.Exit(1)
-	}
-
-	constants.WorkDir = workDir
 	constants.ApiServerListenAddress = o.Port
 	constants.Proxy = o.Proxy
 }
@@ -27,4 +20,12 @@ func InitEnv(o *ApiOptions) {
 func InitLocal() {
 	constants.LocalIp = util.LocalIP()
 	constants.OsArch = runtime.GOARCH
+
+	workDir, err := utils.WorkDir()
+	if err != nil {
+		fmt.Println("working path error", err)
+		os.Exit(1)
+	}
+
+	constants.WorkDir = workDir
 }

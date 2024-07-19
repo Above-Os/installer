@@ -154,22 +154,3 @@ func (m *RemoveStorageModule) Init() {
 		removeTerminusFiles,
 	}
 }
-
-// ~ SaveInstallConfigModule
-type SaveInstallConfigModule struct {
-	common.KubeModule
-}
-
-func (m *SaveInstallConfigModule) Init() {
-	m.Name = "SaveInstallConfig"
-
-	save := &task.RemoteTask{
-		Name:     "Save",
-		Hosts:    m.Runtime.GetAllHosts(),
-		Action:   &SaveInstallConfigTask{},
-		Parallel: false,
-		Retry:    0,
-	}
-
-	m.Tasks = []task.Interface{save}
-}

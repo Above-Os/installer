@@ -26,6 +26,6 @@ func NewCliTerminusInstallOptions() *CliTerminusInstallOptions {
 }
 
 func (o *CliTerminusInstallOptions) AddFlags(cmd *cobra.Command) {
-	cmd.Flags().StringVar(&o.KubeType, "kube", "", "Set kube type, e.g., k3s or k8s")
+	cmd.Flags().StringVar(&o.KubeType, "kube", "k3s", "Set kube type, e.g., k3s or k8s")
 	cmd.Flags().StringVar(&o.Proxy, "proxy", "", "Set proxy address, e.g., 192.168.50.32 or your-proxy-domain")
 }

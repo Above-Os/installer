@@ -46,25 +46,22 @@ type RaspbianCheckTask struct {
 func (t *RaspbianCheckTask) Execute(runtime connector.Runtime) error {
 	// if util.IsExist(common.RaspbianCmdlineFile) || util.IsExist(common.RaspbianFirmwareFile) {
 	if constants.OsPlatform == common.Raspbian {
-		if _, err := runtime.GetRunner().SudoCmd(fmt.Sprintf("command -v %s", common.CommandIptables), false, false); err != nil {
-			var cmd = "apt install -y iptables"
-
-			_, err = runtime.GetRunner().SudoCmd(cmd, false, true)
+		if _, err := util.GetCommand(common.CommandIptables); err != nil {
+			_, err = runtime.GetRunner().SudoCmd("apt install -y iptables", false, false)
 			if err != nil {
 				logger.Errorf("%s install iptables error %v", common.Raspbian, err)
 				return err
 			}
-			cmd = "systemctl disable --user gvfs-udisks2-volume-monitor"
-			_, err = runtime.GetRunner().SudoCmd(cmd, false, true)
+
+			_, err = runtime.GetRunner().SudoCmd("systemctl disable --user gvfs-udisks2-volume-monitor", false, false)
 			if err != nil {
-				logger.Errorf("%s exec %s error %v", common.Raspbian, cmd, err)
+				logger.Errorf("%s exec error %v", common.Raspbian, err)
 				return err
 			}
 
-			cmd = "systemctl stop --user gvfs-udisks2-volume-monitor"
-			_, err = runtime.GetRunner().SudoCmd(cmd, false, true)
+			_, err = runtime.GetRunner().SudoCmd("systemctl stop --user gvfs-udisks2-volume-monitor", false, false)
 			if err != nil {
-				logger.Errorf("%s exec %s error %v", common.Raspbian, cmd, err)
+				logger.Errorf("%s exec error %v", common.Raspbian, err)
 				return err
 			}
 
@@ -86,22 +83,12 @@ func (t *DisableLocalDNSTask) Execute(runtime connector.Runtime) error {
 	switch constants.OsPlatform {
 	case common.Ubuntu, common.Debian, common.Raspbian:
 		stdout, _ := runtime.GetRunner().SudoCmdExt("systemctl is-active systemd-resolved", false, false)
-		if stdout == "inactive" {
-			cmd = "systemctl stop systemd-resolved.service"
-			if _, err := runtime.GetRunner().SudoCmd(cmd, false, true); err != nil {
-				logger.Errorf("exec %s error %v", cmd, err)
-				return err
-			}
-			cmd = "systemctl disable systemd-resolved.service"
-			if _, err := runtime.GetRunner().SudoCmd(cmd, false, true); err != nil {
-				logger.Errorf("exec %s error %v", cmd, err)
-				return err
-			}
+		if stdout != "active" {
+			_, _ = runtime.GetRunner().SudoCmdExt("systemctl stop systemd-resolved.service", false, true)
+			_, _ = runtime.GetRunner().SudoCmdExt("systemctl disable systemd-resolved.service", false, true)
+
 			if utils.IsExist("/usr/bin/systemd-resolve") {
-				if _, err := runtime.GetRunner().SudoCmd("mv /usr/bin/systemd-resolve /usr/bin/systemd-resolve.bak", false, false); err != nil {
-					logger.Errorf("move /usr/bin/systemd-resolve error %v", err)
-					return err
-				}
+				_, _ = runtime.GetRunner().SudoCmd("mv /usr/bin/systemd-resolve /usr/bin/systemd-resolve.bak", false, true)
 			}
 			ok, err := utils.IsSymLink("/etc/resolv.conf")
 			if err != nil {
@@ -128,7 +115,7 @@ func (t *DisableLocalDNSTask) Execute(runtime connector.Runtime) error {
 	}
 
 	if stdout, _ := runtime.GetRunner().SudoCmd("hostname -i &>/dev/null", false, true); stdout == "" {
-		if _, err := runtime.GetRunner().SudoCmd(fmt.Sprintf("echo %s $HOSTNAME >> /etc/hosts", constants.LocalIp), false, true); err != nil {
+		if _, err := runtime.GetRunner().SudoCmd(fmt.Sprintf("echo %s %s >> /etc/hosts", constants.LocalIp, constants.HostName), false, true); err != nil {
 			return err
 		}
 	}
@@ -188,27 +175,18 @@ func (t *CopyPreInstallationDependencyFilesTask) Execute(runtime connector.Runti
 	return nil
 }
 
-// todo 需要迁移到 kubernets 中去
 // ~ CheckKubeVersionTask
 type GetKubeVersionTask struct {
 	common.KubeAction
 }
 
 func (t *GetKubeVersionTask) Execute(runtime connector.Runtime) error {
-	var f = "/etc/kke/version"
-	if ok := utils.IsExist(f); ok {
-		stdout, err := runtime.GetRunner().SudoCmd("awk -F '=' '/KUBE/{printf \"%s\",$2}' "+f, false, true)
-		if err != nil {
-			logger.Errorf("get kube version error %v", err)
-		}
-		if stdout != "" {
-			constants.InstalledKubeVersion = stdout
-		}
-	}
-
 	stdout, err := runtime.GetRunner().SudoCmd("/usr/local/bin/kubectl get nodes -o jsonpath='{.items[0].status.nodeInfo.kubeletVersion}'", false, false)
 	if err != nil {
-		return nil
+		return err
+	}
+	if stdout == "" {
+		return errors.New("get kubelet version failed")
 	}
 	if stdout != "" {
 		constants.InstalledKubeVersion = stdout
@@ -316,21 +294,6 @@ func (t *GetCGroupsTask) Execute(runtime connector.Runtime) error {
 		logger.Errorf("error reading /proc/cgroups error %v", err)
 		return err
 	}
-
-	return nil
-}
-
-// ~ TerminusGreetingsTask
-type TerminusGreetingsTask struct {
-	common.KubeAction
-}
-
-func (h *TerminusGreetingsTask) Execute(runtime connector.Runtime) error {
-	stdout, err := runtime.GetRunner().SudoCmd("echo 'Greetings, Terminus!!!!!' ", false, true)
-	if err != nil {
-		return err
-	}
-	logger.Infof("TerminusGreetingsTask %s", stdout)
 
 	return nil
 }

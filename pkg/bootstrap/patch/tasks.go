@@ -8,7 +8,6 @@ import (
 	"bytetrade.io/web3os/installer/pkg/binaries"
 	"bytetrade.io/web3os/installer/pkg/common"
 	"bytetrade.io/web3os/installer/pkg/constants"
-	"bytetrade.io/web3os/installer/pkg/core/action"
 	"bytetrade.io/web3os/installer/pkg/core/connector"
 	"bytetrade.io/web3os/installer/pkg/core/logger"
 	"bytetrade.io/web3os/installer/pkg/core/util"
@@ -16,7 +15,7 @@ import (
 
 // ~ PatchTask apt-get install
 type PatchTask struct {
-	action.BaseAction
+	common.KubeAction
 }
 
 func (t *PatchTask) Execute(runtime connector.Runtime) error {
@@ -24,7 +23,7 @@ func (t *PatchTask) Execute(runtime connector.Runtime) error {
 	var debianFrontend string
 	var pre_reqs = "apt-transport-https ca-certificates curl"
 
-	if _, err := runtime.GetRunner().SudoCmd(fmt.Sprintf("command -v %s", common.CommandGPG), false, false); err != nil {
+	if _, err := util.GetCommand(common.CommandGPG); err != nil {
 		pre_reqs = pre_reqs + " gnupg"
 	}
 

@@ -37,13 +37,7 @@ func NewK3sCreateClusterPhase(runtime *common.KubeRuntime) []module.Module {
 		skipLocalStorage = false
 	}
 
-	if skipLocalStorage {
-	}
-	if skipPushImages {
-	}
-
 	m := []module.Module{
-		&precheck.GreetingsModule{},
 		&artifact.UnArchiveModule{Skip: noArtifact},                            // skip
 		&os.RepositoryModule{Skip: noArtifact || !runtime.Arg.InstallPackages}, // skip
 		&binaries.K3sNodeBinariesModule{},

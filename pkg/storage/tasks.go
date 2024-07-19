@@ -14,7 +14,6 @@ import (
 	"bytetrade.io/web3os/installer/pkg/core/logger"
 	"bytetrade.io/web3os/installer/pkg/core/util"
 	"bytetrade.io/web3os/installer/pkg/files"
-	"bytetrade.io/web3os/installer/pkg/model"
 	"bytetrade.io/web3os/installer/pkg/utils"
 	"github.com/pkg/errors"
 )
@@ -255,21 +254,4 @@ func (t *RemoveTerminusFiles) Execute(runtime connector.Runtime) error {
 	}
 
 	return nil
-}
-
-// +
-
-// ~ task SaveInstallConfigTask
-type SaveInstallConfigTask struct {
-	common.KubeAction
-}
-
-func (t *SaveInstallConfigTask) Execute(runtime connector.Runtime) error {
-	var installReq model.InstallModelReq
-	var ok bool
-	if installReq, ok = any(t.KubeConf.Arg.Request).(model.InstallModelReq); !ok {
-		return fmt.Errorf("invalid install model req %+v", t.KubeConf.Arg.Request)
-	}
-
-	return t.KubeConf.Arg.Provider.SaveInstallConfig(installReq)
 }

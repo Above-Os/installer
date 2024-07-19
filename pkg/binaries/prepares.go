@@ -31,7 +31,7 @@ func (p *Ubuntu24AppArmorCheck) PreCheck(runtime connector.Runtime) (bool, error
 	}
 
 	if strings.Index(stdout, "4.0.1") < 0 {
-		return true, nil // need to install
+		return true, nil
 	}
 
 	return false, nil

@@ -39,7 +39,7 @@ func CreateTerminus(args common.Argument, runtime *common.KubeRuntime) *pipeline
 	if kubeModules == nil {
 	}
 
-	// m = append(m, kubeModules...)  // ! 暂时取消，主要测试 storage 的安装
+	m = append(m, kubeModules...) // ! 暂时取消，主要测试 storage 的安装
 
 	return &pipeline.Pipeline{
 		Name:    "Install Terminus",

@@ -143,16 +143,12 @@ func (t *InstallJuiceFs) Execute(runtime connector.Runtime) error {
 		return err
 	}
 
-	var storageVendor = t.KubeConf.Arg.Storage.StorageVendor
-	var storageType = t.KubeConf.Arg.Storage.StorageType
-	var storageClusterId = t.KubeConf.Arg.Storage.StorageClusterId
 	var storageStr = getStorageTypeStr(t.PipelineCache, t.KubeConf.Arg.Storage)
 
 	var redisService = fmt.Sprintf("redis://:%s@%s:6379/1", redisPassword, constants.LocalIp)
 	cmd = fmt.Sprintf("%s format %s --storage %s", JuiceFsFile, redisService, t.KubeConf.Arg.Storage.StorageType)
 	cmd = cmd + storageStr
 
-	fmt.Println("---1---", cmd)
 	if _, err := runtime.GetRunner().SudoCmd(cmd, false, true); err != nil {
 		return err
 	}
@@ -168,7 +164,6 @@ type EnableJuiceFsService struct {
 func (t *EnableJuiceFsService) Execute(runtime connector.Runtime) error {
 	var redisPassword, _ = t.PipelineCache.GetMustString(common.CacheHostRedisPassword)
 	var redisService = fmt.Sprintf("redis://:%s@%s:6379/1", redisPassword, constants.LocalIp)
-	fmt.Println("---2---", redisService)
 	var data = util.Data{
 		"JuiceFsBinPath":    JuiceFsFile,
 		"JuiceFsCachePath":  JuiceFsCacheDir,

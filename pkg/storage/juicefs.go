@@ -119,7 +119,11 @@ func (t *InstallJuiceFs) Execute(runtime connector.Runtime) error {
 	var redisPassword, _ = t.PipelineCache.GetMustString(common.CacheHostRedisPassword)
 	var juiceFsBaseDir, _ = t.ModuleCache.GetMustString(common.CacheJuiceFsPath)
 	var juiceFsFileName, _ = t.ModuleCache.GetMustString(common.CacheJuiceFsFileName)
-	var storageType, _ = t.PipelineCache.GetMustString(common.CacheStorageType)
+
+	fmt.Println("---1---", juiceFsBaseDir)
+	fmt.Println("---2---", juiceFsFileName)
+
+	return fmt.Errorf("--------")
 
 	if redisPassword == "" {
 		return fmt.Errorf("redis password not found")
@@ -130,10 +134,10 @@ func (t *InstallJuiceFs) Execute(runtime connector.Runtime) error {
 		return err
 	}
 
-	var storageStr = getStorageTypeStr(t.PipelineCache, t.ModuleCache)
+	var storageStr = getStorageTypeStr(t.PipelineCache, t.ModuleCache, t.KubeConf.Arg.Storage.StorageType)
 
 	var redisService = fmt.Sprintf("redis://:%s@%s:6379/1", redisPassword, constants.LocalIp)
-	cmd = fmt.Sprintf("%s format %s --storage %s", JuiceFsFile, redisService, storageType)
+	cmd = fmt.Sprintf("%s format %s --storage %s", JuiceFsFile, redisService, t.KubeConf.Arg.Storage.StorageType)
 	cmd = cmd + storageStr
 
 	if _, err := runtime.GetRunner().SudoCmd(cmd, false, true); err != nil {
@@ -143,8 +147,7 @@ func (t *InstallJuiceFs) Execute(runtime connector.Runtime) error {
 	return nil
 }
 
-func getStorageTypeStr(pc, mc *cache.Cache) string {
-	var storageType, _ = pc.GetMustString(common.CacheStorageType)
+func getStorageTypeStr(pc, mc *cache.Cache, storageType string) string {
 	var storageClusterId, _ = pc.GetMustString(common.CacheSTSClusterId)
 	var formatStr string
 

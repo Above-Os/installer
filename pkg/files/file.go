@@ -274,7 +274,7 @@ func NewKubeBinary(name, arch, version, prePath string) *KubeBinary {
 	case juicefs:
 		component.Type = COMPONENT
 		component.FileName = fmt.Sprintf("juicefs-%s-linux-%s.tar.gz", version, arch)
-		component.Url = fmt.Sprintf(JuiceFsUrl, version, arch)
+		component.Url = fmt.Sprintf(JuiceFsUrl, version, version, arch)
 		component.CheckSum = false
 		component.BaseDir = filepath.Join(prePath, component.Type)
 	case apparmor: // + patch

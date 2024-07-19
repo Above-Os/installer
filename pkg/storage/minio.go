@@ -3,6 +3,7 @@ package storage
 import (
 	"fmt"
 	"os/exec"
+	"time"
 
 	kubekeyapiv1alpha2 "bytetrade.io/web3os/installer/apis/kubekey/v1alpha2"
 	"github.com/pkg/errors"
@@ -25,13 +26,14 @@ type CheckMinioState struct {
 }
 
 func (t *CheckMinioState) Execute(runtime connector.Runtime) error {
-	var cmd = "systemctl --no-pager status minio"
+	var cmd = "systemctl --no-pager --no-pager -n 0 status minio" // 这里可以考虑用 is-active 来验证
 	stdout, err := runtime.GetRunner().SudoCmdExt(cmd, false, false)
 	if err != nil {
 		return fmt.Errorf("Minio Pending")
 	}
 
-	logger.Debug(utils.RemoveAnsiCodes(stdout))
+	logger.Debug(stdout)
+
 	return nil
 }
 
@@ -194,8 +196,8 @@ func (m *InstallMinioModule) Init() {
 		Hosts:    m.Runtime.GetAllHosts(),
 		Action:   &CheckMinioState{},
 		Parallel: false,
-		Retry:    60,
-		Delay:    5,
+		Retry:    30,
+		Delay:    2 * time.Second,
 	}
 
 	m.Tasks = []task.Interface{

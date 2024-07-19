@@ -14,6 +14,9 @@ func CreateTerminus(args common.Argument, runtime *common.KubeRuntime) *pipeline
 	var storageVendor = args.Storage.StorageVendor
 	var storageType = args.Storage.StorageType
 
+	if storageType == "" {
+	}
+
 	m := []module.Module{
 		&precheck.GreetingsModule{},
 		&precheck.GetSysInfoModel{},
@@ -23,7 +26,7 @@ func CreateTerminus(args common.Argument, runtime *common.KubeRuntime) *pipeline
 		&storage.InitStorageModule{Skip: storageVendor != "true"},
 		&storage.InstallMinioModule{Skip: storageType != "minio"},
 		&storage.InstallRedisModule{},
-		// &storage.InstallJuiceFsModule{},
+		&storage.InstallJuiceFsModule{},
 	}
 
 	var kubeModules []module.Module

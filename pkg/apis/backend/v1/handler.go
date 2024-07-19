@@ -11,7 +11,6 @@ import (
 	"bytetrade.io/web3os/installer/pkg/core/logger"
 	"bytetrade.io/web3os/installer/pkg/core/storage"
 	"bytetrade.io/web3os/installer/pkg/model"
-	"bytetrade.io/web3os/installer/pkg/phase/download"
 	"bytetrade.io/web3os/installer/pkg/phase/mock"
 	"bytetrade.io/web3os/installer/pkg/pipelines"
 	"github.com/emicklei/go-restful/v3"
@@ -133,55 +132,11 @@ func (h *Handler) handlerStatus(req *restful.Request, resp *restful.Response) {
 	response.Success(resp, res)
 }
 
-// - test func
-func (h *Handler) handlerTest(req *restful.Request, resp *restful.Response) {
-	logger.Infof("handler test req: %s", req.Request.Method)
-	response.SuccessNoData(resp)
-}
-
-// + 测试安装的接口
-func (h *Handler) handlerInst(req *restful.Request, resp *restful.Response) {
-	args := common.Argument{}
-	runtime, err := common.NewKubeRuntime(common.AllInOne, args)
-	if err != nil {
-		response.HandleError(resp, err)
-		return
-	}
-
-	pipelines.NewCreateInstallerPipeline(runtime)
-	response.SuccessNoData(resp)
-}
-
 func (h *Handler) handlerGreetings(req *restful.Request, resp *restful.Response) {
 	logger.Infof("handler greetings req: %s", req.Request.Method)
 
 	if err := mock.Greetings(); err != nil {
 		logger.Errorf("greetings failed %v", err)
-	}
-
-	response.SuccessNoData(resp)
-}
-
-func (h *Handler) handlerDownloadEx(req *restful.Request, resp *restful.Response) {
-	logger.Infof("handler download req: %s", req.Request.Method)
-
-	arg := common.Argument{}
-
-	if err := download.CreateDownload(arg); err != nil {
-		logger.Errorf("download failed %v", err)
-	}
-
-	response.SuccessNoData(resp)
-}
-
-// ~ 测试安装 kk
-func (h *Handler) handlerInstallKk(req *restful.Request, resp *restful.Response) {
-	logger.Infof("handler installer req: %s", req.Request.Method)
-
-	arg := common.Argument{}
-
-	if err := pipelines.InstallKubekeyPipeline(arg); err != nil {
-		fmt.Println("---api installer kk / err---", err)
 	}
 
 	response.SuccessNoData(resp)

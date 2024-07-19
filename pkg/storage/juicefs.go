@@ -146,7 +146,7 @@ func (t *InstallJuiceFs) Execute(runtime connector.Runtime) error {
 	var storageVendor = t.KubeConf.Arg.Storage.StorageVendor
 	var storageType = t.KubeConf.Arg.Storage.StorageType
 	var storageClusterId = t.KubeConf.Arg.Storage.StorageClusterId
-	var storageStr = getStorageTypeStr(t.PipelineCache, t.ModuleCache, storageVendor, storageType, storageClusterId)
+	var storageStr = getStorageTypeStr(t.PipelineCache, t.KubeConf.Arg.Storage)
 
 	var redisService = fmt.Sprintf("redis://:%s@%s:6379/1", redisPassword, constants.LocalIp)
 	cmd = fmt.Sprintf("%s format %s --storage %s", JuiceFsFile, redisService, t.KubeConf.Arg.Storage.StorageType)
@@ -216,7 +216,8 @@ func (t *CheckJuiceFsState) Execute(runtime connector.Runtime) error {
 	return nil
 }
 
-func getStorageTypeStr(pc, mc *cache.Cache, storageVendor, storageType, storageClusterId string) string {
+func getStorageTypeStr(pc *cache.Cache, storage *common.Storage) string {
+	var storageType = storage.StorageType
 	var formatStr string
 	var fsName string
 
@@ -224,11 +225,11 @@ func getStorageTypeStr(pc, mc *cache.Cache, storageVendor, storageType, storageC
 	case common.Minio:
 		formatStr = getMinioStr(pc)
 	case common.OSS, common.S3:
-		formatStr = getCloudStr(pc)
+		formatStr = getCloudStr(pc, storage)
 	}
 
-	if storageVendor == "true" { // todo 这里要处理 cloud 上的  token
-		fsName = storageClusterId
+	if storage.StorageVendor == "true" {
+		fsName = storage.StorageClusterId
 	} else {
 		fsName = "rootfs"
 	}
@@ -238,21 +239,16 @@ func getStorageTypeStr(pc, mc *cache.Cache, storageVendor, storageType, storageC
 	return formatStr
 }
 
-func getCloudStr(pc *cache.Cache) string {
-	var storageBucket, _ = pc.GetMustString(common.CacheStorageBucket)
-	var storageVendor, _ = pc.GetMustString(common.CacheStorageVendor)
-	var storageAccessKey, _ = pc.GetMustString(common.CacheSTSAccessKey)
-	var storageSecretKey, _ = pc.GetMustString(common.CacheSTSSecretKey)
-	var storageToken, _ = pc.GetMustString(common.CacheSTSToken)
+func getCloudStr(pc *cache.Cache, storage *common.Storage) string {
 
-	var str = fmt.Sprintf(" --bucket %s", storageBucket)
-	if storageVendor == "true" {
-		if storageToken != "" {
-			str = str + fmt.Sprintf(" --session-token %s", storageToken)
+	var str = fmt.Sprintf(" --bucket %s", storage.StorageBucket)
+	if storage.StorageVendor == "true" {
+		if storage.StorageToken != "" {
+			str = str + fmt.Sprintf(" --session-token %s", storage.StorageToken)
 		}
 	}
-	if storageAccessKey != "" && storageSecretKey != "" {
-		str = str + fmt.Sprintf(" --access-key %s --secret-key %s", storageAccessKey, storageSecretKey)
+	if storage.StorageAccessKey != "" && storage.StorageSecretKey != "" {
+		str = str + fmt.Sprintf(" --access-key %s --secret-key %s", storage.StorageAccessKey, storage.StorageSecretKey)
 	}
 
 	return str

@@ -3,6 +3,7 @@ package storage
 import (
 	"fmt"
 	"os/exec"
+	"time"
 
 	kubekeyapiv1alpha2 "bytetrade.io/web3os/installer/apis/kubekey/v1alpha2"
 	"bytetrade.io/web3os/installer/pkg/common"
@@ -10,6 +11,7 @@ import (
 	cc "bytetrade.io/web3os/installer/pkg/core/common"
 	"bytetrade.io/web3os/installer/pkg/core/connector"
 	"bytetrade.io/web3os/installer/pkg/core/logger"
+	"bytetrade.io/web3os/installer/pkg/core/task"
 	"bytetrade.io/web3os/installer/pkg/core/util"
 	"bytetrade.io/web3os/installer/pkg/files"
 	"bytetrade.io/web3os/installer/pkg/utils"
@@ -167,4 +169,44 @@ type InstallRedisModule struct {
 
 func (m *InstallRedisModule) Init() {
 	m.Name = "InstallRedis"
+
+	installRedis := &task.RemoteTask{
+		Name:     "InstallRedis",
+		Hosts:    m.Runtime.GetAllHosts(),
+		Action:   new(InstallRedis),
+		Parallel: false,
+		Retry:    0,
+	}
+
+	configRedis := &task.RemoteTask{
+		Name:     "ConfigRedis",
+		Hosts:    m.Runtime.GetAllHosts(),
+		Action:   new(ConfigRedis),
+		Parallel: false,
+		Retry:    0,
+	}
+
+	enableRedisService := &task.RemoteTask{
+		Name:     "EnableRedisService",
+		Hosts:    m.Runtime.GetAllHosts(),
+		Action:   new(EnableRedisService),
+		Parallel: false,
+		Retry:    0,
+	}
+
+	checkRedisServiceState := &task.RemoteTask{
+		Name:     "CheckRedisServiceState",
+		Hosts:    m.Runtime.GetAllHosts(),
+		Action:   new(CheckRedisServiceState),
+		Parallel: false,
+		Retry:    3,
+		Delay:    3 * time.Second,
+	}
+
+	m.Tasks = []task.Interface{
+		installRedis,
+		configRedis,
+		enableRedisService,
+		checkRedisServiceState,
+	}
 }

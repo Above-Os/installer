@@ -11,7 +11,6 @@ import (
 	"bytetrade.io/web3os/installer/pkg/core/logger"
 	"bytetrade.io/web3os/installer/pkg/core/prepare"
 	"bytetrade.io/web3os/installer/pkg/core/task"
-	"bytetrade.io/web3os/installer/pkg/kubernetes"
 	"bytetrade.io/web3os/installer/pkg/utils"
 
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -72,9 +71,6 @@ func (d *DeploySnapshotControllerModule) Init() {
 		Prepare: &prepare.PrepareCollection{
 			new(common.OnlyFirstMaster),
 			new(NotEqualDesiredVersion),
-			&kubernetes.GetKubeletVersion{
-				CommandDelete: false,
-			},
 		},
 		Action:   new(DeploySnapshotController),
 		Parallel: false,

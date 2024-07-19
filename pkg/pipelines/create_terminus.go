@@ -2,6 +2,7 @@ package pipelines
 
 import (
 	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"path/filepath"
@@ -9,21 +10,33 @@ import (
 	ctrl "bytetrade.io/web3os/installer/controllers"
 	"bytetrade.io/web3os/installer/pkg/common"
 	"bytetrade.io/web3os/installer/pkg/core/logger"
+	"bytetrade.io/web3os/installer/pkg/phase"
 	"bytetrade.io/web3os/installer/pkg/phase/cluster"
 )
 
 func CliInstallTerminusPipeline(kubeType string, proxy string) error {
+	if kubeVersion := phase.GetCurrentKubeVersion(); kubeVersion != "" {
+		return fmt.Errorf("Kubernetes %s already installed", kubeVersion)
+	}
+
+	var storageParms = phase.StorageParameters()
+	var sp, _ = json.Marshal(storageParms)
+	fmt.Printf("STORAGE: %s\n", string(sp))
+
 	arg := common.Argument{
 		KsEnable:         true,
 		KsVersion:        common.DefaultKubeSphereVersion,
 		InstallPackages:  false,
 		SKipPushImages:   false,
 		ContainerManager: common.Containerd,
+		Storage:          storageParms,
 	}
 
 	if proxy != "" {
 		arg.Proxy = proxy
 	}
+
+	return nil // +
 
 	switch kubeType {
 	case common.K3s:

@@ -3,7 +3,6 @@ package storage
 import (
 	"fmt"
 	"os/exec"
-	"path"
 	"strings"
 
 	kubekeyapiv1alpha2 "bytetrade.io/web3os/installer/apis/kubekey/v1alpha2"
@@ -25,16 +24,18 @@ type MkStorageDir struct {
 
 func (t *MkStorageDir) Execute(runtime connector.Runtime) error {
 	var storageVendor, _ = t.PipelineCache.GetMustString(common.CacheStorageVendor)
-	var terminusDir = cc.TerminusDir
-	var dataDir = path.Join("osdata")
-
 	if storageVendor == "true" {
-		if utils.IsExist(dataDir) {
-			if utils.IsExist(terminusDir) {
-				_, _ = runtime.GetRunner().SudoCmdExt(fmt.Sprintf("rm -rf %s", terminusDir), false, false)
+		if utils.IsExist(StorageDataDir) {
+			if utils.IsExist(cc.TerminusDir) {
+				_, _ = runtime.GetRunner().SudoCmdExt(fmt.Sprintf("rm -rf %s", cc.TerminusDir), false, false)
 			}
-			_, _ = runtime.GetRunner().SudoCmdExt(fmt.Sprintf("mkdir -p %s%s", dataDir, terminusDir), false, false)
-			_, _ = runtime.GetRunner().SudoCmdExt(fmt.Sprintf("ln -s %s%s %s", dataDir, terminusDir, terminusDir), false, false)
+
+			if _, err := runtime.GetRunner().SudoCmdExt(fmt.Sprintf("mkdir -p %s", StorageDataTerminusDir), false, false); err != nil {
+				return err
+			}
+			if _, err := runtime.GetRunner().SudoCmdExt(fmt.Sprintf("ln -s %s %s", StorageDataTerminusDir, cc.TerminusDir), false, false); err != nil {
+				return err
+			}
 		}
 
 	}

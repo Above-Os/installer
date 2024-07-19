@@ -79,7 +79,6 @@ type DisableLocalDNSTask struct {
 }
 
 func (t *DisableLocalDNSTask) Execute(runtime connector.Runtime) error {
-	var cmd string
 	switch constants.OsPlatform {
 	case common.Ubuntu, common.Debian, common.Raspbian:
 		stdout, _ := runtime.GetRunner().SudoCmdExt("systemctl is-active systemd-resolved", false, false)
@@ -172,26 +171,6 @@ func (t *CopyPreInstallationDependencyFilesTask) Execute(runtime connector.Runti
 	if utils.IsExist("/opt/deps/") {
 		// todo 拷贝预安装的依赖文件
 	}
-	return nil
-}
-
-// ~ CheckKubeVersionTask
-type GetKubeVersionTask struct {
-	common.KubeAction
-}
-
-func (t *GetKubeVersionTask) Execute(runtime connector.Runtime) error {
-	stdout, err := runtime.GetRunner().SudoCmd("/usr/local/bin/kubectl get nodes -o jsonpath='{.items[0].status.nodeInfo.kubeletVersion}'", false, false)
-	if err != nil {
-		return err
-	}
-	if stdout == "" {
-		return errors.New("get kubelet version failed")
-	}
-	if stdout != "" {
-		constants.InstalledKubeVersion = stdout
-	}
-
 	return nil
 }
 
@@ -304,7 +283,7 @@ type GreetingsTask struct {
 }
 
 func (h *GreetingsTask) Execute(runtime connector.Runtime) error {
-	_, err := runtime.GetRunner().SudoCmd("echo 'Greetings, KubeKey!!!!! hahahaha!!!!'", false, true)
+	_, err := runtime.GetRunner().SudoCmd("echo 'Greetings, Terminus'", false, true)
 	if err != nil {
 		return err
 	}
@@ -595,35 +574,53 @@ func (g *GetKubernetesNodesStatus) Execute(runtime connector.Runtime) error {
 
 // ~ GetStorageKeyTask
 type GetStorageKeyTask struct {
-	common.KubeAction
+	common.KubeAction // todo 如果是首次安装，需要从 env 中获取
 }
 
 func (t *GetStorageKeyTask) Execute(runtime connector.Runtime) error {
-	if stdout, err := runtime.GetRunner().SudoCmdExt("/usr/local/bin/kubectl get terminus terminus -o jsonpath='{.metadata.annotations.bytetrade\\.io/s3-ak}'", false, false); err != nil {
-		logger.Errorf("get storage access key error %v", err)
-	} else if stdout != "" {
-		t.PipelineCache.Set(common.CacheSTSAccessKey, stdout)
+	var storageAccessKey, storageSecretKey, storageToken, storageClusterId string
+
+	if stdout, _ := runtime.GetRunner().SudoCmdExt("/usr/local/bin/kubectl get terminus terminus -o jsonpath='{.metadata.annotations.bytetrade\\.io/s3-ak}'", false, false); stdout == "" {
+		storageAccessKey = os.Getenv(common.EnvStorageAccessKeyName)
+		if storageAccessKey == "" {
+			logger.Errorf("storage access key not found")
+		}
+	} else {
+		storageAccessKey = stdout
 	}
 
-	if stdout, err := runtime.GetRunner().SudoCmdExt("/usr/local/bin/kubectl get terminus terminus -o jsonpath='{.metadata.annotations.bytetrade\\.io/s3-sk}'", false, false); err != nil {
-		logger.Errorf("get storage secret key error %v", err)
-	} else if stdout != "" {
-		t.PipelineCache.Set(common.CacheSTSSecretKey, stdout)
+	if stdout, _ := runtime.GetRunner().SudoCmdExt("/usr/local/bin/kubectl get terminus terminus -o jsonpath='{.metadata.annotations.bytetrade\\.io/s3-sk}'", false, false); stdout == "" {
+		storageSecretKey = os.Getenv(common.EnvStorageSecretKeyName)
+		if storageSecretKey == "" {
+			logger.Errorf("storage secret key not found")
+		}
+	} else {
+		storageSecretKey = stdout
 	}
 
-	if stdout, err := runtime.GetRunner().SudoCmdExt("/usr/local/bin/kubectl get terminus terminus -o jsonpath='{.metadata.annotations.bytetrade\\.io/s3-sts}'", false, false); err != nil {
-		logger.Errorf("get storage sts token error %v", err)
-	} else if stdout != "" {
-		t.PipelineCache.Set(common.CacheSTSToken, stdout)
+	if stdout, _ := runtime.GetRunner().SudoCmdExt("/usr/local/bin/kubectl get terminus terminus -o jsonpath='{.metadata.annotations.bytetrade\\.io/s3-sts}'", false, false); stdout == "" {
+		storageToken = os.Getenv(common.EnvStorageTokenName)
+		if storageToken == "" {
+			logger.Errorf("storage token not found")
+		}
+	} else {
+		storageToken = stdout
 	}
 
-	if stdout, err := runtime.GetRunner().SudoCmdExt("/usr/local/bin/kubectl get terminus terminus -o jsonpath='{.metadata.annotations.bytetrade\\.io/cluster-id}'", false, false); err != nil {
-		logger.Errorf("get cluster id error %v", err)
-	} else if stdout != "" {
-		t.PipelineCache.Set(common.CacheSTSClusterId, stdout)
+	if stdout, _ := runtime.GetRunner().SudoCmdExt("/usr/local/bin/kubectl get terminus terminus -o jsonpath='{.metadata.annotations.bytetrade\\.io/cluster-id}'", false, false); stdout == "" {
+		storageClusterId = os.Getenv(common.EnvStorageClusterIdName)
+		if storageClusterId == "" {
+			logger.Errorf("storage cluster id not found")
+		}
+	} else {
+		storageClusterId = stdout
 	}
 
-	constants.InstalledKubeVersion = ""
+	t.PipelineCache.Set(common.CacheSTSAccessKey, storageAccessKey)
+	t.PipelineCache.Set(common.CacheSTSSecretKey, storageSecretKey)
+	t.PipelineCache.Set(common.CacheSTSToken, storageToken)
+	t.PipelineCache.Set(common.CacheSTSClusterId, storageClusterId)
+
 	return nil
 }
 

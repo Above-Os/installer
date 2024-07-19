@@ -25,7 +25,7 @@ func InstallTerminusPipeline(args common.Argument) error {
 	}
 
 	m := []module.Module{
-		&precheck.TerminusGreetingsModule{},
+		&precheck.GreetingsModule{},
 		&precheck.PreCheckOsModule{}, // * 对应 precheck_os()
 		&patch.InstallDepsModule{},   // * 对应 install_deps
 		&os.ConfigSystemModule{},     // * 对应 config_system

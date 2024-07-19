@@ -8,13 +8,18 @@ import (
 	"bytetrade.io/web3os/installer/pkg/core/logger"
 	"bytetrade.io/web3os/installer/pkg/core/module"
 	"bytetrade.io/web3os/installer/pkg/core/pipeline"
+	"bytetrade.io/web3os/installer/pkg/phase"
 	"bytetrade.io/web3os/installer/pkg/phase/cluster"
 	"bytetrade.io/web3os/installer/pkg/storage"
 )
 
 func UninstallTerminusPipeline() error {
+	kubeVersion := phase.GetCurrentKubeVersion()
+	if kubeVersion == "" {
+		return fmt.Errorf("k8s not installed")
+	}
 	var args = common.Argument{
-		KubernetesVersion: cluster.GetCurrentKubeVersion(),
+		KubernetesVersion: kubeVersion,
 		ContainerManager:  common.Containerd,
 		DeleteCRI:         true,
 	}

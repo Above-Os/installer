@@ -74,11 +74,6 @@ func (m *GetSysInfoModel) Init() {
 		Action: new(GetSysInfoTask),
 	}
 
-	getInstalledVersionTask := &task.LocalTask{
-		Name:   "GetKubeVersion",
-		Action: new(GetKubeVersionTask),
-	}
-
 	getCgroupsEnabledTask := &task.LocalTask{
 		Name:   "GetCgroupsEnabled",
 		Action: new(GetCGroupsTask),
@@ -86,7 +81,6 @@ func (m *GetSysInfoModel) Init() {
 
 	m.Tasks = []task.Interface{
 		getSysInfoTask,
-		getInstalledVersionTask,
 		getCgroupsEnabledTask,
 	}
 

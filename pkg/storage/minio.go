@@ -152,6 +152,7 @@ type CheckMinioExists struct {
 }
 
 func (p *CheckMinioExists) PreCheck(runtime connector.Runtime) (bool, error) {
+	fmt.Println("---1 / CheckMinioExists---")
 	if !utils.IsExist(MinioDataDir) {
 		utils.Mkdir(MinioDataDir)
 	}
@@ -166,6 +167,11 @@ func (p *CheckMinioExists) PreCheck(runtime connector.Runtime) (bool, error) {
 // - InstallMinioModule
 type InstallMinioModule struct {
 	common.KubeModule
+	Skip bool
+}
+
+func (m *InstallMinioModule) IsSkip() bool {
+	return m.Skip
 }
 
 func (m *InstallMinioModule) Init() {

@@ -192,3 +192,10 @@ const (
 	CacheJuiceFsPath     = "juicefs_binary_path"
 	CacheJuiceFsFileName = "juicefs_binary_filename"
 )
+
+const (
+	EnvStorageAccessKeyName = "AWS_ACCESS_KEY_ID_SETUP"
+	EnvStorageSecretKeyName = "AWS_SECRET_ACCESS_KEY_SETUP"
+	EnvStorageTokenName     = "AWS_SESSION_TOKEN_SETUP"
+	EnvStorageClusterIdName = "CLUSTER_ID"
+)

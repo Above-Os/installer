@@ -12,6 +12,7 @@ import (
 	corecommon "bytetrade.io/web3os/installer/pkg/core/common"
 	"bytetrade.io/web3os/installer/pkg/core/connector"
 	"bytetrade.io/web3os/installer/pkg/core/logger"
+	"bytetrade.io/web3os/installer/pkg/core/task"
 	"bytetrade.io/web3os/installer/pkg/core/util"
 	"bytetrade.io/web3os/installer/pkg/files"
 	juicefsTemplates "bytetrade.io/web3os/installer/pkg/storage/templates"
@@ -26,6 +27,39 @@ type InstallJuiceFsModule struct {
 
 func (m *InstallJuiceFsModule) Init() {
 	m.Name = "InstallJuiceFs"
+
+	downloadJuiceFs := &task.RemoteTask{
+		Name:     "DownloadJuiceFs",
+		Hosts:    m.Runtime.GetAllHosts(),
+		Prepare:  &CheckJuiceFsExists{},
+		Action:   new(DownloadJuiceFs),
+		Parallel: false,
+		Retry:    0,
+	}
+
+	installJuiceFs := &task.RemoteTask{
+		Name:     "InstallJuiceFs",
+		Hosts:    m.Runtime.GetAllHosts(),
+		Prepare:  &CheckJuiceFsExists{},
+		Action:   new(InstallJuiceFs),
+		Parallel: false,
+		Retry:    0,
+	}
+
+	enableJuiceFsService := &task.RemoteTask{
+		Name:     "EnableJuiceFsService",
+		Hosts:    m.Runtime.GetAllHosts(),
+		Prepare:  &CheckJuiceFsExists{},
+		Action:   new(EnableJuiceFsService),
+		Parallel: false,
+		Retry:    0,
+	}
+
+	m.Tasks = []task.Interface{
+		downloadJuiceFs,
+		installJuiceFs,
+		enableJuiceFsService,
+	}
 }
 
 // ~ CheckJuiceFsExists

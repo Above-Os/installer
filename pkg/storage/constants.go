@@ -3,10 +3,14 @@ package storage
 import (
 	"path"
 
+	"bytetrade.io/web3os/installer/pkg/core/common"
 	cc "bytetrade.io/web3os/installer/pkg/core/common"
 )
 
 var (
+	StorageDataDir         = path.Join("osdata")
+	StorageDataTerminusDir = path.Join(StorageDataDir, common.TerminusDir)
+
 	RedisRootDir             = path.Join(cc.TerminusDir, "data", "redis")
 	RedisConfigDir           = path.Join(RedisRootDir, "etc")
 	RedisDataDir             = path.Join(RedisRootDir, "data")

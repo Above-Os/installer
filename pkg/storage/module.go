@@ -6,13 +6,19 @@ import (
 	"bytetrade.io/web3os/installer/pkg/core/task"
 )
 
-// ~ InstallStorageModule
-type InstallStorageModule struct {
+// ~ InitStorageModule
+type InitStorageModule struct {
 	common.KubeModule
+	Skip bool
 }
 
-func (m *InstallStorageModule) Init() { // todo 这里安装整个 storage；涉及到一个东西，就是存储类型怎么获取
-	m.Name = "InstallStorage"
+func (m *InitStorageModule) IsSkip() bool {
+	return m.Skip
+}
+
+// todo 整个 storage 的安装都放入这里
+func (m *InitStorageModule) Init() {
+	m.Name = "InitStorage"
 
 	mkStorageDir := &task.RemoteTask{
 		Name:  "CreateStorageDir",

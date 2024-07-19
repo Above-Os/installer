@@ -78,9 +78,21 @@ type Argument struct {
 
 	// db
 	Provider storage.Provider
+	// storage
+	Storage *Storage
 	// request
 	Params  map[string]interface{}
 	Request any
+}
+
+type Storage struct {
+	StorageVendor    string `json:"storage_vendor"`
+	StorageType      string `json:"storage_type"`
+	StorageAccessKey string `json:"storage_access_key"`
+	StorageSecretKey string `json:"storage_secret_key"`
+	StorageToken     string `json:"storage_token"`
+	StorageClusterId string `json:"storage_cluster_id"`
+	StorageBucket    string `json:"storage_bucket"`
 }
 
 func NewKubeRuntime(flag string, arg Argument) (*KubeRuntime, error) {

@@ -68,6 +68,7 @@ const (
 	minio         = "minio"
 	miniooperator = "minio-operator"
 	redis         = "redis"
+	juicefs       = "juicefs"
 
 	// todo 安装包会进行拆分，可能不会再有 full 包了
 	// todo 所以我可以假设 f1.tar.gz f2.tar.gz f3.tar.gz ...
@@ -248,7 +249,7 @@ func NewKubeBinary(name, arch, version, prePath string) *KubeBinary {
 		component.BaseDir = filepath.Join(prePath, component.Type)
 	case ossutil: // 1.7.18, linux-386 linux-arm(64)  linx-amd64  mac-amd64 mac-arm64 windows-386 windows-amd64
 		component.Type = COMPONENT
-		component.FileName = fmt.Sprintf("ossutil-v%s-%s.zip", version, arch)
+		component.FileName = fmt.Sprintf("ossutil-%s-%s.zip", version, arch)
 		component.Url = fmt.Sprintf(OSSUtilUrl, version, component.FileName)
 		component.CheckSum = false
 		component.BaseDir = filepath.Join(prePath, component.Type)
@@ -268,6 +269,12 @@ func NewKubeBinary(name, arch, version, prePath string) *KubeBinary {
 		component.Type = COMPONENT
 		component.FileName = fmt.Sprintf("redis-%s.tar.gz", version)
 		component.Url = fmt.Sprintf(RedisUrl, version)
+		component.CheckSum = false
+		component.BaseDir = filepath.Join(prePath, component.Type)
+	case juicefs:
+		component.Type = COMPONENT
+		component.FileName = fmt.Sprintf("juicefs-%s-linux-%s.tar.gz", version, arch)
+		component.Url = fmt.Sprintf(JuiceFsUrl, version, arch)
 		component.CheckSum = false
 		component.BaseDir = filepath.Join(prePath, component.Type)
 	case apparmor: // + patch

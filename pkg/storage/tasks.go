@@ -3,11 +3,13 @@ package storage
 import (
 	"fmt"
 	"os/exec"
+	"path"
 	"strings"
 
 	kubekeyapiv1alpha2 "bytetrade.io/web3os/installer/apis/kubekey/v1alpha2"
 	"bytetrade.io/web3os/installer/pkg/common"
 	"bytetrade.io/web3os/installer/pkg/constants"
+	cc "bytetrade.io/web3os/installer/pkg/core/common"
 	"bytetrade.io/web3os/installer/pkg/core/connector"
 	"bytetrade.io/web3os/installer/pkg/core/logger"
 	"bytetrade.io/web3os/installer/pkg/core/util"
@@ -24,16 +26,16 @@ type MkStorageDir struct {
 
 func (t *MkStorageDir) Execute(runtime connector.Runtime) error {
 	var storageVendor, _ = t.PipelineCache.GetMustString(common.CacheStorageVendor)
-	var terminusRoot = "/terminus"
-	var dataDir = "/osdata"
+	var terminusDir = cc.TerminusDir
+	var dataDir = path.Join("osdata")
 
 	if storageVendor == "true" {
 		if utils.IsExist(dataDir) {
-			if utils.IsExist(terminusRoot) {
-				_, _ = runtime.GetRunner().SudoCmdExt(fmt.Sprintf("rm -rf %s", terminusRoot), false, false)
+			if utils.IsExist(terminusDir) {
+				_, _ = runtime.GetRunner().SudoCmdExt(fmt.Sprintf("rm -rf %s", terminusDir), false, false)
 			}
-			_, _ = runtime.GetRunner().SudoCmdExt(fmt.Sprintf("mkdir -p %s%s", dataDir, terminusRoot), false, false)
-			_, _ = runtime.GetRunner().SudoCmdExt(fmt.Sprintf("ln -s %s%s %s", dataDir, terminusRoot, terminusRoot), false, false)
+			_, _ = runtime.GetRunner().SudoCmdExt(fmt.Sprintf("mkdir -p %s%s", dataDir, terminusDir), false, false)
+			_, _ = runtime.GetRunner().SudoCmdExt(fmt.Sprintf("ln -s %s%s %s", dataDir, terminusDir, terminusDir), false, false)
 		}
 
 	}

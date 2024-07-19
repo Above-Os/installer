@@ -140,5 +140,7 @@ func (t *InstallRedis) Execute(runtime connector.Runtime) error {
 		return fmt.Errorf("failed to connect redis server: %s:6379", constants.LocalIp)
 	}
 
+	t.PipelineCache.Set(common.CacheHostRedisPassword, redisPassword)
+
 	return nil
 }

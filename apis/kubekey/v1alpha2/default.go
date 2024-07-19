@@ -60,10 +60,11 @@ const (
 	DefaultSocatVersion            = "1.7.3.4"
 	DefaultFlexVersion             = "2.6.4"
 	DefaultConntrackVersion        = "1.4.1"
-	DefaultOssUtilVersion          = "1.7.18"
+	DefaultOssUtilVersion          = "v1.7.18"
 	DefaultMinioVersion            = "RELEASE.2023-05-04T21-44-30Z"
 	DefaultMinioOperatorVersion    = "0.0.1"
 	DefaultRedisVersion            = "5.0.14"
+	DefaultJuiceFsVersion          = "v11.1.0"
 
 	DefaultMaxPods             = 200
 	DefaultPodPidsLimit        = 10000

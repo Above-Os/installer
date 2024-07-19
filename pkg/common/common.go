@@ -134,6 +134,12 @@ const (
 )
 
 const (
+	OSS   = "oss"
+	S3    = "s3"
+	Minio = "minio"
+)
+
+const (
 	AliYun = "aliyun"
 	AWS    = "aws"
 )
@@ -180,4 +186,9 @@ const (
 	CacheMinioPassword = "minio_password"
 
 	CacheMinioOperatorPath = "minio_operator_path"
+
+	CacheHostRedisPassword = "hostredis_password"
+
+	CacheJuiceFsPath     = "juicefs_binary_path"
+	CacheJuiceFsFileName = "juicefs_binary_filename"
 )

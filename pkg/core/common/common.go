@@ -25,6 +25,7 @@ const (
 	ImagesDir         = "images"
 	ScriptsDir        = "scripts"
 	FilesDir          = "files"
+	TerminusDir       = "terminus"
 	GreetingShell     = "greeting.sh"
 	PrecheckOsShell   = "precheck_os.sh"
 	InstallDepsShell  = "install_deps.sh"

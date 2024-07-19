@@ -87,7 +87,6 @@ func (t *InstallMinio) Execute(runtime connector.Runtime) error {
 
 	// write file
 	var minioCmd = "/usr/local/bin/minio"
-	var minioUser = "minioadmin"
 	var minioPassword, _ = utils.GeneratePassword(16)
 	var minioServiceFile = "/etc/systemd/system/minio.service"
 	var minioEnvFile = "/etc/default/minio"
@@ -105,7 +104,7 @@ func (t *InstallMinio) Execute(runtime connector.Runtime) error {
 	data = util.Data{
 		"MinioDataPath": minioDataPath,
 		"LocalIP":       constants.LocalIp,
-		"User":          minioUser,
+		"User":          MinioRootUser,
 		"Password":      minioPassword,
 	}
 	minioEnvStr, err := util.Render(minioTemplates.MinioEnv, data)
@@ -202,56 +201,4 @@ func (m *InstallMinioModule) Init() {
 		enableMinio,
 		checkMinioState,
 	}
-}
-
-// - InstallMinioClusterModule
-type InstallMinioClusterModule struct {
-	common.KubeModule
-}
-
-func (m *InstallMinioClusterModule) Init() {
-	m.Name = "InstallMinioCluster"
-}
-
-// ~ InstallMinioOperator
-type InstallMinioOperator struct {
-	common.KubeAction
-}
-
-func (t *InstallMinioOperator) Execute(runtime connector.Runtime) error {
-	var arch = constants.OsArch
-	binary := files.NewKubeBinary("minio-operator", arch, kubekeyapiv1alpha2.DefaultMinioOperatorVersion, runtime.GetWorkDir())
-
-	if err := binary.CreateBaseDir(); err != nil {
-		return errors.Wrapf(errors.WithStack(err), "create file %s base dir failed", binary.FileName)
-	}
-
-	var exists = util.IsExist(binary.Path())
-	if exists {
-		p := binary.Path()
-		if err := binary.SHA256Check(); err != nil {
-			_ = exec.Command("/bin/sh", "-c", fmt.Sprintf("rm -f %s", p)).Run()
-		} else {
-			return nil
-		}
-	}
-
-	if !exists || binary.OverWrite {
-		logger.Infof("%s downloading %s %s %s ...", common.LocalHost, arch, binary.ID, binary.Version)
-		if err := binary.Download(); err != nil {
-			return fmt.Errorf("Failed to download %s binary: %s error: %w ", binary.ID, binary.Url, err)
-		}
-	}
-
-	_, _ = runtime.GetRunner().SudoCmd(fmt.Sprintf("tar zxvf %s", binary.Path()), false, true)
-	_, _ = runtime.GetRunner().SudoCmd(fmt.Sprintf("install -m 755 %s/minio-operator /usr/local/bin/minio-operator", binary.BaseDir), false, true)
-
-	var minioData, _ = t.PipelineCache.GetMustString(common.CacheMinioDataPath)
-	var minioPassword, _ = t.PipelineCache.GetMustString(common.CacheMinioPassword)
-	var cmd = fmt.Sprintf("/usr/local/bin/minio-operator init --address %s --cafile /etc/ssl/etcd/ssl/ca.pem --certfile /etc/ssl/etcd/ssl/node-%s.pem --keyfile /etc/ssl/etcd/ssl/node-%s-key.pem --volume %s --password %s",
-		constants.LocalIp, runtime.RemoteHost().GetName(), runtime.RemoteHost().GetName(), minioData, minioPassword)
-
-	_, _ = runtime.GetRunner().SudoCmd(cmd, false, true)
-
-	return nil
 }

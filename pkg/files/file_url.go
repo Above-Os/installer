@@ -53,10 +53,12 @@ var (
 	AppArmorPPC64Url = "https://launchpad.net/ubuntu/+source/apparmor/%s-0ubuntu1/+build/28428843/+files/apparmor_%s-0ubuntu1_ppc64el.deb"
 
 	AWSCliUrl  = "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip"
-	OSSUtilUrl = "https://github.com/aliyun/ossutil/releases/download/v%s/%s"
+	OSSUtilUrl = "https://github.com/aliyun/ossutil/releases/download/%s/%s"
 
 	MinioUrl         = "https://dl.min.io/server/minio/release/linux-%s/archive/minio.%s"
 	MinioOperatorUrl = "https://github.com/beclab/minio-operator/releases/download/v%s/minio-operator-v%s-linux-%s.tar.gz"
 
 	RedisUrl = "https://download.redis.io/releases/redis-%s.tar.gz"
+
+	JuiceFsUrl = "https://github.com/beclab/juicefs-ext/releases/download/%s/juicefs-%s-linux-%s.tar.gz"
 )

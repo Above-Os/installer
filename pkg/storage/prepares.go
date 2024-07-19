@@ -2,8 +2,10 @@ package storage
 
 import (
 	"fmt"
+	"path"
 
 	"bytetrade.io/web3os/installer/pkg/common"
+	corecommon "bytetrade.io/web3os/installer/pkg/core/common"
 	"bytetrade.io/web3os/installer/pkg/core/connector"
 	"bytetrade.io/web3os/installer/pkg/utils"
 )
@@ -58,6 +60,30 @@ func (p *CheckStorageVendor) PreCheck(runtime connector.Runtime) (bool, error) {
 
 	if storageBucket, _ := p.PipelineCache.GetMustString(common.CacheStorageBucket); storageBucket == "" {
 		return false, nil
+	}
+
+	return true, nil
+}
+
+// ~ CreateJuiceFsDataPath
+type CreateJuiceFsDataPath struct {
+	common.KubePrepare
+}
+
+func (p *CreateJuiceFsDataPath) PreCheck(runtime connector.Runtime) (bool, error) {
+	var juiceFsDataPath = path.Join(corecommon.TerminusDir, "data", "juicefs")
+	if !utils.IsExist(juiceFsDataPath) {
+		utils.Mkdir(juiceFsDataPath)
+	}
+
+	var juiceFsMountPoint = path.Join(corecommon.TerminusDir, "rootfs")
+	if !utils.IsExist(juiceFsMountPoint) {
+		utils.Mkdir(juiceFsMountPoint)
+	}
+
+	var juiceFsCacheDir = path.Join(corecommon.TerminusDir, "jfscache")
+	if !utils.IsExist(juiceFsCacheDir) {
+		utils.Mkdir(juiceFsCacheDir)
 	}
 
 	return true, nil

@@ -670,6 +670,7 @@ type GetStorageVendor struct {
 }
 
 func (t *GetStorageVendor) Execute(runtime connector.Runtime) error {
+	// todo 这里应该有多种获取方式
 	storageVendor := os.Getenv("TERMINUS_IS_CLOUD_VERSION")
 	storageType := os.Getenv("STORAGE")
 	storageBucket := os.Getenv("S3_BUCKET")

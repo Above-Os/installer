@@ -11,7 +11,7 @@ type InstallStorageModule struct {
 	common.KubeModule
 }
 
-func (m *InstallStorageModule) Init() {
+func (m *InstallStorageModule) Init() { // todo 这里安装整个 storage；涉及到一个东西，就是存储类型怎么获取
 	m.Name = "InstallStorage"
 
 	mkStorageDir := &task.RemoteTask{

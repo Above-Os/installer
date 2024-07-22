@@ -5,35 +5,11 @@ before:
     - sudo apt update
     - sudo apt install -y musl-tools build-essential gcc-arm-linux-gnueabihf
 builds:
-# - id: linux_amd64
-#   env:
-#   - CC=x86_64-linux-musl-gcc
-#   - CGO_CFLAGS="-I/usr/local/include"
-#   - CGO_ENABLED=1
-#   - GOOS=linux
-#   - GOARCH=amd64
-#   - CGO_LDFLAGS=-linkmode external -extldflags -static
-#   binary: terminus-cli
-#   main: ./cmd/main.go
-#   goos:
-#   - linux
-#   goarch:
-#   - amd64
-#   tags:
-#   - exclude_graphdriver_devicemapper
-#   - exclude_graphdriver_btrfs
-#   - containers_image_openpgp
-#   ldflags:
-#   - -w
-#   - -s
-- id: linux_arm
+- id: linux_arm64
   env:
-  - CGO_ENABLED=1
+  - CGO_ENABLED=0
   - GOOS=linux
-  - GOARCH=arm
-  - GOARM=7
-  - CC=arm-linux-gnueabihf-gcc
-  - CXX=arm-linux-gnueabihf-g++
+  - GOARCH=arm64
   binary: terminus-cli
   main: ./cmd/main.go
   goarch:

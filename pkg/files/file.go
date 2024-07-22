@@ -33,7 +33,6 @@ import (
 	"bytetrade.io/web3os/installer/pkg/constants"
 	"bytetrade.io/web3os/installer/pkg/core/common"
 	"bytetrade.io/web3os/installer/pkg/core/logger"
-	"bytetrade.io/web3os/installer/pkg/core/storage"
 	"bytetrade.io/web3os/installer/pkg/core/util"
 	"bytetrade.io/web3os/installer/pkg/utils"
 	"github.com/cavaliergopher/grab/v3"
@@ -116,7 +115,6 @@ type KubeBinary struct {
 	LessTransferLog     bool
 	LessTransferLogSeed float64
 	WriteDownloadingLog bool
-	Provider            storage.Provider
 }
 
 func NewKubeBinary(name, arch, version, prePath string) *KubeBinary {
@@ -464,14 +462,6 @@ func (b *KubeBinary) Download() error {
 				}
 				if r == nil || len(r) != 3 {
 					continue
-				}
-				var msg = r[0].(string)
-				var state = r[1].(string)
-				var percent = r[2].(float64)
-				if b.WriteDownloadingLog {
-					if err := b.Provider.SaveInstallLog(msg, state, int64(percent)); err != nil {
-						logger.Errorf("save download log failed %v", err)
-					}
 				}
 			}
 		}

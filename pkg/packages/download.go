@@ -7,16 +7,14 @@ import (
 	"bytetrade.io/web3os/installer/pkg/common"
 	"bytetrade.io/web3os/installer/pkg/core/cache"
 	"bytetrade.io/web3os/installer/pkg/core/logger"
-	"bytetrade.io/web3os/installer/pkg/core/storage"
 	"bytetrade.io/web3os/installer/pkg/core/util"
 	"bytetrade.io/web3os/installer/pkg/files"
 	"bytetrade.io/web3os/installer/pkg/utils"
 	"github.com/pkg/errors"
 )
 
-func DownloadInstallPackage(kubeConf *common.KubeConf, path, version, arch string, pipelineCache *cache.Cache, sqlProvider storage.Provider) error {
+func DownloadInstallPackage(kubeConf *common.KubeConf, path, version, arch string, pipelineCache *cache.Cache) error {
 	installPackage := files.NewKubeBinary("full-package", arch, version, path)
-	installPackage.Provider = sqlProvider
 	installPackage.WriteDownloadingLog = true
 	downloadFiles := []*files.KubeBinary{installPackage}
 	filesMap := make(map[string]*files.KubeBinary)

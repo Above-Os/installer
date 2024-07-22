@@ -20,7 +20,6 @@ import (
 	kubekeyapiv1alpha2 "bytetrade.io/web3os/installer/apis/kubekey/v1alpha2"
 	kubekeyclientset "bytetrade.io/web3os/installer/clients/clientset/versioned"
 	"bytetrade.io/web3os/installer/pkg/core/connector"
-	"bytetrade.io/web3os/installer/pkg/core/storage"
 )
 
 type KubeRuntime struct {
@@ -76,8 +75,6 @@ type Argument struct {
 
 	SkipMasterPullImages bool
 
-	// db
-	Provider storage.Provider
 	// User
 	User *User
 	// storage
@@ -121,7 +118,7 @@ func NewKubeRuntime(flag string, arg Argument) (*KubeRuntime, error) {
 		return nil, err
 	}
 
-	base := connector.NewBaseRuntime(cluster.Name, connector.NewDialer(), arg.Debug, arg.IgnoreErr, arg.Provider)
+	base := connector.NewBaseRuntime(cluster.Name, connector.NewDialer(), arg.Debug, arg.IgnoreErr)
 
 	clusterSpec := &cluster.Spec
 	defaultCluster, roleGroups := clusterSpec.SetDefaultClusterSpec(arg.InCluster)

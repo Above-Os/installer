@@ -5,7 +5,6 @@ import (
 
 	"bytetrade.io/web3os/installer/pkg/api/response"
 	"bytetrade.io/web3os/installer/pkg/apiserver/runtime"
-	"bytetrade.io/web3os/installer/pkg/core/storage"
 	restfulspec "github.com/emicklei/go-restful-openapi/v2"
 	"github.com/emicklei/go-restful/v3"
 )
@@ -14,12 +13,12 @@ var ModuleVersion = runtime.ModuleVersion{Name: "webserver", Version: "v1"}
 
 var tags = []string{"apiserver"}
 
-func AddContainer(c *restful.Container, db storage.Provider) error {
+func AddContainer(c *restful.Container) error {
 	ws := runtime.NewWebService(ModuleVersion)
 	ws.Consumes(restful.MIME_JSON)
 	ws.Produces(restful.MIME_JSON)
 
-	handler := New(db)
+	handler := New()
 
 	// + 正式接口
 	ws.Route(ws.POST("/install").

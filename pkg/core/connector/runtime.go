@@ -24,7 +24,6 @@ import (
 	"github.com/pkg/errors"
 
 	"bytetrade.io/web3os/installer/pkg/core/common"
-	"bytetrade.io/web3os/installer/pkg/core/storage"
 	"bytetrade.io/web3os/installer/pkg/core/util"
 )
 
@@ -32,7 +31,6 @@ type BaseRuntime struct {
 	ObjName         string
 	connector       Connector
 	runner          *Runner
-	storage         storage.Provider
 	rootDir         string
 	workDir         string
 	packageDir      string
@@ -44,11 +42,10 @@ type BaseRuntime struct {
 	deprecatedHosts map[string]string
 }
 
-func NewBaseRuntime(name string, connector Connector, verbose bool, ignoreErr bool, sqlProvider storage.Provider) BaseRuntime {
+func NewBaseRuntime(name string, connector Connector, verbose bool, ignoreErr bool) BaseRuntime {
 	base := BaseRuntime{
 		ObjName:         name,
 		connector:       connector,
-		storage:         sqlProvider,
 		verbose:         verbose,
 		ignoreErr:       ignoreErr,
 		allHosts:        make([]Host, 0, 0),
@@ -80,14 +77,6 @@ func (b *BaseRuntime) GetRunner() *Runner {
 
 func (b *BaseRuntime) SetRunner(r *Runner) {
 	b.runner = r
-}
-
-func (b *BaseRuntime) GetStorage() storage.Provider {
-	return b.storage
-}
-
-func (b *BaseRuntime) SetStorage(s storage.Provider) {
-	b.storage = s
 }
 
 func (b *BaseRuntime) GetConnector() Connector {

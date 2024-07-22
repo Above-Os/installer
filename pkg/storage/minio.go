@@ -113,14 +113,13 @@ func (t *InstallMinio) Execute(runtime connector.Runtime) error {
 	}
 
 	var exists = util.IsExist(binary.Path())
-	fmt.Println("---1---", exists)
 	if exists {
 		p := binary.Path()
 		if err := binary.SHA256Check(); err != nil {
 			_ = exec.Command("/bin/sh", "-c", fmt.Sprintf("rm -f %s", p)).Run()
-		} else {
-			return nil
 		}
+		// _ = exec.Command(fmt.Sprintf("cp %s /usr/local/bin/", binary.Path())).Run()
+		// return nil
 	}
 
 	if !exists || binary.OverWrite {

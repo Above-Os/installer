@@ -118,7 +118,7 @@ func (t *ConfigRedis) Execute(runtime connector.Runtime) error {
 
 // ~ InstallRedis
 type InstallRedis struct {
-	common.KubeAction
+	common.KubeAction // todo 最好是能加一个检查是否已经安装过的判断
 }
 
 func (t *InstallRedis) Execute(runtime connector.Runtime) error {
@@ -133,8 +133,6 @@ func (t *InstallRedis) Execute(runtime connector.Runtime) error {
 		p := binary.Path()
 		if err := binary.SHA256Check(); err != nil {
 			_ = exec.Command("/bin/sh", "-c", fmt.Sprintf("rm -f %s", p)).Run()
-		} else {
-			return nil
 		}
 	}
 

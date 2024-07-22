@@ -48,20 +48,21 @@ type CheckNodeState struct {
 }
 
 func (t *CheckNodeState) Execute(runtime connector.Runtime) error {
-	var cmd = fmt.Sprintf("/usr/local/bin/kubectl  get node --no-headers |awk '{print $2 \"#\" $5}'")
+	var cmd = fmt.Sprintf("/usr/local/bin/kubectl  get node --no-headers")
 	stdout, err := runtime.GetRunner().SudoCmd(cmd, false, false)
+
 	if err != nil || stdout == "" {
 		return fmt.Errorf("Node Pending")
 	}
 
-	var nodeInfo = strings.Split(stdout, "#")
-	if len(nodeInfo) != 2 {
-		logger.Errorf("node state invalid %s", stdout)
+	var nodeInfo = strings.Fields(stdout)
+	if len(nodeInfo) != 5 {
+		logger.Errorf("node info invalid: %s", stdout)
 		return fmt.Errorf("Node Pending")
 	}
 
-	var state = nodeInfo[0]
-	var version = nodeInfo[1]
+	var state = nodeInfo[1]
+	var version = nodeInfo[4]
 
 	if state != "Ready" {
 		return fmt.Errorf("Node Pending")

@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"time"
 
 	"bytetrade.io/web3os/installer/pkg/common"
 	"bytetrade.io/web3os/installer/pkg/core/action"
@@ -113,6 +114,8 @@ func (d *DeployModule) Init() {
 		},
 		Action:   new(Apply),
 		Parallel: false,
+		Retry:    30,
+		Delay:    5 * time.Second,
 	}
 
 	d.Tasks = []task.Interface{

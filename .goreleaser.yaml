@@ -45,7 +45,6 @@ archives:
   - -s
 dist: ./output
 archives:
-archives:
 - id: darwin_arm64
   env:
   - CGO_ENABLED=0

@@ -11,6 +11,33 @@ import (
 	"bytetrade.io/web3os/installer/pkg/storage"
 )
 
+// only install kubesphere
+func InitKube(args common.Argument, runtime *common.KubeRuntime) *pipeline.Pipeline {
+	m := []module.Module{
+		&precheck.GreetingsModule{},
+		&precheck.GetSysInfoModel{},
+		&plugins.CopyEmbed{},
+	}
+
+	var kubeModules []module.Module
+	if runtime.Cluster.Kubernetes.Type == common.K3s {
+		kubeModules = NewK3sCreateClusterPhase(runtime)
+	} else {
+		kubeModules = NewCreateClusterPhase(runtime)
+	}
+
+	if kubeModules == nil {
+	}
+
+	m = append(m, kubeModules...)
+
+	return &pipeline.Pipeline{
+		Name:    "Initialize KubeSphere",
+		Modules: m,
+		Runtime: runtime,
+	}
+}
+
 func CreateTerminus(args common.Argument, runtime *common.KubeRuntime) *pipeline.Pipeline {
 	var storageVendor = args.Storage.StorageVendor
 	var storageType = args.Storage.StorageType

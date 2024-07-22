@@ -2,6 +2,19 @@ package options
 
 import "github.com/spf13/cobra"
 
+// ~ CliKubeInitializeOptions
+type CliKubeInitializeOptions struct {
+	KubeType string
+}
+
+func NewCliKubeInitializeOptions() *CliKubeInitializeOptions {
+	return &CliKubeInitializeOptions{}
+}
+
+func (o *CliKubeInitializeOptions) AddFlags(cmd *cobra.Command) {
+	cmd.Flags().StringVar(&o.KubeType, "kube", "k3s", "Set kube type, e.g., k3s or k8s")
+}
+
 // ~ CliTerminusUninstallOptions
 type CliTerminusUninstallOptions struct {
 	Proxy string

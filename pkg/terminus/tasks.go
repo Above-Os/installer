@@ -2,35 +2,39 @@ package terminus
 
 import (
 	"fmt"
-	"path"
 
 	"bytetrade.io/web3os/installer/pkg/common"
-	"bytetrade.io/web3os/installer/pkg/core/action"
-	corecommon "bytetrade.io/web3os/installer/pkg/core/common"
+	cc "bytetrade.io/web3os/installer/pkg/core/common"
 	"bytetrade.io/web3os/installer/pkg/core/connector"
-	"bytetrade.io/web3os/installer/pkg/core/util"
+	"bytetrade.io/web3os/installer/pkg/utils"
 )
 
-// ~ KillContainerd
-type KillContainerd struct {
+// ~ SetUserInfo
+type SetUserInfo struct {
 	common.KubeAction
 }
 
-func (t *KillContainerd) Execute(runtime connector.Runtime) error {
-	runtime.GetRunner().SudoCmdExt("killall /usr/local/bin/containerd", false, false)
-	return nil
-}
+func (t *SetUserInfo) Execute(runtime connector.Runtime) error {
+	var userName = t.KubeConf.Arg.User.UserName
+	var email = t.KubeConf.Arg.User.Email
+	var password = t.KubeConf.Arg.User.Password
+	var domainName = t.KubeConf.Arg.User.DomainName
 
-// ~ CheckUninstallScriptExistsAction
-type CheckUninstallScriptExistsAction struct {
-	action.BaseAction
-}
-
-func (t *CheckUninstallScriptExistsAction) Execute(runtime connector.Runtime) error {
-	var fileName = path.Join(runtime.GetPackageDir(), corecommon.InstallDir, corecommon.UninstallOsScript)
-	if ok := util.IsExist(fileName); !ok {
-		return fmt.Errorf("file %s not exists", fileName)
+	if userName == "" {
+		return fmt.Errorf("user info invalid")
 	}
 
-	return nil
+	if domainName == "" {
+		domainName = cc.DefaultDomainName
+	}
+
+	if email == "" {
+		email = fmt.Sprintf("%s@%s", userName, domainName)
+	}
+
+	if password == "" {
+		password, _ = utils.GeneratePassword(8)
+	}
+
+	return fmt.Errorf("Not Implemented")
 }

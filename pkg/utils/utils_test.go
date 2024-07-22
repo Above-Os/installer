@@ -7,6 +7,23 @@ import (
 )
 
 func TestA(t *testing.T) {
-	var a = time.Now().Format("2006-01-02T15:04:05MST")
-	fmt.Println(a)
+	var retry = 5
+	var delay = 2
+
+	if retry < 0 {
+		retry = 1
+	}
+
+	for i := 0; i < retry; i++ {
+		fmt.Println("hahaha")
+
+		if i+1 < retry {
+			func() {
+				fmt.Println("delay")
+				time.Sleep(time.Duration(delay) * time.Second)
+			}()
+		}
+	}
+
+	fmt.Println("done")
 }

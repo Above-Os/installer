@@ -20,7 +20,28 @@ import (
 	kubekeyv1alpha2 "bytetrade.io/web3os/installer/apis/kubekey/v1alpha2"
 	"bytetrade.io/web3os/installer/pkg/common"
 	"bytetrade.io/web3os/installer/pkg/core/connector"
+	"bytetrade.io/web3os/installer/pkg/core/logger"
+	"bytetrade.io/web3os/installer/pkg/core/util"
 )
+
+type CheckHwClock struct {
+	common.KubePrepare
+}
+
+func (p *CheckHwClock) PreCheck(_ connector.Runtime) (bool, error) {
+	hwclockPath, err := util.GetCommand(common.CommandHwclock)
+	if err != nil {
+		logger.Errorf("hwclock lookup error %v", err)
+		return true, nil
+	}
+
+	if hwclockPath == "" {
+		logger.Errorf("hwclock not found")
+		return true, nil
+	}
+
+	return false, nil
+}
 
 type NodeConfigureNtpCheck struct {
 	common.KubePrepare

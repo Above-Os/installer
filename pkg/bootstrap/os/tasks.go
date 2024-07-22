@@ -35,6 +35,19 @@ import (
 	"bytetrade.io/web3os/installer/pkg/utils"
 )
 
+// ~ InstallHwClock
+type InstallHwClock struct {
+	common.KubeAction
+}
+
+func (t *InstallHwClock) Execute(runtime connector.Runtime) error {
+	var cmd = "apt install util-linux-extra -y"
+	if _, err := runtime.GetRunner().SudoCmd(cmd, false, false); err != nil {
+		return err
+	}
+	return nil
+}
+
 // ~ TimeSyncTask
 type TimeSyncTask struct {
 	common.KubeAction
@@ -52,7 +65,7 @@ func (t *TimeSyncTask) Execute(runtime connector.Runtime) error {
 		logger.Errorf("ntpdate lookup error %v", err)
 		return err
 	}
-	hwclockPath, err := util.GetCommand(common.CommandHwclock)
+	hwclockPath, err := util.GetCommand(common.CommandHwclock) // todo 这里可能会找不到程序，然后安装 util-linux-extra
 	if err != nil {
 		logger.Errorf("hwclock lookup error %v", err)
 		return err

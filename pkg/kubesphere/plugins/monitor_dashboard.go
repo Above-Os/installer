@@ -5,6 +5,7 @@ import (
 	"path"
 
 	"bytetrade.io/web3os/installer/pkg/common"
+	cc "bytetrade.io/web3os/installer/pkg/core/common"
 	"bytetrade.io/web3os/installer/pkg/core/connector"
 	"bytetrade.io/web3os/installer/pkg/core/prepare"
 	"bytetrade.io/web3os/installer/pkg/core/task"
@@ -16,7 +17,7 @@ type InstallMonitorDashboardCrd struct {
 }
 
 func (t *InstallMonitorDashboardCrd) Execute(runtime connector.Runtime) error {
-	var p = path.Join(runtime.GetFilesDir(), "apps", "ks-monitor", "monitoring-dashboard")
+	var p = path.Join(runtime.GetFilesDir(), cc.BuildDir, "ks-monitor", "monitoring-dashboard")
 	var cmd = fmt.Sprintf("/usr/local/bin/kubectl apply -f %s", p)
 	if _, err := runtime.GetRunner().SudoCmd(cmd, false, true); err != nil {
 		return err

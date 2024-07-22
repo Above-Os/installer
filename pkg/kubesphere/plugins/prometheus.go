@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"bytetrade.io/web3os/installer/pkg/common"
+	cc "bytetrade.io/web3os/installer/pkg/core/common"
 	"bytetrade.io/web3os/installer/pkg/core/connector"
 	"bytetrade.io/web3os/installer/pkg/core/logger"
 	"bytetrade.io/web3os/installer/pkg/core/prepare"
@@ -33,7 +34,7 @@ type CreatePrometheusComponent struct {
 }
 
 func (t *CreatePrometheusComponent) Execute(runtime connector.Runtime) error {
-	var f = path.Join(runtime.GetFilesDir(), "apps", "prometheus", t.Component)
+	var f = path.Join(runtime.GetFilesDir(), cc.BuildDir, "prometheus", t.Component)
 	if !util.IsExist(f) {
 		return fmt.Errorf("file %s not found", f)
 	}
@@ -53,7 +54,7 @@ type CreateOperator struct {
 }
 
 func (t *CreateOperator) Execute(runtime connector.Runtime) error {
-	var f = path.Join(runtime.GetFilesDir(), "apps", "prometheus", "prometheus-operator")
+	var f = path.Join(runtime.GetFilesDir(), cc.BuildDir, "prometheus", "prometheus-operator")
 
 	var crds []string
 	var ress []string

@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"bytetrade.io/web3os/installer/pkg/common"
+	cc "bytetrade.io/web3os/installer/pkg/core/common"
 	"bytetrade.io/web3os/installer/pkg/core/connector"
 	"bytetrade.io/web3os/installer/pkg/core/logger"
 	"bytetrade.io/web3os/installer/pkg/core/prepare"
@@ -90,7 +91,7 @@ func (t *DeployRedis) Execute(runtime connector.Runtime) error {
 	}
 
 	var appName = common.ChartNameRedis
-	var appPath = path.Join(runtime.GetFilesDir(), "apps", appName)
+	var appPath = path.Join(runtime.GetFilesDir(), cc.BuildDir, appName)
 
 	actionConfig, settings, err := utils.InitConfig(config, common.NamespaceKubesphereSystem)
 	if err != nil {

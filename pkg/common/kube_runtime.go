@@ -78,11 +78,26 @@ type Argument struct {
 
 	// db
 	Provider storage.Provider
+	// User
+	User *User
 	// storage
 	Storage *Storage
+	AWS     *AwsHost
 	// request
 	Params  map[string]interface{}
 	Request any
+}
+
+type AwsHost struct {
+	PublicIp string
+	Hostname string
+}
+
+type User struct {
+	UserName   string `json:"user_name"`
+	Password   string `json:"password"`
+	Email      string `json:"email"`
+	DomainName string `json:"domain_name"`
 }
 
 type Storage struct {

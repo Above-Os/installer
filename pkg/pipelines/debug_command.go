@@ -4,7 +4,7 @@ import (
 	"bytetrade.io/web3os/installer/pkg/common"
 	"bytetrade.io/web3os/installer/pkg/core/module"
 	"bytetrade.io/web3os/installer/pkg/core/pipeline"
-	"bytetrade.io/web3os/installer/pkg/dm"
+	"bytetrade.io/web3os/installer/pkg/terminus"
 )
 
 func DebugCommand() error {
@@ -23,8 +23,7 @@ func DebugCommand() error {
 	}
 
 	m := []module.Module{
-		// &packages.PackagesModule{},
-		&dm.DmModule{},
+		&terminus.SetupWs{},
 	}
 
 	p := pipeline.Pipeline{

@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"bytetrade.io/web3os/installer/pkg/common"
+	cc "bytetrade.io/web3os/installer/pkg/core/common"
 	"bytetrade.io/web3os/installer/pkg/core/connector"
 	"bytetrade.io/web3os/installer/pkg/core/prepare"
 	"bytetrade.io/web3os/installer/pkg/core/task"
@@ -38,7 +39,7 @@ func (t *CreateMonitorNotification) Execute(runtime connector.Runtime) error {
 	}
 
 	var appName = common.ChartNameMonitorNotification
-	var appPath = path.Join(runtime.GetFilesDir(), "apps", "ks-monitor", "notification-manager")
+	var appPath = path.Join(runtime.GetFilesDir(), cc.BuildDir, "ks-monitor", "notification-manager")
 
 	actionConfig, settings, err := utils.InitConfig(config, common.NamespaceKubesphereMonitoringSystem)
 	if err != nil {

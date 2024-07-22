@@ -2,7 +2,6 @@ package pipelines
 
 import (
 	"encoding/base64"
-	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"path/filepath"
@@ -10,32 +9,16 @@ import (
 	ctrl "bytetrade.io/web3os/installer/controllers"
 	"bytetrade.io/web3os/installer/pkg/common"
 	"bytetrade.io/web3os/installer/pkg/core/logger"
-	"bytetrade.io/web3os/installer/pkg/phase"
 	"bytetrade.io/web3os/installer/pkg/phase/cluster"
 )
 
-func CliInstallTerminusPipeline(kubeType string, proxy string) error {
-	if kubeVersion := phase.GetCurrentKubeVersion(); kubeVersion != "" {
-		return fmt.Errorf("Kubernetes %s already installed", kubeVersion)
-	}
-
-	var userParms = phase.UserParameters()
-	var storageParms = phase.StorageParameters()
-	var sp, _ = json.Marshal(storageParms)
-	fmt.Printf("STORAGE: %s\n", string(sp))
-
+func CliInitializeTerminusPipeline(kubeType string) error {
 	arg := common.Argument{
 		KsEnable:         true,
 		KsVersion:        common.DefaultKubeSphereVersion,
 		InstallPackages:  false,
 		SKipPushImages:   false,
 		ContainerManager: common.Containerd,
-		User:             userParms,
-		Storage:          storageParms,
-	}
-
-	if proxy != "" {
-		arg.Proxy = proxy
 	}
 
 	switch kubeType {
@@ -50,7 +33,7 @@ func CliInstallTerminusPipeline(kubeType string, proxy string) error {
 		return nil
 	}
 
-	var p = cluster.CreateTerminus(arg, runtime)
+	var p = cluster.InitKube(arg, runtime)
 	if err := p.Start(); err != nil {
 		return fmt.Errorf("create terminus error %v", err)
 	}

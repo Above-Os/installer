@@ -117,6 +117,8 @@ func (k *K3sDownload) Execute(runtime connector.Runtime) error {
 			archMap["amd64"] = true
 		case "arm64":
 			archMap["arm64"] = true
+		case "arm":
+			archMap["arm"] = true
 		default:
 			return errors.New(fmt.Sprintf("Unsupported architecture: %s", host.Arch))
 		}

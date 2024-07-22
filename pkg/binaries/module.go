@@ -54,7 +54,7 @@ func (k *K3sNodeBinariesModule) Init() {
 	k.Desc = "Download installation binaries"
 
 	download := &task.LocalTask{
-		Name: "DownloadBinaries",
+		Name: "DownloadBinaries(k3s)",
 		Desc: "Download installation binaries",
 		Prepare: &prepare.PrepareCollection{
 			&common.Stop{},

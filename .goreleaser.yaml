@@ -13,11 +13,9 @@ builds:
   binary: terminus-cli
   main: ./cmd/main.go
   goarch:
-  - arm
+  - arm64
   goos:
   - linux
-  goarm:
-  - 7
   tags:
   - exclude_graphdriver_devicemapper
   - exclude_graphdriver_btrfs

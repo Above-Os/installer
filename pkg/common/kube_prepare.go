@@ -17,6 +17,8 @@
 package common
 
 import (
+	"fmt"
+
 	"bytetrade.io/web3os/installer/pkg/core/connector"
 	"bytetrade.io/web3os/installer/pkg/core/prepare"
 )
@@ -46,6 +48,8 @@ type OnlyFirstMaster struct {
 func (o *OnlyFirstMaster) PreCheck(runtime connector.Runtime) (bool, error) {
 	if runtime.RemoteHost().IsRole(Master) &&
 		runtime.RemoteHost().GetName() == runtime.GetHostsByRole(Master)[0].GetName() {
+		fmt.Printf(">> OnlyFirstMaster [%v] [%s] [%s] [%v] \n",
+			runtime.RemoteHost().IsRole(Master), runtime.RemoteHost().GetName(), runtime.GetHostsByRole(Master)[0].GetName(), o.Not)
 		return !o.Not, nil
 	}
 	return o.Not, nil

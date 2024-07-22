@@ -211,7 +211,7 @@ func (g *GenerateK3sService) Execute(runtime connector.Runtime) error {
 	kubeProxyArgs, _ := util.GetArgs(defaultKubeProxyArgs, g.KubeConf.Cluster.Kubernetes.KubeProxyArgs)
 
 	templateAction := action.Template{
-		Name:     "GenerateK3sService",
+		Name:     "GenerateK3sService(tmpl)",
 		Template: templates.K3sService,
 		Dst:      filepath.Join("/etc/systemd/system/", templates.K3sService.Name()),
 		Data: util.Data{

@@ -17,6 +17,8 @@
 package k3s
 
 import (
+	"fmt"
+
 	"bytetrade.io/web3os/installer/pkg/common"
 	"bytetrade.io/web3os/installer/pkg/core/connector"
 	"github.com/pkg/errors"
@@ -51,6 +53,7 @@ type ClusterIsExist struct {
 
 func (c *ClusterIsExist) PreCheck(_ connector.Runtime) (bool, error) {
 	if exist, ok := c.PipelineCache.GetMustBool(common.ClusterExist); ok {
+		fmt.Printf(">> ClusterIsExist [%v] [%v] [%v] \n", exist, ok, c.Not)
 		if c.Not {
 			return !exist, nil
 		}

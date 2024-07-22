@@ -1,4 +1,9 @@
 project_name: terminus-cli
+
+before:
+  hooks:
+    - sudo apt update
+    - sudo apt install -y musl-tools build-essential gcc-arm-linux-gnueabihf
 builds:
 - id: linux_amd64
   env:
@@ -37,6 +42,10 @@ builds:
   - linux
   goarm:
   - 7
+  tags:
+  - exclude_graphdriver_devicemapper
+  - exclude_graphdriver_btrfs
+  - containers_image_openpgp
   ldflags:
   - -w
   - -s

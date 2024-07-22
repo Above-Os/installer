@@ -345,12 +345,14 @@ type PreloadImagesService struct {
 }
 
 func (p *PreloadImagesService) Execute(runtime connector.Runtime) error {
-	imageDir := "/var/lib/images"
-	fileInfo, err := os.Stat(imageDir)
+	fileInfo, err := os.Stat(common.PreloadK3sImageDir)
 	if os.IsNotExist(err) {
-		return nil
+		if err := util.CreateDir(common.PreloadK3sImageDir); err != nil {
+			logger.Errorf("create dir %s failed: %v", common.PreloadK3sImageDir, err)
+			return err
+		}
 	} else if err != nil {
-		logger.Errorf("Unable to find images in %s: %v", imageDir, err)
+		logger.Errorf("Unable to find images in %s: %v", common.PreloadK3sImageDir, err)
 		return nil
 	}
 
@@ -358,9 +360,9 @@ func (p *PreloadImagesService) Execute(runtime connector.Runtime) error {
 		return nil
 	}
 
-	fileInfos, err := os.ReadDir(imageDir)
+	fileInfos, err := os.ReadDir(common.PreloadK3sImageDir)
 	if err != nil {
-		logger.Errorf("Unable to read images in %s: %v", imageDir, err)
+		logger.Errorf("Unable to read images in %s: %v", common.PreloadK3sImageDir, err)
 		return nil
 	}
 
@@ -370,7 +372,7 @@ func (p *PreloadImagesService) Execute(runtime connector.Runtime) error {
 			continue
 		}
 
-		filePath := filepath.Join(imageDir, fileInfo.Name())
+		filePath := filepath.Join(common.PreloadK3sImageDir, fileInfo.Name())
 
 		loadingImages = append(loadingImages, images.LocalImage{Filename: filePath})
 	}

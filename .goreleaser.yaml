@@ -23,8 +23,6 @@ builds:
   ldflags:
   - -w
   - -s
-dist: ./output
-archives:
 - id: darwin_amd64
   env:
   - CGO_ENABLED=0
@@ -43,8 +41,6 @@ archives:
   ldflags:
   - -w
   - -s
-dist: ./output
-archives:
 - id: darwin_arm64
   env:
   - CGO_ENABLED=0
@@ -63,8 +59,6 @@ archives:
   ldflags:
   - -w
   - -s
-dist: ./output
-archives:
 - id: linux_arm64
   env:
   - CGO_ENABLED=0

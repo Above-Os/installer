@@ -48,6 +48,7 @@ const (
 	helm          = "helm"
 	amd64         = "amd64"
 	arm64         = "arm64"
+	arm           = "arm"
 	k3s           = "k3s"
 	k8e           = "k8e"
 	docker        = "docker"
@@ -123,7 +124,7 @@ func NewKubeBinary(name, arch, version, prePath string) *KubeBinary {
 	component.Os = constants.OsType
 	component.Arch = arch
 	component.Version = version
-	component.CheckSum = true
+	component.CheckSum = false
 	component.Zone = os.Getenv("KKZONE")
 
 	switch name {
@@ -188,7 +189,7 @@ func NewKubeBinary(name, arch, version, prePath string) *KubeBinary {
 		component.Type = KUBE
 		component.FileName = k3s
 		component.Url = fmt.Sprintf(K3sUrl, version)
-		if arch == arm64 {
+		if arch == arm64 || arch == arm {
 			component.Url = fmt.Sprintf(K3sArmUrl, version, arch)
 		}
 		if component.Zone == "cn" {
@@ -198,7 +199,7 @@ func NewKubeBinary(name, arch, version, prePath string) *KubeBinary {
 		component.Type = KUBE
 		component.FileName = k8e
 		component.Url = fmt.Sprintf(K8eUrl, version)
-		if arch == arm64 {
+		if arch == arm64 || arch == arm {
 			component.Url = fmt.Sprintf(K8eArmUrl, version, arch)
 		}
 	case registry:

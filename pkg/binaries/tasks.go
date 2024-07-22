@@ -147,6 +147,8 @@ func (a *ArtifactDownload) Execute(runtime connector.Runtime) error {
 			archMap["amd64"] = true
 		case "arm64":
 			archMap["arm64"] = true
+		case "arm":
+			archMap["arm"] = true
 		default:
 			return errors.New(fmt.Sprintf("Unsupported architecture: %s", arch))
 		}
@@ -193,6 +195,8 @@ func (a *K3sArtifactDownload) Execute(runtime connector.Runtime) error {
 			archMap["amd64"] = true
 		case "arm64":
 			archMap["arm64"] = true
+		case "arm":
+			archMap["arm"] = true
 		default:
 			return errors.New(fmt.Sprintf("Unsupported architecture: %s", arch))
 		}
@@ -252,6 +256,8 @@ func (d *CriDownload) Execute(runtime connector.Runtime) error {
 			archMap["amd64"] = true
 		case "arm64":
 			archMap["arm64"] = true
+		case "arm":
+			archMap["arm"] = true
 		default:
 			return errors.New(fmt.Sprintf("Unsupported architecture: %s", host.Arch))
 		}

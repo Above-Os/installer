@@ -1,6 +1,8 @@
 package plugins
 
 import (
+	"time"
+
 	"bytetrade.io/web3os/installer/pkg/common"
 	"bytetrade.io/web3os/installer/pkg/core/prepare"
 	"bytetrade.io/web3os/installer/pkg/core/task"
@@ -30,6 +32,20 @@ type DeployKsPluginsModule struct {
 func (t *DeployKsPluginsModule) Init() {
 	t.Name = "DeployKsPlugins"
 
+	// todo 增加一个对 node 的检查
+	checkNodeState := &task.RemoteTask{
+		Name:  "CheckNodeState",
+		Hosts: t.Runtime.GetHostsByRole(common.Master),
+		Prepare: &prepare.PrepareCollection{
+			new(common.OnlyFirstMaster),
+			new(NotEqualDesiredVersion),
+		},
+		Action:   new(CheckNodeState),
+		Parallel: false,
+		Retry:    10,
+		Delay:    3 * time.Second,
+	}
+
 	initNs := &task.RemoteTask{
 		Name:  "InitKsNamespace",
 		Hosts: t.Runtime.GetHostsByRole(common.Master),
@@ -53,6 +69,7 @@ func (t *DeployKsPluginsModule) Init() {
 	// }
 
 	t.Tasks = []task.Interface{
+		checkNodeState,
 		initNs,
 		// checkMasterNum,
 	}

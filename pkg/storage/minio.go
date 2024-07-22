@@ -113,6 +113,7 @@ func (t *InstallMinio) Execute(runtime connector.Runtime) error {
 	}
 
 	var exists = util.IsExist(binary.Path())
+	fmt.Println("---1---", exists)
 	if exists {
 		p := binary.Path()
 		if err := binary.SHA256Check(); err != nil {

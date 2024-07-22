@@ -2,6 +2,7 @@ package plugins
 
 import (
 	"fmt"
+	"strings"
 
 	"bytetrade.io/web3os/installer/pkg/common"
 	"bytetrade.io/web3os/installer/pkg/core/connector"
@@ -40,6 +41,36 @@ func (t *CopyEmbedFiles) Execute(runtime connector.Runtime) error {
 // 	t.PipelineCache.Set(common.CacheEnableHA, enableHA)
 // 	return nil
 // }
+
+// ~ CheckNodeState
+type CheckNodeState struct {
+	common.KubeAction
+}
+
+func (t *CheckNodeState) Execute(runtime connector.Runtime) error {
+	var cmd = fmt.Sprintf("/usr/local/bin/kubectl  get node --no-headers |awk '{print $2 \"#\" $5}'")
+	stdout, err := runtime.GetRunner().SudoCmd(cmd, false, false)
+	if err != nil || stdout == "" {
+		return fmt.Errorf("Node Pending")
+	}
+
+	var nodeInfo = strings.Split(stdout, "#")
+	if len(nodeInfo) != 2 {
+		logger.Errorf("node state invalid %s", stdout)
+		return fmt.Errorf("Node Pending")
+	}
+
+	var state = nodeInfo[0]
+	var version = nodeInfo[1]
+
+	if state != "Ready" {
+		return fmt.Errorf("Node Pending")
+	}
+
+	t.PipelineCache.Set(common.CacheKubeletVersion, version)
+
+	return nil
+}
 
 // ~ InitNamespace
 type InitNamespace struct {

@@ -7,6 +7,7 @@ import (
 	"bytetrade.io/web3os/installer/pkg/common"
 	"bytetrade.io/web3os/installer/pkg/core/module"
 	"bytetrade.io/web3os/installer/pkg/core/pipeline"
+	"bytetrade.io/web3os/installer/pkg/kubesphere/plugins"
 	"bytetrade.io/web3os/installer/pkg/storage"
 )
 
@@ -20,6 +21,7 @@ func CreateTerminus(args common.Argument, runtime *common.KubeRuntime) *pipeline
 	m := []module.Module{
 		&precheck.GreetingsModule{},
 		&precheck.GetSysInfoModel{},
+		&plugins.CopyEmbed{},
 		&precheck.PreCheckOsModule{}, // * 对应 precheck_os()
 		&patch.InstallDepsModule{},   // * 对应 install_deps
 		&os.ConfigSystemModule{},     // * 对应 config_system

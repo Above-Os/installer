@@ -5,6 +5,67 @@ before:
     - sudo apt update
     - sudo apt install -y musl-tools build-essential gcc-arm-linux-gnueabihf
 builds:
+- id: linux_amd64
+  env:
+  - CGO_ENABLED=0
+  - GOOS=linux
+  - GOARCH=amd64
+  binary: terminus-cli
+  main: ./cmd/main.go
+  goos:
+  - linux
+  goarch:
+  - amd64
+  tags:
+  - exclude_graphdriver_devicemapper
+  - exclude_graphdriver_btrfs
+  - containers_image_openpgp
+  ldflags:
+  - -w
+  - -s
+dist: ./output
+archives:
+- id: darwin_amd64
+  env:
+  - CGO_ENABLED=0
+  - GOOS=darwin
+  - GOARCH=amd64
+  binary: terminus-cli
+  main: ./cmd/main.go
+  goos:
+  - darwin
+  goarch:
+  - amd64
+  tags:
+  - exclude_graphdriver_devicemapper
+  - exclude_graphdriver_btrfs
+  - containers_image_openpgp
+  ldflags:
+  - -w
+  - -s
+dist: ./output
+archives:
+archives:
+- id: darwin_arm64
+  env:
+  - CGO_ENABLED=0
+  - GOOS=darwin
+  - GOARCH=amd64
+  binary: terminus-cli
+  main: ./cmd/main.go
+  goos:
+  - darwin
+  goarch:
+  - arm64
+  tags:
+  - exclude_graphdriver_devicemapper
+  - exclude_graphdriver_btrfs
+  - containers_image_openpgp
+  ldflags:
+  - -w
+  - -s
+dist: ./output
+archives:
 - id: linux_arm64
   env:
   - CGO_ENABLED=0

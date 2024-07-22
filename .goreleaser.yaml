@@ -2,17 +2,22 @@ project_name: terminus-cli
 builds:
 - id: linux_amd64
   env:
+  - CC=x86_64-linux-musl-gcc
+  - CGO_CFLAGS="-I/usr/local/include"
   - CGO_ENABLED=1
   - GOOS=linux
   - GOARCH=amd64
-  - CC=x86_64-linux-musl-gcc
-  - CGO_LDFLAGS=-static
+  - CGO_LDFLAGS=-linkmode external -extldflags -static
   binary: terminus-cli
   main: ./cmd/main.go
   goos:
   - linux
   goarch:
   - amd64
+  tags:
+  - exclude_graphdriver_devicemapper
+  - exclude_graphdriver_btrfs
+  - containers_image_openpgp
   ldflags:
   - -w
   - -s

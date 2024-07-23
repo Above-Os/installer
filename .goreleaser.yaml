@@ -2,7 +2,7 @@ project_name: terminus-cli
 builds:
 - id: linux_amd64 # + linux_amd64
   env:
-  - CGO_ENABLED=1
+  - CGO_ENABLED=0
   - GOOS=linux
   - GOARCH=amd64
   binary: terminus-cli

@@ -100,24 +100,6 @@ builds:
   ldflags:
   - -w
   - -s
-- id: windows_amd64 # + windowss amd64
-  env:
-  - CGO_ENABLED=0
-  - GOOS=windows
-  - GOARCH=amd64
-  binary: terminus-cli
-  main: ./cmd/main.go
-  goos:
-  - windows
-  goarch:
-  - amd64
-  tags:
-  - exclude_graphdriver_devicemapper
-  - exclude_graphdriver_btrfs
-  - containers_image_openpgp
-  ldflags:
-  - -w
-  - -s
 dist: ./output
 archives:
 - id: terminus-cli

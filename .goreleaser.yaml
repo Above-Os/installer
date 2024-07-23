@@ -21,12 +21,12 @@ builds:
   - -s
 - id: linux_arm # + linux_armv7
   env:
-  - CGO_ENABLED=1
+  # - CGO_ENABLED=1
   - GOOS=linux
   - GOARCH=arm
   - GOARM=7
-  - CC=arm-linux-gnueabihf-gcc
-  - CXX=arm-linux-gnueabihf-g++
+  # - CC=arm-linux-gnueabihf-gcc
+  # - CXX=arm-linux-gnueabihf-g++
   binary: terminus-cli
   main: ./cmd/main.go
   goarch:

@@ -49,6 +49,7 @@ const (
 	helm          = "helm"
 	amd64         = "amd64"
 	arm64         = "arm64"
+	arm           = "arm"
 	k3s           = "k3s"
 	k8e           = "k8e"
 	docker        = "docker"
@@ -125,7 +126,7 @@ func NewKubeBinary(name, arch, version, prePath string) *KubeBinary {
 	component.Os = constants.OsType
 	component.Arch = arch
 	component.Version = version
-	component.CheckSum = true
+	component.CheckSum = false
 	component.Zone = os.Getenv("KKZONE")
 
 	switch name {

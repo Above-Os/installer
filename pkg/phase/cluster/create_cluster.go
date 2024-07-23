@@ -60,19 +60,18 @@ func NewK3sCreateClusterPhase(runtime *common.KubeRuntime) []module.Module {
 		&filesystem.ChownModule{},
 		&certs.AutoRenewCertsModule{Skip: !runtime.Cluster.Kubernetes.EnableAutoRenewCerts()},
 		&k3s.SaveKubeConfigModule{},
-		&addons.AddonsModule{}, // todo 这里面会涉及 ks-installer
+		&addons.AddonsModule{}, // relative ks-installer
 		&storage.DeployLocalVolumeModule{Skip: skipLocalStorage},
-		&kubesphere.DeployModule{Skip: !runtime.Cluster.KubeSphere.Enabled}, // todo ks-installer 相关
-		// todo 在这里插入新的代码
-		&ksplugins.DeployKsPluginsModule{},
+		&kubesphere.DeployModule{Skip: !runtime.Cluster.KubeSphere.Enabled}, // todo relative ks-installer
+		&ksplugins.DeployKsPluginsModule{},                                  // new code
 		&ksplugins.DeploySnapshotControllerModule{},
 		&ksplugins.DeployRedisModule{},
 		&ksplugins.CreateKubeSphereSecretModule{},
-		&ksplugins.DeployKsCoreConfigModule{},     // ! ks-core-config
+		&ksplugins.DeployKsCoreConfigModule{},     // ks-core-config
 		&ksplugins.CreateMonitorDashboardModule{}, // todo 这里暂时是测试，先放这里
 		&ksplugins.CreateNotificationModule{},     // todo 这里暂时是测试，先放这里
 		&ksplugins.DeployPrometheusModule{},
-		&ksplugins.DeployKsCoreModule{}, // ! 这里创建 ks-core，也就是 ks-apiserver
+		&ksplugins.DeployKsCoreModule{}, // ks-apiserver
 		// &kubesphere.CheckResultModule{Skip: !runtime.Cluster.KubeSphere.Enabled}, // todo ks-installer 状态检测
 	}
 

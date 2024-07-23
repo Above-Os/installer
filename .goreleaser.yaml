@@ -1,32 +1,25 @@
 project_name: terminus-cli
-
-before:
-  hooks:
-    - sudo apt update
-    - sudo apt install -y musl-tools build-essential gcc-arm-linux-gnueabihf
 builds:
-# - id: linux_amd64
-#   env:
-#   - CC=x86_64-linux-musl-gcc
-#   - CGO_CFLAGS="-I/usr/local/include"
-#   - CGO_ENABLED=1
-#   - GOOS=linux
-#   - GOARCH=amd64
-#   - CGO_LDFLAGS=-linkmode external -extldflags -static
-#   binary: terminus-cli
-#   main: ./cmd/main.go
-#   goos:
-#   - linux
-#   goarch:
-#   - amd64
-#   tags:
-#   - exclude_graphdriver_devicemapper
-#   - exclude_graphdriver_btrfs
-#   - containers_image_openpgp
-#   ldflags:
-#   - -w
-#   - -s
-- id: linux_arm
+- id: linux_amd64 # + linux_amd64
+  env:
+  - CGO_ENABLED=1
+  - GOOS=linux
+  - GOARCH=amd64
+  binary: terminus-cli
+  main: ./cmd/main.go
+  goos:
+  - linux
+  goarch:
+  - amd64
+  tags:
+  - exclude_graphdriver_devicemapper
+  - exclude_graphdriver_btrfs
+  - containers_image_openpgp
+  - linux
+  ldflags:
+  - -w
+  - -s
+- id: linux_arm # + linux_armv7
   env:
   - CGO_ENABLED=1
   - GOOS=linux
@@ -42,6 +35,82 @@ builds:
   - linux
   goarm:
   - 7
+  tags:
+  - exclude_graphdriver_devicemapper
+  - exclude_graphdriver_btrfs
+  - containers_image_openpgp
+  ldflags:
+  - -w
+  - -s
+- id: darwin_amd64 # + darwin amd64
+  env:
+  - CGO_ENABLED=0
+  - GOOS=darwin
+  - GOARCH=amd64
+  binary: terminus-cli
+  main: ./cmd/main.go
+  goos:
+  - darwin
+  goarch:
+  - amd64
+  tags:
+  - exclude_graphdriver_devicemapper
+  - exclude_graphdriver_btrfs
+  - containers_image_openpgp
+  - darwin
+  - amd64
+  ldflags:
+  - -w
+  - -s
+- id: darwin_arm64 # + darwin arm64
+  env:
+  - CGO_ENABLED=0
+  - GOOS=darwin
+  - GOARCH=arm64
+  binary: terminus-cli
+  main: ./cmd/main.go
+  goos:
+  - darwin
+  goarch:
+  - arm64
+  tags:
+  - exclude_graphdriver_devicemapper
+  - exclude_graphdriver_btrfs
+  - containers_image_openpgp
+  - darwin
+  - arm64
+  ldflags:
+  - -w
+  - -s
+- id: windows_amd64 # + windowss amd64
+  env:
+  - CGO_ENABLED=0
+  - GOOS=windows
+  - GOARCH=amd64
+  binary: terminus-cli
+  main: ./cmd/main.go
+  goos:
+  - windows
+  goarch:
+  - amd64
+  tags:
+  - exclude_graphdriver_devicemapper
+  - exclude_graphdriver_btrfs
+  - containers_image_openpgp
+  ldflags:
+  - -w
+  - -s
+- id: windows_amd64 # + windowss amd64
+  env:
+  - CGO_ENABLED=0
+  - GOOS=windows
+  - GOARCH=amd64
+  binary: terminus-cli
+  main: ./cmd/main.go
+  goos:
+  - windows
+  goarch:
+  - amd64
   tags:
   - exclude_graphdriver_devicemapper
   - exclude_graphdriver_btrfs

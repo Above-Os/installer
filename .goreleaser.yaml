@@ -107,7 +107,7 @@ archives:
   replacements:
     linux: linux
     amd64: amd64
-    arm: armv7
+    arm: arm64
   files:
   - none*
 checksum:

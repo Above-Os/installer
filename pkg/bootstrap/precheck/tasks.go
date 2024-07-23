@@ -240,6 +240,10 @@ type GetCGroupsTask struct {
 }
 
 func (t *GetCGroupsTask) Execute(runtime connector.Runtime) error {
+	if constants.OsType == common.Darwin || constants.OsType == common.Windows {
+		return nil
+	}
+
 	file, err := os.Open("/proc/cgroups")
 	if err != nil {
 		logger.Errorf("error opening /proc/cgroups error %v", err)

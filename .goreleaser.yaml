@@ -42,46 +42,46 @@ builds:
   ldflags:
   - -w
   - -s
-- id: darwin_amd64 # + darwin amd64
-  env:
-  - CGO_ENABLED=0
-  - GOOS=darwin
-  - GOARCH=amd64
-  binary: terminus-cli
-  main: ./cmd/main.go
-  goos:
-  - darwin
-  goarch:
-  - amd64
-  tags:
-  - exclude_graphdriver_devicemapper
-  - exclude_graphdriver_btrfs
-  - containers_image_openpgp
-  - darwin
-  - amd64
-  ldflags:
-  - -w
-  - -s
-- id: darwin_arm64 # + darwin arm64
-  env:
-  - CGO_ENABLED=0
-  - GOOS=darwin
-  - GOARCH=arm64
-  binary: terminus-cli
-  main: ./cmd/main.go
-  goos:
-  - darwin
-  goarch:
-  - arm64
-  tags:
-  - exclude_graphdriver_devicemapper
-  - exclude_graphdriver_btrfs
-  - containers_image_openpgp
-  - darwin
-  - arm64
-  ldflags:
-  - -w
-  - -s
+# - id: darwin_amd64 # + darwin amd64
+#   env:
+#   - CGO_ENABLED=0
+#   - GOOS=darwin
+#   - GOARCH=amd64
+#   binary: terminus-cli
+#   main: ./cmd/main.go
+#   goos:
+#   - darwin
+#   goarch:
+#   - amd64
+#   tags:
+#   - exclude_graphdriver_devicemapper
+#   - exclude_graphdriver_btrfs
+#   - containers_image_openpgp
+#   - darwin
+#   - amd64
+#   ldflags:
+#   - -w
+#   - -s
+# - id: darwin_arm64 # + darwin arm64
+#   env:
+#   - CGO_ENABLED=0
+#   - GOOS=darwin
+#   - GOARCH=arm64
+#   binary: terminus-cli
+#   main: ./cmd/main.go
+#   goos:
+#   - darwin
+#   goarch:
+#   - arm64
+#   tags:
+#   - exclude_graphdriver_devicemapper
+#   - exclude_graphdriver_btrfs
+#   - containers_image_openpgp
+#   - darwin
+#   - arm64
+#   ldflags:
+#   - -w
+#   - -s
 # - id: windows_amd64 # + windowss amd64
 #   env:
 #   - CGO_ENABLED=0

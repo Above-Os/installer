@@ -33,7 +33,6 @@ import (
 	ksv3 "bytetrade.io/web3os/installer/pkg/kubesphere/v3"
 	"bytetrade.io/web3os/installer/pkg/version/kubesphere"
 	"bytetrade.io/web3os/installer/pkg/version/kubesphere/templates"
-	"github.com/nxadm/tail"
 	"github.com/pkg/errors"
 	yamlV2 "gopkg.in/yaml.v2"
 )
@@ -254,78 +253,86 @@ type Check struct {
 }
 
 func (c *Check) Execute(runtime connector.Runtime) error {
-	// var (
-	// 	position = 1
-	// 	notes    = "Please wait for the installation to complete: "
-	// )
-	ch := make(chan string)
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-	go CheckKubeSphereStatus(ctx, runtime, ch)
-
-	if err := checkInstallerRunning(ctx, runtime); err != nil {
-		return err
+	var cmd = fmt.Sprintf("/usr/local/bin/kubectl  get pod -n %s -l 'app=ks-apiserver' -o jsonpath='{.items[0].status.phase}'", common.NamespaceKubesphereSystem)
+	rphase, _ := runtime.GetRunner().SudoCmdExt(cmd, false, false)
+	if rphase != "Running" {
+		return fmt.Errorf("APIServer State %s", rphase)
 	}
 
-	logFile := "/tmp/.ks-installer.log"
-	_, err := runtime.GetRunner().SudoCmd("cat /dev/null > "+logFile, false, false) // make sure log file exists
-	if err != nil {
-		return err
-	}
-	go tailInstallerLog(logFile, runtime) // FIXME:
-	config := tail.Config{MustExist: true, Follow: true}
-	tail, err := tail.TailFile(logFile, config)
-	if err != nil {
-		return err
-	}
+	return nil
 
-	stop := false
-	for !stop {
-		select {
-		case <-ch:
-			stop = true
-		case output := <-tail.Lines:
-			fmt.Println(output.Text)
-		}
-	}
-	tail.Stop()
+	// // var (
+	// // 	position = 1
+	// // 	notes    = "Please wait for the installation to complete: "
+	// // )
+	// ch := make(chan string)
+	// ctx, cancel := context.WithCancel(context.Background())
+	// defer cancel()
+	// go CheckKubeSphereStatus(ctx, runtime, ch)
+
+	// if err := checkInstallerRunning(ctx, runtime); err != nil {
+	// 	return err
+	// }
+
+	// logFile := "/tmp/.ks-installer.log"
+	// _, err := runtime.GetRunner().SudoCmd("cat /dev/null > "+logFile, false, false) // make sure log file exists
+	// if err != nil {
+	// 	return err
+	// }
+	// go tailInstallerLog(logFile, runtime) // FIXME:
+	// config := tail.Config{MustExist: true, Follow: true}
+	// tail, err := tail.TailFile(logFile, config)
+	// if err != nil {
+	// 	return err
+	// }
+
+	// stop := false
 	// for !stop {
 	// 	select {
 	// 	case <-ch:
-	// 		fmt.Printf("\033[%dA\033[K", position)
-	// 		// fmt.Println(res)
 	// 		stop = true
-	// 	default:
-	// 		for i := 0; i < 10; i++ {
-	// 			if i < 5 {
-	// 				fmt.Printf("\033[%dA\033[K", position)
-
-	// 				output := fmt.Sprintf(
-	// 					"%s%s%s",
-	// 					notes,
-	// 					strings.Repeat(" ", i),
-	// 					">>--->",
-	// 				)
-
-	// 				fmt.Printf("%s \033[K\n", output)
-	// 				time.Sleep(time.Duration(200) * time.Millisecond)
-	// 			} else {
-	// 				fmt.Printf("\033[%dA\033[K", position)
-
-	// 				output := fmt.Sprintf(
-	// 					"%s%s%s",
-	// 					notes,
-	// 					strings.Repeat(" ", 10-i),
-	// 					"<---<<",
-	// 				)
-
-	// 				fmt.Printf("%s \033[K\n", output)
-	// 				time.Sleep(time.Duration(200) * time.Millisecond)
-	// 			}
-	// 		}
+	// 	case output := <-tail.Lines:
+	// 		fmt.Println(output.Text)
 	// 	}
-	// } // end for
-	return nil
+	// }
+	// tail.Stop()
+	// // for !stop {
+	// // 	select {
+	// // 	case <-ch:
+	// // 		fmt.Printf("\033[%dA\033[K", position)
+	// // 		// fmt.Println(res)
+	// // 		stop = true
+	// // 	default:
+	// // 		for i := 0; i < 10; i++ {
+	// // 			if i < 5 {
+	// // 				fmt.Printf("\033[%dA\033[K", position)
+
+	// // 				output := fmt.Sprintf(
+	// // 					"%s%s%s",
+	// // 					notes,
+	// // 					strings.Repeat(" ", i),
+	// // 					">>--->",
+	// // 				)
+
+	// // 				fmt.Printf("%s \033[K\n", output)
+	// // 				time.Sleep(time.Duration(200) * time.Millisecond)
+	// // 			} else {
+	// // 				fmt.Printf("\033[%dA\033[K", position)
+
+	// // 				output := fmt.Sprintf(
+	// // 					"%s%s%s",
+	// // 					notes,
+	// // 					strings.Repeat(" ", 10-i),
+	// // 					"<---<<",
+	// // 				)
+
+	// // 				fmt.Printf("%s \033[K\n", output)
+	// // 				time.Sleep(time.Duration(200) * time.Millisecond)
+	// // 			}
+	// // 		}
+	// // 	}
+	// // } // end for
+	// return nil
 }
 
 func checkInstallerRunning(ctx context.Context, runtime connector.Runtime) error {

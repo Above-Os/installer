@@ -181,15 +181,16 @@ func (c *CheckResultModule) Init() {
 	c.Desc = "Check deploy KubeSphere result"
 
 	check := &task.RemoteTask{
-		Name:  "CheckKsInstallerResult",
-		Desc:  "Check ks-installer result",
+		Name:  "CheckAPIServer",
 		Hosts: c.Runtime.GetHostsByRole(common.Master),
 		Prepare: &prepare.PrepareCollection{
 			new(common.OnlyFirstMaster),
 			new(NotEqualDesiredVersion),
 		},
 		Action:   new(Check),
-		Parallel: true,
+		Parallel: false,
+		Retry:    50,
+		Delay:    5 * time.Second,
 	}
 
 	c.Tasks = []task.Interface{

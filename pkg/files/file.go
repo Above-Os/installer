@@ -176,9 +176,9 @@ func NewKubeBinary(name, arch, version, prePath string) *KubeBinary {
 	case docker:
 		component.Type = DOCKER
 		component.FileName = fmt.Sprintf("docker-%s.tgz", version)
-		component.Url = fmt.Sprintf(DockerUrl, utils.ArchAlias(arch), version)
+		component.Url = fmt.Sprintf(DockerUrl, dockerArchAlias(arch), version)
 		if component.Zone == "cn" {
-			component.Url = fmt.Sprintf(DockerUrlCN, utils.ArchAlias(arch), version)
+			component.Url = fmt.Sprintf(DockerUrlCN, dockerArchAlias(arch), version)
 		}
 	case crictl:
 		component.Type = CRICTL
@@ -1007,3 +1007,14 @@ var (
 		},
 	}
 )
+
+func dockerArchAlias(arch string) string {
+	switch arch {
+	case "amd64":
+		return "x86_64"
+	case "arm64":
+		return "aarch64"
+	default:
+		return ""
+	}
+}

@@ -74,14 +74,8 @@ func (m *GetSysInfoModel) Init() {
 		Action: new(GetSysInfoTask),
 	}
 
-	getCgroupsEnabledTask := &task.LocalTask{
-		Name:   "GetCgroupsEnabled",
-		Action: new(GetCGroupsTask),
-	}
-
 	m.Tasks = []task.Interface{
 		getSysInfoTask,
-		getCgroupsEnabledTask,
 	}
 
 	m.PostHook = []module.PostHookInterface{

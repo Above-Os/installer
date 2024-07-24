@@ -17,12 +17,9 @@
 package precheck
 
 import (
-	"bufio"
 	"fmt"
 	"os"
 	"regexp"
-	rtime "runtime"
-	"strconv"
 	"strings"
 
 	"bytetrade.io/web3os/installer/pkg/common"
@@ -180,103 +177,12 @@ type GetSysInfoTask struct {
 }
 
 func (t *GetSysInfoTask) Execute(runtime connector.Runtime) error {
-	host, err := util.GetHost()
-	if err != nil {
-		return err
-	}
-	constants.HostName = host[0]
-	constants.HostId = host[1]
-	constants.OsType = rtime.GOOS
-	constants.OsPlatform = host[3]
-	constants.OsVersion = host[4]
-	constants.OsArch = rtime.GOARCH
-
-	cpuModel, cpuLogicalCount, cpuPhysicalCount, err := util.GetCpu()
-	if err != nil {
-		return err
-	}
-	constants.CpuModel = cpuModel
-	constants.CpuLogicalCount = cpuLogicalCount
-	constants.CpuPhysicalCount = cpuPhysicalCount
-
-	diskTotal, diskFree, err := util.GetDisk()
-	if err != nil {
-		return err
-	}
-	constants.DiskTotal = diskTotal
-	constants.DiskFree = diskFree
-
-	memTotal, memFree, err := util.GetMem()
-	if err != nil {
-		return err
-	}
-	constants.MemTotal = memTotal
-	constants.MemFree = memFree
-
 	logger.Infof("host info, user: %s, hostname: %s, hostid: %s, os: %s, platform: %s, version: %s, arch: %s",
 		constants.CurrentUser, constants.HostName, constants.HostId, constants.OsType, constants.OsPlatform, constants.OsVersion, constants.OsArch)
 	logger.Infof("cpu info, model: %s, logical count: %d, physical count: %d",
 		constants.CpuModel, constants.CpuLogicalCount, constants.CpuPhysicalCount)
 	logger.Infof("disk info, total: %s, free: %s", utils.FormatBytes(int64(constants.DiskTotal)), utils.FormatBytes(int64(constants.DiskFree)))
 	logger.Infof("mem info, total: %s, free: %s", utils.FormatBytes(int64(constants.MemTotal)), utils.FormatBytes(int64(constants.MemFree)))
-
-	switch constants.OsPlatform {
-	case common.Ubuntu, common.Debian, common.Raspbian:
-		constants.PkgManager = "apt-get"
-	case common.Fedora:
-		constants.PkgManager = "dnf"
-	case common.CentOs, common.RHEl:
-		constants.PkgManager = "yum"
-	default:
-		constants.PkgManager = "apt-get"
-	}
-
-	return nil
-}
-
-// ~ GetCGroupsTask
-type GetCGroupsTask struct {
-	action.BaseAction
-}
-
-func (t *GetCGroupsTask) Execute(runtime connector.Runtime) error {
-	if constants.OsType == common.Darwin || constants.OsType == common.Windows {
-		return nil
-	}
-
-	file, err := os.Open("/proc/cgroups")
-	if err != nil {
-		logger.Errorf("error opening /proc/cgroups error %v", err)
-		return err
-	}
-	defer file.Close()
-
-	scanner := bufio.NewScanner(file)
-	for scanner.Scan() {
-		line := scanner.Text()
-		if strings.HasPrefix(line, "#") {
-			continue
-		}
-		fields := strings.Fields(line)
-		if len(fields) < 4 {
-			continue
-		}
-		switch fields[0] {
-		case "cpu":
-			cpuEnabled, _ := strconv.ParseInt(fields[3], 10, 64)
-			constants.CgroupCpuEnabled = int(cpuEnabled)
-		case "memory":
-			memoryEnabled, _ := strconv.ParseInt(fields[3], 10, 64)
-			constants.CgroupMemoryEnabled = int(memoryEnabled)
-		default:
-			continue
-		}
-	}
-
-	if err := scanner.Err(); err != nil {
-		logger.Errorf("error reading /proc/cgroups error %v", err)
-		return err
-	}
 
 	return nil
 }

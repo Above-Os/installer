@@ -115,7 +115,7 @@ const (
 
 	Intel64 = "x86_64"
 	Amd64   = "amd64"
-	Arm     = "arm" // todo 这里要注意下，数据可能是 arm7  arm  armv7l ...
+	Arm     = "arm"
 	Arm7    = "arm7"
 	Armv7l  = "Armv7l"
 	Armhf   = "armhf"

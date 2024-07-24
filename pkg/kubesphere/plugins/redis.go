@@ -47,12 +47,9 @@ func (t *BackupRedisManifests) Execute(runtime connector.Runtime) error {
 	rver, err := runtime.GetRunner().SudoCmdExt(fmt.Sprintf("/usr/local/bin/kubectl get pod -n %s -l app=%s,tier=database,version=%s-4.0 | wc -l",
 		common.NamespaceKubesphereSystem, common.ChartNameRedis, common.ChartNameRedis), false, false)
 
-	fmt.Println("---1---", rver)
-	fmt.Println("---2---", err)
 	if err != nil || strings.Contains(rver, "No resources found") {
 		return nil
 	}
-	fmt.Println("---3---")
 	rver = strings.ReplaceAll(rver, "No resources found in kubesphere-system namespace.", "")
 	rver = strings.ReplaceAll(rver, "\r\n", "")
 	rver = strings.ReplaceAll(rver, "\n", "")

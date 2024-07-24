@@ -162,20 +162,6 @@ func Round(val float64, precision int) float64 {
 	return math.Floor(val*p+0.5) / p
 }
 
-// ArchAlias returns the alias of cpu's architecture.
-// amd64: x86_64
-// arm64: aarch64
-func ArchAlias(arch string) string {
-	switch arch {
-	case "amd64":
-		return "x86_64"
-	case "arm64":
-		return "aarch64"
-	default:
-		return ""
-	}
-}
-
 func FormatBytes(bytes int64) string {
 	const (
 		KB = 1 << 10 // 1024
@@ -226,4 +212,19 @@ func GeneratePassword(length int) (string, error) {
 func RemoveAnsiCodes(input string) string {
 	ansiEscape := regexp.MustCompile(`\x1b\[[0-9;]*m`)
 	return ansiEscape.ReplaceAllString(input, "")
+}
+
+func ArchAlias(arch string) string {
+	switch arch {
+	case "aarch64", "armv7l", "arm64":
+		return "arm64"
+	case "x86_64", "amd64":
+		fallthrough
+	case "ppc64le":
+		fallthrough
+	case "s390x":
+		fallthrough
+	default:
+		return "amd64"
+	}
 }

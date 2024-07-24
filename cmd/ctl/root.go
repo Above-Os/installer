@@ -3,11 +3,14 @@ package ctl
 import (
 	"bytetrade.io/web3os/installer/cmd/ctl/api"
 	"bytetrade.io/web3os/installer/cmd/ctl/checksum"
+	"bytetrade.io/web3os/installer/cmd/ctl/helper"
 	"bytetrade.io/web3os/installer/cmd/ctl/os"
 	"github.com/spf13/cobra"
 )
 
 func NewDefaultCommand() *cobra.Command {
+	helper.GetMachineInfo()
+
 	cmds := &cobra.Command{
 		Use:               "Terminus Cli",
 		Short:             "Terminus Installer",

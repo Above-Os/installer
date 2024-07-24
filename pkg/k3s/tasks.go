@@ -345,19 +345,11 @@ type PreloadImagesService struct {
 }
 
 func (p *PreloadImagesService) Execute(runtime connector.Runtime) error {
-	fileInfo, err := os.Stat(common.PreloadK3sImageDir)
-	if os.IsNotExist(err) {
+	if utils.IsExist(common.PreloadK3sImageDir) {
 		if err := util.CreateDir(common.PreloadK3sImageDir); err != nil {
 			logger.Errorf("create dir %s failed: %v", common.PreloadK3sImageDir, err)
 			return err
 		}
-	} else if err != nil {
-		logger.Errorf("Unable to find images in %s: %v", common.PreloadK3sImageDir, err)
-		return nil
-	}
-
-	if !fileInfo.IsDir() {
-		return nil
 	}
 
 	fileInfos, err := os.ReadDir(common.PreloadK3sImageDir)

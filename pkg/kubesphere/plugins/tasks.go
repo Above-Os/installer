@@ -67,7 +67,6 @@ func (t *CheckNodeState) Execute(runtime connector.Runtime) error {
 	if state != "Ready" {
 		return fmt.Errorf("Node Pending")
 	}
-
 	t.PipelineCache.Set(common.CacheKubeletVersion, version)
 
 	return nil

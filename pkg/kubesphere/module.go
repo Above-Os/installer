@@ -26,7 +26,6 @@ import (
 	"bytetrade.io/web3os/installer/pkg/core/action"
 	"bytetrade.io/web3os/installer/pkg/core/prepare"
 	"bytetrade.io/web3os/installer/pkg/core/task"
-	"bytetrade.io/web3os/installer/pkg/core/util"
 	"bytetrade.io/web3os/installer/pkg/version/kubesphere"
 	"bytetrade.io/web3os/installer/pkg/version/kubesphere/templates"
 )
@@ -56,14 +55,6 @@ func (d *DeployModule) Init() {
 			Name:     "GenerateKsInstallerCRD",
 			Template: templates.KsInstaller,
 			Dst:      filepath.Join(common.KubeAddonsDir, templates.KsInstaller.Name()),
-			Data: util.Data{
-				"Repo": "beclab",
-				"Tag":  "v0.1.9-ext",
-
-				// FIXME: multi version supported
-				// "Repo": MirrorRepo(d.KubeConf),
-				// "Tag":  d.KubeConf.Cluster.KubeSphere.Version,
-			},
 		},
 		Parallel: true,
 	}

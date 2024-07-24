@@ -20,7 +20,6 @@ func CliInitializeTerminusPipeline(kubeType string) error {
 		SKipPushImages:   false,
 		ContainerManager: common.Containerd,
 	}
-
 	switch kubeType {
 	case common.K3s:
 		arg.KubernetesVersion = common.DefaultK3sVersion
@@ -32,7 +31,6 @@ func CliInitializeTerminusPipeline(kubeType string) error {
 	if err != nil {
 		return nil
 	}
-
 	var p = cluster.InitKube(arg, runtime)
 	if err := p.Start(); err != nil {
 		return fmt.Errorf("create terminus error %v", err)

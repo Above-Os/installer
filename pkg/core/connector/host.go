@@ -20,6 +20,7 @@ import (
 	"fmt"
 
 	"bytetrade.io/web3os/installer/pkg/core/cache"
+	"bytetrade.io/web3os/installer/pkg/core/logger"
 	"bytetrade.io/web3os/installer/pkg/core/util"
 )
 
@@ -159,4 +160,38 @@ func (b *BaseHost) SetCache(c *cache.Cache) {
 func (b *BaseHost) Echo() {
 	fmt.Println("---echo---")
 	util.Exec("echo '---hello world!!!!---'", true, false)
+}
+
+func (b *BaseHost) Exec(cmd string, printOutput bool, printLine bool) (stdout string, code int, err error) {
+	stdout, code, err = util.Exec(SudoPrefix(cmd), printOutput, printLine)
+	if err != nil {
+		logger.Errorf("[exec] %s CMD: %s, ERROR: %s", b.GetName(), cmd, err)
+	}
+
+	if printOutput {
+		logger.Debugf("[exec] %s CMD: %s, OUTPUT: \n%s", b.GetName(), cmd, stdout)
+	}
+
+	logger.Infof("[exec] %s CMD: %s, OUTPUT: %s", b.GetName(), cmd, stdout)
+
+	return stdout, code, err
+}
+
+func (b *BaseHost) Cmd(cmd string, printOutput bool, printLine bool) (string, error) {
+	stdout, _, err := b.Exec(cmd, printOutput, printLine)
+	if err != nil {
+		return stdout, err
+	}
+	return stdout, nil
+}
+
+func (b *BaseHost) CmdExt(cmd string, printOutput bool, printLine bool) (string, error) {
+	stdout, _, err := b.Exec(cmd, printOutput, printLine)
+	if printOutput {
+		logger.Debugf("[exec] %s CMD: %s, OUTPUT: \n%s", b.GetName(), cmd, stdout)
+	}
+
+	logger.Infof("[exec] %s CMD: %s, OUTPUT: %s", b.GetName(), cmd, stdout)
+
+	return stdout, err
 }

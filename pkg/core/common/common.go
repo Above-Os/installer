@@ -65,3 +65,9 @@ const (
 const (
 	DefaultInstallSteps int64 = 32
 )
+
+const (
+	Linux   = "linux"
+	Darwin  = "darwin"
+	Windows = "windows"
+)

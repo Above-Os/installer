@@ -41,6 +41,10 @@ func (t *Template) Execute(runtime connector.Runtime) error {
 		return errors.Wrap(errors.WithStack(err), fmt.Sprintf("render template %s failed", t.Template.Name()))
 	}
 
+	if !util.IsExist(runtime.GetHostWorkDir()) {
+		util.Mkdir(runtime.GetHostWorkDir())
+	}
+
 	fileName := filepath.Join(runtime.GetHostWorkDir(), t.Template.Name())
 	if err := util.WriteFile(fileName, []byte(templateStr), common.FileMode0644); err != nil {
 		return errors.Wrap(errors.WithStack(err), fmt.Sprintf("write file %s failed", fileName))

@@ -27,6 +27,25 @@ import (
 	"bytetrade.io/web3os/installer/pkg/plugins/storage"
 )
 
+func NewDarwinClusterPhase(runtime *common.KubeRuntime) []module.Module {
+	m := []module.Module{
+		&kubesphere.DeployMiniKubeModule{},
+		// &kubesphere.DeployModule{Skip: !runtime.Cluster.KubeSphere.Enabled}, // todo relative ks-installer
+		// &ksplugins.DeployKsPluginsModule{},
+		// &ksplugins.DeploySnapshotControllerModule{},
+		// &ksplugins.DeployRedisModule{},
+		// &ksplugins.CreateKubeSphereSecretModule{},
+		// &ksplugins.DeployKsCoreConfigModule{}, // ks-core-config
+		// &ksplugins.CreateMonitorDashboardModule{},
+		// &ksplugins.CreateNotificationModule{},
+		// &ksplugins.DeployPrometheusModule{},
+		// &ksplugins.DeployKsCoreModule{},
+		// &kubesphere.CheckResultModule{Skip: !runtime.Cluster.KubeSphere.Enabled}, // check ks-apiserver phase
+	}
+
+	return m
+}
+
 func NewK3sCreateClusterPhase(runtime *common.KubeRuntime) []module.Module {
 	noArtifact := runtime.Arg.Artifact == ""
 	skipPushImages := runtime.Arg.SKipPushImages || noArtifact || (!noArtifact && runtime.Cluster.Registry.PrivateRegistry == "")
@@ -62,14 +81,14 @@ func NewK3sCreateClusterPhase(runtime *common.KubeRuntime) []module.Module {
 		&k3s.SaveKubeConfigModule{},
 		&addons.AddonsModule{}, // relative ks-installer
 		&storage.DeployLocalVolumeModule{Skip: skipLocalStorage},
-		&kubesphere.DeployModule{Skip: !runtime.Cluster.KubeSphere.Enabled}, // todo relative ks-installer
-		&ksplugins.DeployKsPluginsModule{},                                  // new code
+		&kubesphere.DeployModule{Skip: !runtime.Cluster.KubeSphere.Enabled},
+		&ksplugins.DeployKsPluginsModule{},
 		&ksplugins.DeploySnapshotControllerModule{},
 		&ksplugins.DeployRedisModule{},
 		&ksplugins.CreateKubeSphereSecretModule{},
-		&ksplugins.DeployKsCoreConfigModule{},     // ks-core-config
-		&ksplugins.CreateMonitorDashboardModule{}, // todo 这里暂时是测试，先放这里
-		&ksplugins.CreateNotificationModule{},     // todo 这里暂时是测试，先放这里
+		&ksplugins.DeployKsCoreConfigModule{}, // ks-core-config
+		&ksplugins.CreateMonitorDashboardModule{},
+		&ksplugins.CreateNotificationModule{},
 		&ksplugins.DeployPrometheusModule{},
 		&ksplugins.DeployKsCoreModule{},
 		&kubesphere.CheckResultModule{Skip: !runtime.Cluster.KubeSphere.Enabled}, // check ks-apiserver phase
@@ -121,15 +140,14 @@ func NewCreateClusterPhase(runtime *common.KubeRuntime) []module.Module {
 		&plugins.DeployPluginsModule{},
 		&addons.AddonsModule{},
 		&storage.DeployLocalVolumeModule{Skip: skipLocalStorage},
-		&kubesphere.DeployModule{Skip: !runtime.Cluster.KubeSphere.Enabled}, // todo 这里这么延后？
-		// todo 在这里插入新的代码
+		&kubesphere.DeployModule{Skip: !runtime.Cluster.KubeSphere.Enabled},
 		&ksplugins.DeployKsPluginsModule{},
 		&ksplugins.DeploySnapshotControllerModule{},
 		&ksplugins.DeployRedisModule{},
 		&ksplugins.CreateKubeSphereSecretModule{},
-		&ksplugins.DeployKsCoreConfigModule{},     // ! ks-core-config
-		&ksplugins.CreateMonitorDashboardModule{}, // todo 这里暂时是测试，先放这里
-		&ksplugins.CreateNotificationModule{},     // todo 这里暂时是测试，先放这里
+		&ksplugins.DeployKsCoreConfigModule{}, // ! ks-core-config
+		&ksplugins.CreateMonitorDashboardModule{},
+		&ksplugins.CreateNotificationModule{},
 		&ksplugins.DeployPrometheusModule{},
 		&ksplugins.DeployKsCoreModule{},
 		&kubesphere.CheckResultModule{Skip: !runtime.Cluster.KubeSphere.Enabled}, // check ks-apiserver phase

@@ -99,4 +99,7 @@ type Host interface {
 	SetCache(c *cache.Cache)
 
 	Echo()
+	Exec(cmd string, printOutput bool, printLine bool) (stdout string, code int, err error)
+	Cmd(cmd string, printOutput bool, printLine bool) (string, error)
+	CmdExt(cmd string, printOutput bool, printLine bool) (string, error)
 }

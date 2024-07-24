@@ -5,6 +5,7 @@ import (
 	"bytetrade.io/web3os/installer/pkg/bootstrap/patch"
 	"bytetrade.io/web3os/installer/pkg/bootstrap/precheck"
 	"bytetrade.io/web3os/installer/pkg/common"
+	"bytetrade.io/web3os/installer/pkg/constants"
 	"bytetrade.io/web3os/installer/pkg/core/module"
 	"bytetrade.io/web3os/installer/pkg/core/pipeline"
 	"bytetrade.io/web3os/installer/pkg/kubesphere/plugins"
@@ -19,15 +20,17 @@ func InitKube(args common.Argument, runtime *common.KubeRuntime) *pipeline.Pipel
 		&plugins.CopyEmbed{},
 	}
 
+	// todo support mac
 	var kubeModules []module.Module
-	if runtime.Cluster.Kubernetes.Type == common.K3s {
-		kubeModules = NewK3sCreateClusterPhase(runtime)
-	} else {
-		kubeModules = NewCreateClusterPhase(runtime)
+	if constants.OsType == common.Darwin {
+		kubeModules = NewDarwinClusterPhase(runtime)
 	}
 
-	if kubeModules == nil {
-	}
+	// if runtime.Cluster.Kubernetes.Type == common.K3s {
+	// 	kubeModules = NewK3sCreateClusterPhase(runtime)
+	// } else {
+	// 	kubeModules = NewCreateClusterPhase(runtime)
+	// }
 
 	m = append(m, kubeModules...)
 

@@ -157,6 +157,9 @@ const (
 	CommandNtpdate   = "ntpdate"
 	CommandHwclock   = "hwclock"
 	CommandKubectl   = "kubectl"
+	CommandDocker    = "docker"
+	CommandHelm      = "helm"
+	CommandMinikube  = "minikube"
 )
 
 const (

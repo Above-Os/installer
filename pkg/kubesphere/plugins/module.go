@@ -42,8 +42,8 @@ func (t *DeployKsPluginsModule) Init() {
 		},
 		Action:   new(CheckNodeState),
 		Parallel: false,
-		Retry:    10,
-		Delay:    3 * time.Second,
+		Retry:    500,
+		Delay:    5 * time.Second,
 	}
 
 	initNs := &task.RemoteTask{
@@ -54,7 +54,7 @@ func (t *DeployKsPluginsModule) Init() {
 			new(NotEqualDesiredVersion),
 		},
 		Action:   new(InitNamespace),
-		Parallel: true,
+		Parallel: false,
 	}
 
 	// checkMasterNum := &task.RemoteTask{

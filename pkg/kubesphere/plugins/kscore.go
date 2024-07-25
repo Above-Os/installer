@@ -77,7 +77,7 @@ func (m *DeployKsCoreModule) Init() {
 		},
 		Action:   new(CreateKsCore),
 		Parallel: false,
-		Retry:    50,
+		Retry:    500,
 		Delay:    5 * time.Second,
 	}
 

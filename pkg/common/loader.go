@@ -205,13 +205,6 @@ func (d *DefaultLoader) Load() (*kubekeyapiv1alpha2.Cluster, error) {
 		return nil, errors.New(fmt.Sprintf("Failed to get hostname: %v\n", err))
 	}
 
-	if constants.LocalIp == "" {
-		constants.LocalIp = util.LocalIP()
-	}
-	if constants.OsArch == "" {
-		constants.OsArch = runtime.GOARCH
-	}
-
 	allInOne.Spec.Hosts = append(allInOne.Spec.Hosts, kubekeyapiv1alpha2.HostCfg{
 		Name:            hostname,
 		Address:         constants.LocalIp,

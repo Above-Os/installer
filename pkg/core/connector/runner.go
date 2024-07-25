@@ -40,6 +40,7 @@ func (r *Runner) Exec(cmd string, printOutput bool, printLine bool) (string, int
 	}
 
 	stdout, code, err := r.Conn.Exec(cmd, r.Host, printLine)
+
 	if err != nil {
 		logger.Errorf("[exec] %s CMD: %s, ERROR: %s", r.Host.GetName(), cmd, err)
 	}

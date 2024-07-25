@@ -13,12 +13,17 @@ import (
 )
 
 func GetMachineInfo() {
+	getLocalIp()
 	getHost()
 	getCpu()
 	getDisk()
 	getMem()
 	getRepoManager()
 	getCGroups()
+}
+
+func getLocalIp() {
+	constants.LocalIp = util.LocalIP()
 }
 
 func getHost() {

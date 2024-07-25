@@ -3,7 +3,6 @@ package options
 import (
 	"fmt"
 	"os"
-	"runtime"
 
 	"bytetrade.io/web3os/installer/pkg/constants"
 	"bytetrade.io/web3os/installer/pkg/core/util"
@@ -19,7 +18,6 @@ func InitEnv(o *ApiOptions) {
 
 func InitLocal() {
 	constants.LocalIp = util.LocalIP()
-	constants.OsArch = runtime.GOARCH
 
 	workDir, err := utils.WorkDir()
 	if err != nil {

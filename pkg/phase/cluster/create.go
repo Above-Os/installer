@@ -22,15 +22,17 @@ func InitKube(args common.Argument, runtime *common.KubeRuntime) *pipeline.Pipel
 
 	// todo support mac
 	var kubeModules []module.Module
-	if constants.OsType == common.Darwin {
-		kubeModules = NewDarwinClusterPhase(runtime)
-	}
 
-	// if runtime.Cluster.Kubernetes.Type == common.K3s {
-	// 	kubeModules = NewK3sCreateClusterPhase(runtime)
-	// } else {
-	// 	kubeModules = NewCreateClusterPhase(runtime)
-	// }
+	switch constants.OsType {
+	case common.Darwin:
+		kubeModules = NewDarwinClusterPhase(runtime)
+	case common.Linux:
+		if runtime.Cluster.Kubernetes.Type == common.K3s {
+			kubeModules = NewK3sCreateClusterPhase(runtime)
+		} else {
+			kubeModules = NewCreateClusterPhase(runtime)
+		}
+	}
 
 	m = append(m, kubeModules...)
 

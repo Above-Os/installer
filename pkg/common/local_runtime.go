@@ -21,8 +21,8 @@ import (
 	"os"
 	"os/exec"
 	"os/user"
-	"runtime"
 
+	"bytetrade.io/web3os/installer/pkg/constants"
 	"bytetrade.io/web3os/installer/pkg/core/connector"
 	"bytetrade.io/web3os/installer/pkg/core/util"
 	"github.com/pkg/errors"
@@ -63,7 +63,7 @@ func NewLocalRuntime(debug, ingoreErr bool) (LocalRuntime, error) {
 	host.User = u.Name
 	host.Password = ""
 	host.PrivateKeyPath = fmt.Sprintf("%s/.ssh/id_rsa", u.HomeDir)
-	host.Arch = runtime.GOARCH
+	host.Arch = constants.OsArch
 	host.SetRole(KubeKey)
 
 	base.AppendHost(host)

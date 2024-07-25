@@ -216,7 +216,7 @@ func RemoveAnsiCodes(input string) string {
 
 func ArchAlias(arch string) string {
 	switch arch {
-	case "aarch64", "armv7l", "arm64":
+	case "aarch64", "armv7l", "arm64", "arm":
 		return "arm64"
 	case "x86_64", "amd64":
 		fallthrough

@@ -36,7 +36,7 @@ func NewCmdInitializeOs() *cobra.Command {
 				os.Exit(1)
 			}
 
-			if err := pipelines.CliInitializeTerminusPipeline(o.InitializeOptions.KubeType); err != nil {
+			if err := pipelines.CliInitializeTerminusPipeline(o.InitializeOptions.KubeType, o.InitializeOptions.MiniKube, o.InitializeOptions.MiniKubeProfile); err != nil {
 				logger.Errorf("initialize kube error %v", err)
 			}
 		},

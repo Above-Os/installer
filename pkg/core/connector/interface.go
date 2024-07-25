@@ -90,6 +90,10 @@ type Host interface {
 	SetPrivateKeyPath(path string)
 	GetArch() string
 	SetArch(arch string)
+	SetMinikube(minikube bool)
+	GetMinikube() bool
+	SetMinikubeProfile(profile string)
+	GetMinikubeProfile() string
 	GetTimeout() int64
 	SetTimeout(timeout int64)
 	GetRoles() []string
@@ -102,4 +106,5 @@ type Host interface {
 	Exec(cmd string, printOutput bool, printLine bool) (stdout string, code int, err error)
 	Cmd(cmd string, printOutput bool, printLine bool) (string, error)
 	CmdExt(cmd string, printOutput bool, printLine bool) (string, error)
+	Scp(local, remote string) error
 }

@@ -48,7 +48,7 @@ type CheckNodeState struct {
 }
 
 func (t *CheckNodeState) Execute(runtime connector.Runtime) error {
-	var cmd = fmt.Sprintf("/usr/local/bin/kubectl  get node --no-headers")
+	var cmd = fmt.Sprintf("/usr/local/bin/kubectl get node --no-headers")
 	stdout, err := runtime.GetRunner().SudoCmd(cmd, false, false)
 
 	if err != nil || stdout == "" {

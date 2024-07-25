@@ -29,18 +29,18 @@ import (
 
 func NewDarwinClusterPhase(runtime *common.KubeRuntime) []module.Module {
 	m := []module.Module{
-		&kubesphere.DeployMiniKubeModule{},
-		// &kubesphere.DeployModule{Skip: !runtime.Cluster.KubeSphere.Enabled}, // todo relative ks-installer
-		// &ksplugins.DeployKsPluginsModule{},
-		// &ksplugins.DeploySnapshotControllerModule{},
-		// &ksplugins.DeployRedisModule{},
-		// &ksplugins.CreateKubeSphereSecretModule{},
-		// &ksplugins.DeployKsCoreConfigModule{}, // ks-core-config
-		// &ksplugins.CreateMonitorDashboardModule{},
-		// &ksplugins.CreateNotificationModule{},
-		// &ksplugins.DeployPrometheusModule{},
-		// &ksplugins.DeployKsCoreModule{},
-		// &kubesphere.CheckResultModule{Skip: !runtime.Cluster.KubeSphere.Enabled}, // check ks-apiserver phase
+		// &kubesphere.DeployMiniKubeModule{},
+		&kubesphere.DeployModule{Skip: !runtime.Cluster.KubeSphere.Enabled}, // todo relative ks-installer
+		&ksplugins.DeployKsPluginsModule{},
+		&ksplugins.DeploySnapshotControllerModule{},
+		&ksplugins.DeployRedisModule{},
+		&ksplugins.CreateKubeSphereSecretModule{},
+		&ksplugins.DeployKsCoreConfigModule{}, // ks-core-config
+		&ksplugins.CreateMonitorDashboardModule{},
+		&ksplugins.CreateNotificationModule{},
+		&ksplugins.DeployPrometheusModule{},
+		&ksplugins.DeployKsCoreModule{},
+		&kubesphere.CheckResultModule{Skip: !runtime.Cluster.KubeSphere.Enabled}, // check ks-apiserver phase
 	}
 
 	return m
@@ -81,7 +81,7 @@ func NewK3sCreateClusterPhase(runtime *common.KubeRuntime) []module.Module {
 		&k3s.SaveKubeConfigModule{},
 		&addons.AddonsModule{}, // relative ks-installer
 		&storage.DeployLocalVolumeModule{Skip: skipLocalStorage},
-		&kubesphere.DeployModule{Skip: !runtime.Cluster.KubeSphere.Enabled},
+		&kubesphere.DeployModule{Skip: !runtime.Cluster.KubeSphere.Enabled}, // + 这里是 kubekey倒数第二步
 		&ksplugins.DeployKsPluginsModule{},
 		&ksplugins.DeploySnapshotControllerModule{},
 		&ksplugins.DeployRedisModule{},

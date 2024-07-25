@@ -24,7 +24,7 @@ func (t *CopyFiles) Execute(runtime connector.Runtime) error {
 	fmt.Println("---2---", runtime.RemoteHost().GetName())
 	fmt.Println("---3---", runtime.GetHostWorkDir())
 	var cmd = "/usr/local/bin/kubectl get pods -A"
-	if _, err := runtime.GetRunner().Host.Cmd(cmd, false, true); err != nil {
+	if _, err := runtime.GetRunner().SudoCmd(cmd, false, true); err != nil {
 		return err
 	}
 	fmt.Println("---4---")

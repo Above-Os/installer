@@ -35,6 +35,8 @@ type BaseHost struct {
 	PrivateKeyPath  string `yaml:"privateKeyPath,omitempty" json:"privateKeyPath,omitempty"`
 	Arch            string `yaml:"arch,omitempty" json:"arch,omitempty"`
 	Timeout         int64  `yaml:"timeout,omitempty" json:"timeout,omitempty"`
+	Minikube        bool   `yaml:"minikube,omitempty" json:"minikube,omitempty"`
+	MiniKubeProfile string `json:"minikubeProfileName,omitempty" json:"minikubeProfileName,omitempty"`
 
 	Roles     []string        `json:"-"`
 	RoleTable map[string]bool `json:"-"`
@@ -121,6 +123,19 @@ func (b *BaseHost) SetArch(arch string) {
 	b.Arch = arch
 }
 
+func (b *BaseHost) SetMinikube(minikube bool) {
+	b.Minikube = minikube
+}
+func (b *BaseHost) GetMinikube() bool {
+	return b.Minikube
+}
+func (b *BaseHost) SetMinikubeProfile(profile string) {
+	b.MiniKubeProfile = profile
+}
+func (b *BaseHost) GetMinikubeProfile() string {
+	return b.MiniKubeProfile
+}
+
 func (b *BaseHost) GetTimeout() int64 {
 	return b.Timeout
 }
@@ -158,12 +173,10 @@ func (b *BaseHost) SetCache(c *cache.Cache) {
 }
 
 func (b *BaseHost) Echo() {
-	fmt.Println("---echo---")
-	util.Exec("echo '---hello world!!!!---'", true, false)
 }
 
 func (b *BaseHost) Exec(cmd string, printOutput bool, printLine bool) (stdout string, code int, err error) {
-	stdout, code, err = util.Exec(SudoPrefix(cmd), printOutput, printLine)
+	stdout, code, err = util.Exec(cmd, printOutput, printLine)
 	if err != nil {
 		logger.Errorf("[exec] %s CMD: %s, ERROR: %s", b.GetName(), cmd, err)
 	}
@@ -194,4 +207,10 @@ func (b *BaseHost) CmdExt(cmd string, printOutput bool, printLine bool) (string,
 	logger.Infof("[exec] %s CMD: %s, OUTPUT: %s", b.GetName(), cmd, stdout)
 
 	return stdout, err
+}
+
+func (b *BaseHost) Scp(local, remote string) error {
+	var cmd = fmt.Sprintf("minikube -p %s cp %s %s", b.GetMinikubeProfile(), local, remote)
+	_, _, err := b.Exec(cmd, false, false)
+	return err
 }

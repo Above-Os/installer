@@ -54,7 +54,7 @@ func (d *DeployModule) Init() {
 		Action: &action.Template{
 			Name:     "GenerateKsInstallerCRD",
 			Template: templates.KsInstaller,
-			Dst:      filepath.Join(common.KubeAddonsDir, templates.KsInstaller.Name()),
+			Dst:      filepath.Join(common.KubeAddonsDir, templates.KsInstaller.Name()), // todo 这里会生成文件，/etc/kubernetes/addons/kubesphere.yaml
 		},
 		Parallel: true,
 	}
@@ -91,7 +91,7 @@ func (d *DeployModule) Init() {
 			new(common.OnlyFirstMaster),
 			new(NotEqualDesiredVersion),
 		},
-		Action:   new(Setup),
+		Action:   new(Setup), // todo 主要是这里，不知道能否兼容 minikube；minikube 已经装了 etcd 了啊
 		Parallel: false,
 	}
 

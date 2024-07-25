@@ -86,6 +86,9 @@ type Argument struct {
 	// request
 	Params  map[string]interface{}
 	Request any
+
+	Minikube        bool
+	MinikubeProfile string
 }
 
 type AwsHost struct {
@@ -140,6 +143,8 @@ func NewKubeRuntime(flag string, arg Argument) (*KubeRuntime, error) {
 				base.AppendHost(host)
 				base.AppendRoleMap(host)
 			}
+			host.SetMinikube(arg.Minikube)
+			host.SetMinikubeProfile(arg.MinikubeProfile)
 		}
 	}
 

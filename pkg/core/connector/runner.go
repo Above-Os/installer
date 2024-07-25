@@ -39,7 +39,15 @@ func (r *Runner) Exec(cmd string, printOutput bool, printLine bool) (string, int
 		return "", 1, errors.New("no ssh connection available")
 	}
 
-	stdout, code, err := r.Conn.Exec(cmd, r.Host, printLine)
+	var stdout string
+	var code int
+	var err error
+
+	if r.Host.GetMinikube() {
+		stdout, code, err = r.Host.Exec(cmd, printOutput, printLine)
+	} else {
+		stdout, code, err = r.Conn.Exec(cmd, r.Host, printLine)
+	}
 
 	if err != nil {
 		logger.Errorf("[exec] %s CMD: %s, ERROR: %s", r.Host.GetName(), cmd, err)
@@ -68,7 +76,13 @@ func (r *Runner) CmdExt(cmd string, printOutput bool, printLine bool) (string, e
 		return "", errors.New("no ssh connection available")
 	}
 
-	stdout, _, err := r.Conn.Exec(cmd, r.Host, printLine)
+	var stdout string
+	var err error
+	if r.Host.GetMinikube() {
+		stdout, _, err = r.Host.Exec(cmd, printOutput, printLine)
+	} else {
+		stdout, _, err = r.Conn.Exec(cmd, r.Host, printLine)
+	}
 
 	if printOutput {
 		logger.Debugf("[exec] %s CMD: %s, OUTPUT: \n%s", r.Host.GetName(), cmd, stdout)
@@ -93,7 +107,13 @@ func (r *Runner) SudoCmdExt(cmd string, printOutput bool, printLine bool) (strin
 		return "", errors.New("no ssh connection available")
 	}
 
-	stdout, _, err := r.Conn.Exec(SudoPrefix(cmd), r.Host, printLine)
+	var stdout string
+	var err error
+	if r.Host.GetMinikube() {
+		stdout, _, err = r.Host.Exec(SudoPrefix(cmd), printOutput, printLine)
+	} else {
+		stdout, _, err = r.Conn.Exec(SudoPrefix(cmd), r.Host, printLine)
+	}
 
 	if printOutput {
 		logger.Debugf("[exec] %s CMD: %s, OUTPUT: \n%s", r.Host.GetName(), cmd, stdout)
@@ -122,7 +142,14 @@ func (r *Runner) Scp(local, remote string) error {
 		return errors.New("no ssh connection available")
 	}
 
-	if err := r.Conn.Scp(local, remote, r.Host); err != nil {
+	var err error
+	if r.Host.GetMinikube() {
+		err = r.Host.Scp(local, remote)
+	} else {
+		err = r.Conn.Scp(local, remote, r.Host)
+	}
+
+	if err != nil {
 		logger.Debugf("scp local file %s to remote %s failed: %v", local, remote, err)
 		return err
 	}

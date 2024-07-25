@@ -280,7 +280,7 @@ func (a *Apply) Execute(runtime connector.Runtime) error {
 	filePath := filepath.Join(common.KubeAddonsDir, templates.KsInstaller.Name())
 
 	deployKubesphereCmd := fmt.Sprintf("/usr/local/bin/kubectl apply -f %s --force", filePath)
-	if _, err := runtime.GetRunner().SudoCmd(deployKubesphereCmd, false, true); err != nil {
+	if _, err := runtime.GetRunner().Host.CmdExt(deployKubesphereCmd, false, true); err != nil {
 		return errors.Wrapf(errors.WithStack(err), "deploy %s failed", filePath)
 	}
 	return nil
@@ -295,6 +295,9 @@ func (c *Check) Execute(runtime connector.Runtime) error {
 	var cmd = fmt.Sprintf("/usr/local/bin/kubectl  get pod -n %s -l 'app=ks-apiserver' -o jsonpath='{.items[0].status.phase}'", common.NamespaceKubesphereSystem)
 	rphase, _ := runtime.GetRunner().SudoCmdExt(cmd, false, false)
 	if rphase != "Running" {
+		if len(rphase) > 10 {
+			return fmt.Errorf("APIServer State is Pending")
+		}
 		return fmt.Errorf("APIServer State %s", rphase)
 	}
 

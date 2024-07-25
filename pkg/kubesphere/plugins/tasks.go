@@ -78,23 +78,31 @@ type InitNamespace struct {
 }
 
 func (t *InitNamespace) Execute(runtime connector.Runtime) error {
-	_, err := runtime.GetRunner().SudoCmd(
-		fmt.Sprintf(`cat <<EOF | /usr/local/bin/kubectl apply -f -
-	apiVersion: v1
-	kind: Namespace
-	metadata:
-	  name: %s
-	---
-	apiVersion: v1
-	kind: Namespace
-	metadata:
-	  name: %s
-	EOF
-	`, common.NamespaceKubesphereControlsSystem, common.NamespaceKubesphereMonitoringFederated), false, true)
-	if err != nil {
-		return errors.Wrap(errors.WithStack(err), fmt.Sprintf("create namespace: %s and %s",
-			common.NamespaceKubesphereControlsSystem, common.NamespaceKubesphereMonitoringFederated))
+	for _, ns := range []string{common.NamespaceKubesphereControlsSystem, common.NamespaceKubesphereMonitoringFederated} {
+		if stdout, err := runtime.GetRunner().Host.CmdExt(fmt.Sprintf("/usr/local/bin/kubectl create ns %s", ns), false, true); err != nil {
+			if !strings.Contains(stdout, "already exists") {
+				logger.Errorf("create ns %s failed: %v", ns, err)
+				return errors.Wrap(errors.WithStack(err), fmt.Sprintf("create namespace %s failed: %v", ns, err))
+			}
+		}
 	}
+	// _, err := runtime.GetRunner().SudoCmd(
+	// 	fmt.Sprintf(`cat <<EOF | /usr/local/bin/kubectl apply -f -
+	// apiVersion: v1
+	// kind: Namespace
+	// metadata:
+	//   name: %s
+	// ---
+	// apiVersion: v1
+	// kind: Namespace
+	// metadata:
+	//   name: %s
+	// EOF
+	// `, common.NamespaceKubesphereControlsSystem, common.NamespaceKubesphereMonitoringFederated), false, true)
+	// if err != nil {
+	// 	return errors.Wrap(errors.WithStack(err), fmt.Sprintf("create namespace: %s and %s",
+	// 		common.NamespaceKubesphereControlsSystem, common.NamespaceKubesphereMonitoringFederated))
+	// }
 
 	var allNs = []string{
 		common.NamespaceDefault,
@@ -109,13 +117,6 @@ func (t *InitNamespace) Execute(runtime connector.Runtime) error {
 	}
 
 	for _, ns := range allNs {
-		// if stdout, err := runtime.GetRunner().SudoCmdExt(fmt.Sprintf("/usr/local/bin/kubectl create ns %s", ns), false, true); err != nil {
-		// 	if !strings.Contains(stdout, "already exists") {
-		// 		logger.Errorf("create ns %s failed: %v", ns, err)
-		// 		return errors.Wrap(errors.WithStack(err), fmt.Sprintf("create namespace %s failed: %v", ns, err))
-		// 	}
-		// }
-
 		if _, err := runtime.GetRunner().SudoCmd(fmt.Sprintf("/usr/local/bin/kubectl label ns %s kubesphere.io/workspace=system-workspace --overwrite", ns), false, true); err != nil {
 			logger.Errorf("label ns %s kubesphere.io/workspace=system-workspace failed: %v", ns, err)
 			return errors.Wrap(errors.WithStack(err), fmt.Sprintf("label namespace %s kubesphere.io/workspace=system-workspace failed: %v", ns, err))

@@ -2,9 +2,11 @@ package kubesphere
 
 import (
 	"fmt"
+	"path/filepath"
 	"strings"
 
 	"bytetrade.io/web3os/installer/pkg/common"
+	cc "bytetrade.io/web3os/installer/pkg/core/common"
 	"bytetrade.io/web3os/installer/pkg/core/connector"
 	"bytetrade.io/web3os/installer/pkg/core/logger"
 	"bytetrade.io/web3os/installer/pkg/core/task"
@@ -19,24 +21,28 @@ type InitMinikubeNs struct {
 
 func (t *InitMinikubeNs) Execute(runtime connector.Runtime) error {
 	var allNs = []string{
-		common.NamespaceDefault,
-		common.NamespaceKubeNodeLease,
-		common.NamespaceKubePublic,
-		common.NamespaceKubeSystem,
 		common.NamespaceKubekeySystem,
-		common.NamespaceKubesphereControlsSystem,
-		common.NamespaceKubesphereMonitoringFederated,
-		common.NamespaceKubesphereMonitoringSystem,
 		common.NamespaceKubesphereSystem,
+		common.NamespaceKubesphereMonitoringSystem,
 	}
 
 	for _, ns := range allNs {
-		if stdout, err := runtime.GetRunner().SudoCmdExt(fmt.Sprintf("/usr/local/bin/kubectl create ns %s", ns), false, true); err != nil {
+		if stdout, err := runtime.GetRunner().Host.CmdExt(fmt.Sprintf("/usr/local/bin/kubectl create ns %s", ns), false, true); err != nil {
 			if !strings.Contains(stdout, "already exists") {
 				logger.Errorf("create ns %s failed: %v", ns, err)
 				return errors.Wrap(errors.WithStack(err), fmt.Sprintf("create namespace %s failed: %v", ns, err))
 			}
 		}
+	}
+
+	filePath := filepath.Join(common.KubeAddonsDir, "cluster.yaml")
+	if err := util.WriteFile(filePath, []byte(t.KubeConf.Cluster.KubeSphere.Configurations), cc.FileMode0755); err != nil {
+		return errors.Wrap(errors.WithStack(err), fmt.Sprintf("write ks installer %s failed", filePath))
+	}
+
+	deployKubesphereCmd := fmt.Sprintf("/usr/local/bin/kubectl apply -f %s --force", filePath)
+	if _, err := runtime.GetRunner().Host.CmdExt(deployKubesphereCmd, false, true); err != nil {
+		return errors.Wrapf(errors.WithStack(err), "deploy %s failed", filePath)
 	}
 
 	return nil
@@ -75,25 +81,17 @@ func (m *DeployMiniKubeModule) Init() {
 	m.Name = "DeployMacOS"
 
 	checkMacCommandExists := &task.LocalTask{
-		Name:    "CheckMiniKubeExists",
-		Prepare: new(common.OnlyFirstMaster),
-		Action:  new(CheckMacCommandExists),
+		Name:   "CheckMiniKubeExists",
+		Action: new(CheckMacCommandExists),
 	}
 
-	// copyFiles := &task.RemoteTask{
-	// 	Name:   "CopyFiles",
-	// 	Hosts:  m.Runtime.GetHostsByRole(common.Master),
-	// 	Action: new(CopyFiles),
-	// }
-
-	apply := &task.LocalTask{
-		Name:    "ApplyKsInstaller",
-		Prepare: new(common.OnlyFirstMaster),
-		Action:  new(Apply),
+	initMinikubeNs := &task.LocalTask{
+		Name:   "InitMinikubeNs",
+		Action: new(InitMinikubeNs),
 	}
 
 	m.Tasks = []task.Interface{
 		checkMacCommandExists,
-		apply,
+		initMinikubeNs,
 	}
 }

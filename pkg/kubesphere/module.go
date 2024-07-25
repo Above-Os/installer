@@ -54,7 +54,7 @@ func (d *DeployModule) Init() {
 		Action: &action.Template{
 			Name:     "GenerateKsInstallerCRD",
 			Template: templates.KsInstaller,
-			Dst:      filepath.Join(common.KubeAddonsDir, templates.KsInstaller.Name()), // todo 这里会生成文件，/etc/kubernetes/addons/kubesphere.yaml
+			Dst:      filepath.Join(common.KubeAddonsDir, templates.KsInstaller.Name()),
 		},
 		Parallel: true,
 	}
@@ -93,6 +93,7 @@ func (d *DeployModule) Init() {
 		},
 		Action:   new(Setup), // todo 主要是这里，不知道能否兼容 minikube；minikube 已经装了 etcd 了啊
 		Parallel: false,
+		Retry:    1,
 	}
 
 	apply := &task.RemoteTask{

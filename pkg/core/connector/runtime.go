@@ -23,6 +23,7 @@ import (
 
 	"github.com/pkg/errors"
 
+	"bytetrade.io/web3os/installer/pkg/constants"
 	"bytetrade.io/web3os/installer/pkg/core/common"
 	"bytetrade.io/web3os/installer/pkg/core/storage"
 	"bytetrade.io/web3os/installer/pkg/core/util"
@@ -42,6 +43,7 @@ type BaseRuntime struct {
 	allHosts        []Host
 	roleHosts       map[string][]Host
 	deprecatedHosts map[string]string
+	cmdSed          string
 }
 
 func NewBaseRuntime(name string, connector Connector, verbose bool, ignoreErr bool, sqlProvider storage.Provider) BaseRuntime {
@@ -54,6 +56,7 @@ func NewBaseRuntime(name string, connector Connector, verbose bool, ignoreErr bo
 		allHosts:        make([]Host, 0, 0),
 		roleHosts:       make(map[string][]Host),
 		deprecatedHosts: make(map[string]string),
+		cmdSed:          util.FormatSed(constants.OsType == common.Darwin),
 	}
 	if err := base.GenerateWorkDir(); err != nil {
 		fmt.Printf("[ERRO]: Failed to create KubeKey work dir: %s\n", err)
@@ -63,6 +66,7 @@ func NewBaseRuntime(name string, connector Connector, verbose bool, ignoreErr bo
 	// 	fmt.Printf("[ERRO]: Failed to init KubeKey log entry: %s\n", err)
 	// 	os.Exit(1)
 	// }
+
 	return base
 }
 
@@ -214,6 +218,10 @@ func (b *BaseRuntime) HostIsDeprecated(host Host) bool {
 // 	logger.InitLog(logDir, b.verbose)
 // 	return nil
 // }
+
+func (b *BaseRuntime) GetCommandSed() string {
+	return b.cmdSed
+}
 
 func (b *BaseRuntime) Copy() Runtime {
 	runtime := *b

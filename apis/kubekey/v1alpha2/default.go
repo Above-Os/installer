@@ -111,12 +111,12 @@ const (
 	DefaultKubeVipMode = "ARP"
 )
 
-func (cfg *ClusterSpec) SetDefaultClusterSpec(incluster bool) (*ClusterSpec, map[string][]*KubeHost) {
+func (cfg *ClusterSpec) SetDefaultClusterSpec(incluster bool, minikube bool) (*ClusterSpec, map[string][]*KubeHost) {
 	clusterCfg := ClusterSpec{}
 
 	clusterCfg.Hosts = SetDefaultHostsCfg(cfg)
 	clusterCfg.RoleGroups = cfg.RoleGroups
-	clusterCfg.Etcd = SetDefaultEtcdCfg(cfg)
+	clusterCfg.Etcd = SetDefaultEtcdCfg(cfg, minikube)
 	roleGroups := clusterCfg.GroupHosts()
 	clusterCfg.ControlPlaneEndpoint = SetDefaultLBCfg(cfg, roleGroups[Master], incluster)
 	clusterCfg.Network = SetDefaultNetworkCfg(cfg)
@@ -335,8 +335,10 @@ func SetDefaultClusterCfg(cfg *ClusterSpec) Kubernetes {
 	return defaultClusterCfg
 }
 
-func SetDefaultEtcdCfg(cfg *ClusterSpec) EtcdCluster {
-	if cfg.Etcd.Type == "" || ((cfg.Kubernetes.Type == "k3s" || (len(strings.Split(cfg.Kubernetes.Version, "-")) > 1) && strings.Split(cfg.Kubernetes.Version, "-")[1] == "k3s") && cfg.Etcd.Type == Kubeadm) {
+func SetDefaultEtcdCfg(cfg *ClusterSpec, minikube bool) EtcdCluster {
+	if minikube {
+		cfg.Etcd.Type = MiniKube
+	} else if cfg.Etcd.Type == "" || ((cfg.Kubernetes.Type == "k3s" || (len(strings.Split(cfg.Kubernetes.Version, "-")) > 1) && strings.Split(cfg.Kubernetes.Version, "-")[1] == "k3s") && cfg.Etcd.Type == Kubeadm) {
 		cfg.Etcd.Type = KubeKey
 	}
 	if cfg.Etcd.BackupDir == "" {

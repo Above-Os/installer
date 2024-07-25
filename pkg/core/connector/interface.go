@@ -57,6 +57,7 @@ type ModuleRuntime interface {
 	DeleteHost(host Host)
 	HostIsDeprecated(host Host) bool
 	// InitLogger() error
+	GetCommandSed() string
 }
 
 type Runtime interface {

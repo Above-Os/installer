@@ -49,11 +49,13 @@ const (
 	BinDir                       = "/usr/local/bin"
 	KubeConfigDir                = "/etc/kubernetes"
 	KubeAddonsDir                = "/etc/kubernetes/addons"
+	KubeEtcdCertDir              = "/etc/kubernetes/etcd"
 	KubeCertDir                  = "/etc/kubernetes/pki"
 	KubeManifestDir              = "/etc/kubernetes/manifests"
 	KubeScriptDir                = "/usr/local/bin/kube-scripts"
 	KubeletFlexvolumesPluginsDir = "/usr/libexec/kubernetes/kubelet-plugins/volume/exec"
 	PreloadK3sImageDir           = "/var/lib/images"
+	MinikubeEtcdCertDir          = "/var/lib/minikube/certs/etcd"
 
 	InstallerScriptsDir = "scripts"
 

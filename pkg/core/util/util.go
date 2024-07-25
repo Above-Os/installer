@@ -136,3 +136,12 @@ func ArchAlias(arch string) string {
 		return ""
 	}
 }
+
+func FormatSed(darwin bool) string {
+	var res = "sed -i "
+	if darwin {
+		return fmt.Sprintf("%s '' ", res)
+	}
+
+	return res
+}

@@ -20,6 +20,7 @@ const (
 	KubeKey  = "kubekey"
 	Kubeadm  = "kubeadm"
 	External = "external"
+	MiniKube = "minikube"
 )
 
 type EtcdCluster struct {

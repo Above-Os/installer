@@ -29,7 +29,7 @@ import (
 
 func NewDarwinClusterPhase(runtime *common.KubeRuntime) []module.Module {
 	m := []module.Module{
-		// &kubesphere.DeployMiniKubeModule{},
+		&kubesphere.DeployMiniKubeModule{},
 		&kubesphere.DeployModule{Skip: !runtime.Cluster.KubeSphere.Enabled}, // todo relative ks-installer
 		&ksplugins.DeployKsPluginsModule{},
 		&ksplugins.DeploySnapshotControllerModule{},

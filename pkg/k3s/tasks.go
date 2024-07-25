@@ -125,7 +125,7 @@ func SyncKubeBinaries(runtime connector.Runtime, binariesMap map[string]*files.K
 		switch name {
 		case "kubecni":
 			dst := filepath.Join(common.TmpDir, fileName)
-			logger.Debugf("SyncKubeBinary cp %s from %s to %s\n", name, binary.Path(), dst)
+			logger.Debugf("SyncKubeBinary cp %s from %s to %s", name, binary.Path(), dst)
 			if err := runtime.GetRunner().Scp(binary.Path(), dst); err != nil {
 				return errors.Wrap(errors.WithStack(err), fmt.Sprintf("sync kube binaries failed"))
 			}
@@ -134,7 +134,7 @@ func SyncKubeBinaries(runtime connector.Runtime, binariesMap map[string]*files.K
 			}
 		default:
 			dst := filepath.Join(common.BinDir, fileName)
-			logger.Debugf("SyncKubeBinary cp %s from %s to %s\n", name, binary.Path(), dst)
+			logger.Debugf("SyncKubeBinary cp %s from %s to %s", name, binary.Path(), dst)
 			if err := runtime.GetRunner().SudoScp(binary.Path(), dst); err != nil {
 				return errors.Wrap(errors.WithStack(err), fmt.Sprintf("sync kube binaries failed"))
 			}

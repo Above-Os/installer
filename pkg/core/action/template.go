@@ -18,6 +18,7 @@ package action
 
 import (
 	"fmt"
+	"io/fs"
 	"path/filepath"
 	"text/template"
 
@@ -45,8 +46,12 @@ func (t *Template) Execute(runtime connector.Runtime) error {
 		util.Mkdir(runtime.GetHostWorkDir())
 	}
 
+	var fileMode fs.FileMode = common.FileMode0644
+	if runtime.RemoteHost().GetMinikube() {
+		fileMode = common.FileMode0755
+	}
 	fileName := filepath.Join(runtime.GetHostWorkDir(), t.Template.Name())
-	if err := util.WriteFile(fileName, []byte(templateStr), common.FileMode0644); err != nil {
+	if err := util.WriteFile(fileName, []byte(templateStr), fileMode); err != nil {
 		return errors.Wrap(errors.WithStack(err), fmt.Sprintf("write file %s failed", fileName))
 	}
 

@@ -18,6 +18,7 @@ package connector
 
 import (
 	"fmt"
+	"path/filepath"
 
 	"bytetrade.io/web3os/installer/pkg/core/cache"
 	"bytetrade.io/web3os/installer/pkg/core/logger"
@@ -199,7 +200,8 @@ func (b *BaseHost) Cmd(cmd string, printOutput bool, printLine bool) (string, er
 }
 
 func (b *BaseHost) CmdExt(cmd string, printOutput bool, printLine bool) (string, error) {
-	stdout, _, err := b.Exec(cmd, printOutput, printLine)
+	stdout, _, err := util.Exec(cmd, printOutput, printLine)
+
 	if printOutput {
 		logger.Debugf("[exec] %s CMD: %s, OUTPUT: \n%s", b.GetName(), cmd, stdout)
 	}
@@ -210,7 +212,12 @@ func (b *BaseHost) CmdExt(cmd string, printOutput bool, printLine bool) (string,
 }
 
 func (b *BaseHost) Scp(local, remote string) error {
-	var cmd = fmt.Sprintf("minikube -p %s cp %s %s", b.GetMinikubeProfile(), local, remote)
+	var remoteDir = filepath.Dir(remote)
+	if !util.IsExist(remoteDir) {
+		util.Mkdir(remoteDir)
+	}
+
+	var cmd = fmt.Sprintf("cp %s %s", local, remote)
 	_, _, err := b.Exec(cmd, false, false)
 	return err
 }

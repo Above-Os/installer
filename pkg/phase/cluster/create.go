@@ -19,11 +19,10 @@ func InitKube(args common.Argument, runtime *common.KubeRuntime) *pipeline.Pipel
 		&plugins.CopyEmbed{},
 	}
 
-	// todo support mac
 	var kubeModules []module.Module
 
 	if args.Minikube {
-		kubeModules = NewDarwinClusterPhase(runtime)
+		kubeModules = NewDarwinClusterPhase(runtime) // macos
 	} else {
 		if runtime.Cluster.Kubernetes.Type == common.K3s {
 			kubeModules = NewK3sCreateClusterPhase(runtime)

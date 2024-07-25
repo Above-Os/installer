@@ -110,7 +110,7 @@ func (r *Runner) SudoCmdExt(cmd string, printOutput bool, printLine bool) (strin
 	var stdout string
 	var err error
 	if r.Host.GetMinikube() {
-		stdout, _, err = r.Host.Exec(SudoPrefix(cmd), printOutput, printLine)
+		stdout, err = r.Host.CmdExt(SudoPrefix(cmd), printOutput, printLine)
 	} else {
 		stdout, _, err = r.Conn.Exec(SudoPrefix(cmd), r.Host, printLine)
 	}
@@ -177,6 +177,10 @@ func (r *Runner) SudoScp(local, remote string) error {
 		return err
 	}
 
+	var remoteDir = filepath.Dir(remote)
+	if !util.IsExist(remoteDir) {
+		util.Mkdir(remoteDir)
+	}
 	if _, err := r.SudoCmd(fmt.Sprintf(common.MoveCmd, remoteTmp, remote), false, false); err != nil {
 		return err
 	}

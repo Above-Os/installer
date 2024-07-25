@@ -196,6 +196,8 @@ const (
 
 	CacheJuiceFsPath     = "juicefs_binary_path"
 	CacheJuiceFsFileName = "juicefs_binary_filename"
+
+	CacheMinikubeNodeIp = "minikube_node_ip"
 )
 
 const (

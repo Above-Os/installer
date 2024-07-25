@@ -1,18 +1,62 @@
 package kubesphere
 
 import (
+	"encoding/json"
 	"fmt"
 	"path/filepath"
 	"strings"
 
 	"bytetrade.io/web3os/installer/pkg/common"
-	cc "bytetrade.io/web3os/installer/pkg/core/common"
+	"bytetrade.io/web3os/installer/pkg/core/action"
 	"bytetrade.io/web3os/installer/pkg/core/connector"
 	"bytetrade.io/web3os/installer/pkg/core/logger"
 	"bytetrade.io/web3os/installer/pkg/core/task"
 	"bytetrade.io/web3os/installer/pkg/core/util"
+	"bytetrade.io/web3os/installer/pkg/version/kubesphere/templates"
+	mk "bytetrade.io/web3os/installer/pkg/version/minikube"
 	"github.com/pkg/errors"
 )
+
+// ~ GetMinikubeProfile
+type GetMinikubeProfile struct {
+	common.KubeAction
+}
+
+func (t *GetMinikubeProfile) Execute(runtime connector.Runtime) error {
+	var cmd = fmt.Sprintf("minikube -p %s profile list -o json", runtime.GetRunner().Host.GetMinikubeProfile())
+	stdout, err := runtime.GetRunner().SudoCmdExt(cmd, false, false)
+	if err != nil {
+		return err
+	}
+
+	var p mk.Minikube
+	if err := json.Unmarshal([]byte(stdout), &p); err != nil {
+		return err
+	}
+
+	if p.Valid == nil || len(p.Valid) == 0 {
+		return fmt.Errorf("minikube profile not found")
+	}
+
+	var nodeIp string
+	for _, v := range p.Valid {
+		if v.Name != runtime.GetRunner().Host.GetMinikubeProfile() {
+			continue
+		}
+		if v.Config.Nodes == nil || len(v.Config.Nodes) == 0 {
+			return fmt.Errorf("minikube node not found")
+		}
+		nodeIp = v.Config.Nodes[0].IP
+	}
+
+	if nodeIp == "" {
+		return fmt.Errorf("minikube node ip is empty")
+	}
+
+	t.PipelineCache.Set(common.CacheMinikubeNodeIp, nodeIp)
+
+	return nil
+}
 
 // ~ InitMinikubeNs
 type InitMinikubeNs struct {
@@ -35,11 +79,7 @@ func (t *InitMinikubeNs) Execute(runtime connector.Runtime) error {
 		}
 	}
 
-	filePath := filepath.Join(common.KubeAddonsDir, "cluster.yaml")
-	if err := util.WriteFile(filePath, []byte(t.KubeConf.Cluster.KubeSphere.Configurations), cc.FileMode0755); err != nil {
-		return errors.Wrap(errors.WithStack(err), fmt.Sprintf("write ks installer %s failed", filePath))
-	}
-
+	filePath := filepath.Join(common.KubeAddonsDir, "clusterconfigurations.yaml")
 	deployKubesphereCmd := fmt.Sprintf("/usr/local/bin/kubectl apply -f %s --force", filePath)
 	if _, err := runtime.GetRunner().Host.CmdExt(deployKubesphereCmd, false, true); err != nil {
 		return errors.Wrapf(errors.WithStack(err), "deploy %s failed", filePath)
@@ -78,7 +118,24 @@ type DeployMiniKubeModule struct {
 }
 
 func (m *DeployMiniKubeModule) Init() {
-	m.Name = "DeployMacOS"
+	m.Name = "DeployMiniKube"
+
+	getMinikubeProfile := &task.RemoteTask{
+		Name:   "GetMinikubeProfile",
+		Hosts:  m.Runtime.GetHostsByRole(common.Master),
+		Action: new(GetMinikubeProfile),
+		Retry:  1,
+	}
+
+	generateManifests := &task.RemoteTask{
+		Name:  "GenerateKsInstallerCRD",
+		Hosts: m.Runtime.GetHostsByRole(common.Master),
+		Action: &action.Template{
+			Name:     "GenerateKsInstallerCRD",
+			Template: templates.KsInstaller,
+			Dst:      filepath.Join(common.KubeAddonsDir, "clusterconfigurations.yaml"),
+		},
+	}
 
 	checkMacCommandExists := &task.LocalTask{
 		Name:   "CheckMiniKubeExists",
@@ -92,6 +149,8 @@ func (m *DeployMiniKubeModule) Init() {
 
 	m.Tasks = []task.Interface{
 		checkMacCommandExists,
+		getMinikubeProfile,
+		generateManifests,
 		initMinikubeNs,
 	}
 }

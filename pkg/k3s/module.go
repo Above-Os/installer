@@ -215,7 +215,7 @@ func (i *InitClusterModule) Init() {
 	}
 
 	addWorkerLabel := &task.RemoteTask{
-		Name:  "AddWorkerLabel",
+		Name:  "AddWorkerLabel(k3s)",
 		Desc:  "Add worker label",
 		Hosts: i.Runtime.GetHostsByRole(common.Master),
 		Prepare: &prepare.PrepareCollection{

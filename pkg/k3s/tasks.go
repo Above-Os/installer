@@ -455,7 +455,7 @@ func (a *AddWorkerLabel) Execute(runtime connector.Runtime) error {
 	if out, err = runtime.GetRunner().SudoCmd(cmd, false, false); err != nil {
 		return errors.Wrap(errors.WithStack(err), "add master NoSchedule taint failed")
 	}
-	fmt.Printf("AddWorkerLabel successed: %s\n", out)
+	logger.Debugf("AddWorkerLabel successed: %s", out)
 	return nil
 }
 

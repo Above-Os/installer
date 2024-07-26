@@ -302,10 +302,7 @@ func (c *Check) Execute(runtime connector.Runtime) error {
 	var cmd = fmt.Sprintf("/usr/local/bin/kubectl  get pod -n %s -l '%s' -o jsonpath='{.items[0].status.phase}'", common.NamespaceKubesphereSystem, c.formatApiServerLabel(runtime))
 	rphase, _ := runtime.GetRunner().SudoCmdExt(cmd, false, false)
 	if rphase != "Running" {
-		if len(rphase) > 10 {
-			return fmt.Errorf("APIServer State is Pending")
-		}
-		return fmt.Errorf("APIServer State %s", rphase)
+		return fmt.Errorf("APIServer State is Pending")
 	}
 
 	return nil

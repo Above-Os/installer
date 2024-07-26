@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"os"
 	"os/exec"
 
@@ -14,7 +13,7 @@ func main() {
 	_ = exec.Command("/bin/bash", "-c", "ulimit -n 65535").Run()
 
 	if err := cmd.Execute(); err != nil {
-		fmt.Println(err)
+		// fmt.Println(err)
 		os.Exit(1)
 	}
 }

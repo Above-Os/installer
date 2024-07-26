@@ -181,8 +181,8 @@ func (c *CheckResultModule) Init() {
 		},
 		Action:   new(Check),
 		Parallel: false,
-		Retry:    50,
-		Delay:    5 * time.Second,
+		Retry:    500,
+		Delay:    10 * time.Second,
 	}
 
 	c.Tasks = []task.Interface{

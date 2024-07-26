@@ -375,7 +375,8 @@ func (m *DeployKsCoreConfigModule) Init() {
 		},
 		Action:   new(CreateKsCoreConfigManifests),
 		Parallel: false,
-		Retry:    0,
+		Retry:    30,
+		Delay:    5 * time.Second,
 	}
 
 	createKsCoreConfig := &task.RemoteTask{

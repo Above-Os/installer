@@ -120,11 +120,17 @@ type DeployMiniKubeModule struct {
 func (m *DeployMiniKubeModule) Init() {
 	m.Name = "DeployMiniKube"
 
+	checkMacCommandExists := &task.LocalTask{
+		Name:   "CheckMiniKubeExists",
+		Action: new(CheckMacCommandExists),
+	}
+
 	getMinikubeProfile := &task.RemoteTask{
-		Name:   "GetMinikubeProfile",
-		Hosts:  m.Runtime.GetHostsByRole(common.Master),
-		Action: new(GetMinikubeProfile),
-		Retry:  1,
+		Name:     "GetMinikubeProfile",
+		Hosts:    m.Runtime.GetHostsByRole(common.Master),
+		Action:   new(GetMinikubeProfile),
+		Parallel: false,
+		Retry:    1,
 	}
 
 	generateManifests := &task.RemoteTask{
@@ -135,16 +141,14 @@ func (m *DeployMiniKubeModule) Init() {
 			Template: templates.KsInstaller,
 			Dst:      filepath.Join(common.KubeAddonsDir, "clusterconfigurations.yaml"),
 		},
-	}
-
-	checkMacCommandExists := &task.LocalTask{
-		Name:   "CheckMiniKubeExists",
-		Action: new(CheckMacCommandExists),
+		Parallel: false,
+		Retry:    1,
 	}
 
 	initMinikubeNs := &task.LocalTask{
 		Name:   "InitMinikubeNs",
 		Action: new(InitMinikubeNs),
+		Retry:  1,
 	}
 
 	m.Tasks = []task.Interface{

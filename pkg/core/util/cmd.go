@@ -41,7 +41,7 @@ func Exec(name string, printOutput bool, printLine bool) (stdout string, code in
 				logger.Errorf("[exec] read error: %s", err)
 			}
 
-			if printLine {
+			if printLine && line != "" {
 				fmt.Println(strings.TrimSuffix(line, "\n"))
 			}
 			outputBuffer.WriteString(line)
@@ -49,7 +49,7 @@ func Exec(name string, printOutput bool, printLine bool) (stdout string, code in
 			break
 		}
 
-		if printLine {
+		if printLine && line != "" {
 			fmt.Println(strings.TrimSuffix(line, "\n"))
 		}
 

@@ -360,7 +360,7 @@ func (c *connection) Exec(cmd string, host Host, printLine bool) (stdout string,
 		output = append(output, b)
 
 		if b == byte('\n') {
-			if printLine {
+			if printLine && line != "" {
 				fmt.Println(line)
 			}
 			line = ""

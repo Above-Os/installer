@@ -299,9 +299,14 @@ func (c *Check) formatApiServerLabel(runtime connector.Runtime) string {
 }
 
 func (c *Check) Execute(runtime connector.Runtime) error {
-	var cmd = fmt.Sprintf("/usr/local/bin/kubectl  get pod -n %s -l '%s' -o jsonpath='{.items[0].status.phase}'", common.NamespaceKubesphereSystem, c.formatApiServerLabel(runtime))
-	rphase, _ := runtime.GetRunner().SudoCmdExt(cmd, false, false)
-	if rphase != "Running" {
+	var labels = []string{"app=ks-apiserver", "component=kube-apiserver"}
+
+	for _, label := range labels {
+		var cmd = fmt.Sprintf("/usr/local/bin/kubectl  get pod -n %s -l '%s' -o jsonpath='{.items[0].status.phase}'", common.NamespaceKubesphereSystem, label)
+		rphase, _ := runtime.GetRunner().SudoCmdExt(cmd, false, false)
+		if rphase == "Running" {
+			return nil
+		}
 		return fmt.Errorf("APIServer State is Pending")
 	}
 

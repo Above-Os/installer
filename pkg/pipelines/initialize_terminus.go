@@ -39,8 +39,9 @@ func CliInitializeTerminusPipeline(kubeType string, minikube bool, minikubeProfi
 
 	runtime, err := common.NewKubeRuntime(common.AllInOne, arg)
 	if err != nil {
-		return nil
+		return err
 	}
+
 	var p = cluster.InitKube(arg, runtime)
 	if err := p.Start(); err != nil {
 		return fmt.Errorf("create terminus error %v", err)

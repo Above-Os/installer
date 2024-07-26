@@ -78,7 +78,7 @@ func (m *DeployKsCoreModule) Init() {
 		Action:   new(CreateKsCore),
 		Parallel: false,
 		Retry:    500,
-		Delay:    5 * time.Second,
+		Delay:    10 * time.Second,
 	}
 
 	m.Tasks = []task.Interface{

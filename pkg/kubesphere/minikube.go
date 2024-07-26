@@ -3,6 +3,7 @@ package kubesphere
 import (
 	"encoding/json"
 	"fmt"
+	"path"
 	"path/filepath"
 	"strings"
 
@@ -23,7 +24,7 @@ type GetMinikubeProfile struct {
 }
 
 func (t *GetMinikubeProfile) Execute(runtime connector.Runtime) error {
-	var cmd = fmt.Sprintf("minikube -p %s profile list -o json", runtime.GetRunner().Host.GetMinikubeProfile())
+	var cmd = fmt.Sprintf("minikube -p %s profile list -o json --light=false", runtime.GetRunner().Host.GetMinikubeProfile())
 	stdout, err := runtime.GetRunner().SudoCmdExt(cmd, false, false)
 	if err != nil {
 		return err
@@ -79,7 +80,7 @@ func (t *InitMinikubeNs) Execute(runtime connector.Runtime) error {
 		}
 	}
 
-	filePath := filepath.Join(common.KubeAddonsDir, "clusterconfigurations.yaml")
+	filePath := path.Join(common.TmpDir, common.KubeAddonsDir, "clusterconfigurations.yaml")
 	deployKubesphereCmd := fmt.Sprintf("/usr/local/bin/kubectl apply -f %s --force", filePath)
 	if _, err := runtime.GetRunner().Host.CmdExt(deployKubesphereCmd, false, true); err != nil {
 		return errors.Wrapf(errors.WithStack(err), "deploy %s failed", filePath)

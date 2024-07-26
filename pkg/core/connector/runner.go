@@ -46,7 +46,7 @@ func (r *Runner) Exec(cmd string, printOutput bool, printLine bool) (string, int
 	if r.Host.GetMinikube() {
 		stdout, code, err = r.Host.Exec(cmd, printOutput, printLine)
 	} else {
-		stdout, code, err = r.Conn.Exec(cmd, r.Host, printLine)
+		stdout, code, err = r.Conn.Exec(SudoPrefix(cmd), r.Host, printLine)
 	}
 
 	if err != nil {
@@ -94,11 +94,11 @@ func (r *Runner) CmdExt(cmd string, printOutput bool, printLine bool) (string, e
 }
 
 func (r *Runner) SudoExec(cmd string, printOutput bool, printLine bool) (string, int, error) {
-	return r.Exec(SudoPrefix(cmd), printOutput, printLine)
+	return r.Exec(cmd, printOutput, printLine)
 }
 
 func (r *Runner) SudoCmd(cmd string, printOutput bool, printLine bool) (string, error) {
-	return r.Cmd(SudoPrefix(cmd), printOutput, printLine)
+	return r.Cmd(cmd, printOutput, printLine)
 }
 
 // ~ Extension
@@ -109,8 +109,10 @@ func (r *Runner) SudoCmdExt(cmd string, printOutput bool, printLine bool) (strin
 
 	var stdout string
 	var err error
+
 	if r.Host.GetMinikube() {
-		stdout, err = r.Host.CmdExt(SudoPrefix(cmd), printOutput, printLine)
+		// stdout, _, err = util.Exec(SudoPrefix(cmd), printOutput, printLine)
+		stdout, err = r.Host.CmdExt(cmd, printOutput, printLine)
 	} else {
 		stdout, _, err = r.Conn.Exec(SudoPrefix(cmd), r.Host, printLine)
 	}
@@ -162,32 +164,66 @@ func (r *Runner) SudoScp(local, remote string) error {
 		return errors.New("no ssh connection available")
 	}
 
+	// ! remote             /etc/kubernetes/addons/clusterconfigurations.yaml
+	// ! remoteTmp          /tmp/kubekey/etc/kubernetes/addons/clusterconfigurations.yaml
 	// scp to tmp dir
 	remoteTmp := filepath.Join(common.TmpDir, remote)
-	//remoteTmp := remote
-	if err := r.Scp(local, remoteTmp); err != nil {
+
+	// remoteTmp := remote
+	if err := r.Scp(local, remoteTmp); err != nil { // ~ copy
 		return err
 	}
 
+	// ! local              /Users/admin/my/build_1/install-wizard-v1.7.0-6659/pkg/admindeMBP-2/kubesphere.yaml
+
+	// ! baseRemotePath     /etc/kubernetes/addons
 	baseRemotePath := remote
 	if !util.IsDir(local) {
 		baseRemotePath = filepath.Dir(remote)
 	}
-	if err := r.Conn.MkDirAll(baseRemotePath, "", r.Host); err != nil {
-		return err
+	if r.Host.GetMinikube() {
+		if err := r.Host.MkDirAll(baseRemotePath, ""); err != nil {
+			return err
+		}
+	} else {
+		if err := r.Conn.MkDirAll(baseRemotePath, "", r.Host); err != nil {
+			return err
+		}
 	}
 
 	var remoteDir = filepath.Dir(remote)
 	if !util.IsExist(remoteDir) {
 		util.Mkdir(remoteDir)
 	}
-	if _, err := r.SudoCmd(fmt.Sprintf(common.MoveCmd, remoteTmp, remote), false, false); err != nil {
-		return err
+
+	if !r.Host.GetMinikube() {
+		if _, err := r.SudoCmd(fmt.Sprintf(common.MoveCmd, remoteTmp, remote), false, false); err != nil {
+			return err
+		}
+
+		if _, err := r.SudoCmd(fmt.Sprintf("rm -rf %s", filepath.Join(common.TmpDir, "*")), false, false); err != nil {
+			return err
+		}
 	}
 
-	if _, err := r.SudoCmd(fmt.Sprintf("rm -rf %s", filepath.Join(common.TmpDir, "*")), false, false); err != nil {
-		return err
-	}
+	// if r.Host.GetMinikube() {
+	// 	if _, err := r.Host.CmdExt(fmt.Sprintf(common.MoveCmd, remoteTmp, remote), false, false); err != nil {
+	// 		return err
+	// 	}
+
+	// 	if _, err := r.Host.CmdExt(fmt.Sprintf("rm -rf %s", filepath.Join(common.TmpDir, "*")), false, false); err != nil {
+	// 		return err
+	// 	}
+	// } else {
+	// 	if _, err := r.SudoCmd(fmt.Sprintf(common.MoveCmd, remoteTmp, remote), false, false); err != nil {
+	// 		return err
+	// 	}
+
+	// 	if _, err := r.SudoCmd(fmt.Sprintf("rm -rf %s", filepath.Join(common.TmpDir, "*")), false, false); err != nil {
+	// 		return err
+	// 	}
+	// }
+
 	return nil
 }
 

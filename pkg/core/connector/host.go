@@ -216,8 +216,19 @@ func (b *BaseHost) Scp(local, remote string) error {
 	if !util.IsExist(remoteDir) {
 		util.Mkdir(remoteDir)
 	}
-
 	var cmd = fmt.Sprintf("cp %s %s", local, remote)
 	_, _, err := b.Exec(cmd, false, false)
 	return err
+}
+
+func (b *BaseHost) MkDirAll(path string, mode string) error {
+	if mode == "" {
+		mode = "775"
+	}
+	mkDstDir := fmt.Sprintf("mkdir -p -m %s %s || true", mode, path)
+	if _, _, err := b.Exec(mkDstDir, false, false); err != nil {
+		return err
+	}
+
+	return nil
 }

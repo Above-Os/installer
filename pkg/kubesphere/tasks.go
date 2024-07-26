@@ -45,9 +45,15 @@ type AddInstallerConfig struct {
 }
 
 func (a *AddInstallerConfig) Execute(runtime connector.Runtime) error {
+	var ksFilename string
+	if runtime.GetRunner().Host.GetMinikube() {
+		ksFilename = path.Join(common.TmpDir, "/etc/kubernetes/addons/kubesphere.yaml")
+	} else {
+		ksFilename = "/etc/kubernetes/addons/kubesphere.yaml"
+	}
 	configurationBase64 := base64.StdEncoding.EncodeToString([]byte(a.KubeConf.Cluster.KubeSphere.Configurations))
 	if _, err := runtime.GetRunner().SudoCmd(
-		fmt.Sprintf("echo %s | base64 -d >> /etc/kubernetes/addons/kubesphere.yaml", configurationBase64),
+		fmt.Sprintf("echo %s | base64 -d >> %s", configurationBase64, ksFilename),
 		false, false); err != nil {
 		return errors.Wrap(errors.WithStack(err), "add config to ks-installer manifests failed")
 	}
@@ -109,8 +115,9 @@ func (s *Setup) Execute(runtime connector.Runtime) error {
 			}
 		}
 	case kubekeyapiv1alpha2.MiniKube:
-		if !util.IsExist(common.KubeEtcdCertDir) {
-			util.Mkdir(common.KubeEtcdCertDir)
+		var etcdPath = path.Join(common.TmpDir, common.KubeEtcdCertDir)
+		if !util.IsExist(etcdPath) {
+			util.Mkdir(etcdPath)
 		}
 		var certfiles = []string{
 			"ca.crt",
@@ -123,15 +130,15 @@ func (s *Setup) Execute(runtime connector.Runtime) error {
 			var cmd = fmt.Sprintf("minikube -p %s ssh sudo chmod 644 %s && minikube -p %s cp %s:%s %s",
 				runtime.GetRunner().Host.GetMinikubeProfile(), cfile,
 				runtime.GetRunner().Host.GetMinikubeProfile(), runtime.GetRunner().Host.GetMinikubeProfile(),
-				cfile, path.Join(common.KubeEtcdCertDir, certfile))
+				cfile, path.Join(etcdPath, certfile))
 			if _, err := runtime.GetRunner().SudoCmdExt(cmd, false, false); err != nil {
 				return err
 			}
 		}
 
-		caFile := path.Join(common.KubeEtcdCertDir, "ca.crt")
-		certFile := path.Join(common.KubeEtcdCertDir, "server.crt")
-		keyFile := path.Join(common.KubeEtcdCertDir, "server.key")
+		caFile := path.Join(etcdPath, "ca.crt")
+		certFile := path.Join(etcdPath, "server.crt")
+		keyFile := path.Join(etcdPath, "server.key")
 
 		addrList = append(addrList, nodeIp)
 		if output, err := runtime.GetRunner().SudoCmdExt(
@@ -143,6 +150,7 @@ func (s *Setup) Execute(runtime connector.Runtime) error {
 				return err
 			}
 		}
+		filePath = path.Join(common.TmpDir, filepath.Join(common.KubeAddonsDir, templates.KsInstaller.Name()))
 	case kubekeyapiv1alpha2.Kubeadm:
 		for _, host := range runtime.GetHostsByRole(common.Master) {
 			addrList = append(addrList, host.GetInternalAddress())
@@ -258,7 +266,7 @@ func (s *Setup) Execute(runtime connector.Runtime) error {
 	switch s.KubeConf.Cluster.Kubernetes.ContainerManager {
 	case "docker", "containerd", "crio":
 		if _, err := runtime.GetRunner().SudoCmd(
-			fmt.Sprintf("%s '/containerruntime/s/\\:.*/\\: %s/g' /etc/kubernetes/addons/kubesphere.yaml", sedCommand, s.KubeConf.Cluster.Kubernetes.ContainerManager), false, false); err != nil {
+			fmt.Sprintf("%s '/containerruntime/s/\\:.*/\\: %s/g' %s", sedCommand, s.KubeConf.Cluster.Kubernetes.ContainerManager, filePath), false, false); err != nil {
 			return errors.Wrap(errors.WithStack(err), fmt.Sprintf("set container runtime: %s failed", s.KubeConf.Cluster.Kubernetes.ContainerManager))
 		}
 	default:
@@ -277,6 +285,9 @@ type Apply struct {
 
 func (a *Apply) Execute(runtime connector.Runtime) error {
 	filePath := filepath.Join(common.KubeAddonsDir, templates.KsInstaller.Name())
+	if runtime.GetRunner().Host.GetMinikube() {
+		filePath = path.Join(common.TmpDir, filePath)
+	}
 
 	deployKubesphereCmd := fmt.Sprintf("/usr/local/bin/kubectl apply -f %s --force", filePath)
 	if _, err := runtime.GetRunner().Host.CmdExt(deployKubesphereCmd, false, true); err != nil {

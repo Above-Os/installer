@@ -449,8 +449,10 @@ func currentUser() (*user.User, error) {
 		return nil, err
 	}
 
-	if u.Username != "root" {
-		return nil, errors.New(fmt.Sprintf("Current user is %s. Please use root!", u.Username))
+	if constants.OsType != Darwin {
+		if u.Username != "root" {
+			return nil, errors.New(fmt.Sprintf("Current user is %s. Please use root!", u.Username))
+		}
 	}
 	return u, nil
 }

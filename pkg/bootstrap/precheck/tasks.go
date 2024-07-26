@@ -193,7 +193,7 @@ type GreetingsTask struct {
 }
 
 func (h *GreetingsTask) Execute(runtime connector.Runtime) error {
-	_, err := runtime.GetRunner().SudoCmd("echo 'Greetings, Terminus'", false, true)
+	_, err := runtime.GetRunner().CmdExt("echo 'Greetings, Terminus'", false, true)
 	if err != nil {
 		return err
 	}

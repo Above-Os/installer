@@ -27,16 +27,18 @@ func NewCmdInitializeOs() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "init",
 		Short: "Initialize KubeSphere",
-		PreRun: func(cmd *cobra.Command, args []string) {
-			options.InitLocal()
-		},
 		Run: func(cmd *cobra.Command, args []string) {
 			if err := helper.InitLog(constants.WorkDir); err != nil {
 				fmt.Println("init logger failed", err)
 				os.Exit(1)
 			}
 
-			if err := pipelines.CliInitializeTerminusPipeline(o.InitializeOptions.KubeType, o.InitializeOptions.MiniKube, o.InitializeOptions.MiniKubeProfile); err != nil {
+			if err := pipelines.CliInitializeTerminusPipeline(
+				o.InitializeOptions.KubeType,
+				o.InitializeOptions.MiniKube,
+				o.InitializeOptions.MiniKubeProfile,
+				o.InitializeOptions.RegistryMirrors,
+			); err != nil {
 				logger.Errorf("initialize kube error %v", err)
 			}
 		},

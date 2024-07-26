@@ -15,7 +15,7 @@ import (
 	"bytetrade.io/web3os/installer/pkg/phase/cluster"
 )
 
-func CliInitializeTerminusPipeline(kubeType string, minikube bool, minikubeProfileName string) error {
+func CliInitializeTerminusPipeline(kubeType string, minikube bool, minikubeProfileName, registryMirrors string) error {
 	if minikube && len(minikubeProfileName) == 0 {
 		return fmt.Errorf("minikube profile name cannot be empty")
 	}
@@ -34,6 +34,7 @@ func CliInitializeTerminusPipeline(kubeType string, minikube bool, minikubeProfi
 		Minikube:          minikube,
 		MinikubeProfile:   minikubeProfileName,
 		KubernetesVersion: ksVersion,
+		RegistryMirrors:   registryMirrors,
 	}
 
 	runtime, err := common.NewKubeRuntime(common.AllInOne, arg)

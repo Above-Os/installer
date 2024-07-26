@@ -2,6 +2,7 @@ package helper
 
 import (
 	"bufio"
+	"fmt"
 	"os"
 	"strconv"
 	"strings"
@@ -13,17 +14,24 @@ import (
 )
 
 func GetMachineInfo() {
-	getLocalIp()
+	getWorkDir()
 	getHost()
 	getCpu()
 	getDisk()
 	getMem()
 	getRepoManager()
 	getCGroups()
+	getLocalIp()
 }
 
-func getLocalIp() {
-	constants.LocalIp = util.LocalIP()
+func getWorkDir() {
+	workDir, err := utils.WorkDir()
+	if err != nil {
+		fmt.Println("working path error", err)
+		os.Exit(1)
+	}
+
+	constants.WorkDir = workDir
 }
 
 func getHost() {
@@ -116,4 +124,8 @@ func getCGroups() {
 	if err := scanner.Err(); err != nil {
 		panic(err)
 	}
+}
+
+func getLocalIp() {
+	constants.LocalIp = util.LocalIP()
 }

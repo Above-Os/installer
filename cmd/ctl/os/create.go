@@ -27,9 +27,6 @@ func NewCmdInstallOs() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "create",
 		Short: "Install Terminus",
-		PreRun: func(cmd *cobra.Command, args []string) {
-			options.InitLocal()
-		},
 		Run: func(cmd *cobra.Command, args []string) {
 			if err := helper.InitLog(constants.WorkDir); err != nil {
 				fmt.Println("init logger failed", err)

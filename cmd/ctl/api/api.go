@@ -31,7 +31,6 @@ func NewCmdApi() *cobra.Command {
 		Short: "Terminus Api Server",
 		PreRun: func(cmd *cobra.Command, args []string) {
 			options.InitEnv(o.ApiOptions)
-			options.InitLocal()
 		},
 		Run: func(cmd *cobra.Command, args []string) {
 			if err := helper.InitLog(constants.WorkDir); err != nil {

@@ -26,13 +26,11 @@ import (
 	"os/user"
 	"path/filepath"
 	"regexp"
-	"runtime"
 	"strings"
 	"time"
 
 	kubekeyapiv1alpha2 "bytetrade.io/web3os/installer/apis/kubekey/v1alpha2"
 	"bytetrade.io/web3os/installer/pkg/constants"
-	"bytetrade.io/web3os/installer/pkg/core/util"
 	"bytetrade.io/web3os/installer/pkg/version/kubesphere"
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v2"
@@ -120,13 +118,6 @@ func (c *CommandLineLoader) Load() (*kubekeyapiv1alpha2.Cluster, error) {
 	}
 
 	cluster := &kubekeyapiv1alpha2.Cluster{}
-
-	if constants.LocalIp == "" {
-		constants.LocalIp = util.LocalIP()
-	}
-	if constants.OsArch == "" {
-		constants.OsArch = runtime.GOARCH
-	}
 
 	// current node
 	cluster.Spec.Hosts = append(cluster.Spec.Hosts, kubekeyapiv1alpha2.HostCfg{

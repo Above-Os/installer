@@ -84,6 +84,7 @@ type Setup struct {
 }
 
 func (s *Setup) Execute(runtime connector.Runtime) error {
+	nodeIp, _ := s.PipelineCache.GetMustString(common.CacheMinikubeNodeIp)
 	filePath := filepath.Join(common.KubeAddonsDir, templates.KsInstaller.Name())
 
 	var addrList []string
@@ -132,9 +133,7 @@ func (s *Setup) Execute(runtime connector.Runtime) error {
 		certFile := path.Join(common.KubeEtcdCertDir, "server.crt")
 		keyFile := path.Join(common.KubeEtcdCertDir, "server.key")
 
-		for _, host := range runtime.GetHostsByRole(common.Master) {
-			addrList = append(addrList, host.GetInternalAddress())
-		}
+		addrList = append(addrList, nodeIp)
 		if output, err := runtime.GetRunner().SudoCmdExt(
 			fmt.Sprintf("/usr/local/bin/kubectl -n kubesphere-monitoring-system create secret generic kube-etcd-client-certs "+
 				"--from-file=%s "+
@@ -291,8 +290,16 @@ type Check struct {
 	common.KubeAction
 }
 
+func (c *Check) formatApiServerLabel(runtime connector.Runtime) string {
+	var label = "app=ks-apiserver"
+	if runtime.RemoteHost().GetMinikube() {
+		label = "component=kube-apiserver"
+	}
+	return label
+}
+
 func (c *Check) Execute(runtime connector.Runtime) error {
-	var cmd = fmt.Sprintf("/usr/local/bin/kubectl  get pod -n %s -l 'app=ks-apiserver' -o jsonpath='{.items[0].status.phase}'", common.NamespaceKubesphereSystem)
+	var cmd = fmt.Sprintf("/usr/local/bin/kubectl  get pod -n %s -l '%s' -o jsonpath='{.items[0].status.phase}'", common.NamespaceKubesphereSystem, c.formatApiServerLabel(runtime))
 	rphase, _ := runtime.GetRunner().SudoCmdExt(cmd, false, false)
 	if rphase != "Running" {
 		if len(rphase) > 10 {

@@ -28,9 +28,6 @@ func NewCmdUninstallOs() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "uninstall",
 		Short: "Uninstall Terminus",
-		PreRun: func(cmd *cobra.Command, args []string) {
-			options.InitLocal()
-		},
 		Run: func(cmd *cobra.Command, args []string) {
 			fmt.Println(constants.Logo)
 

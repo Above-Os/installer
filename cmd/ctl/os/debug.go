@@ -5,7 +5,6 @@ import (
 	"os"
 
 	"bytetrade.io/web3os/installer/cmd/ctl/helper"
-	"bytetrade.io/web3os/installer/cmd/ctl/options"
 	"bytetrade.io/web3os/installer/pkg/constants"
 	"bytetrade.io/web3os/installer/pkg/pipelines"
 	"bytetrade.io/web3os/installer/pkg/utils"
@@ -16,9 +15,6 @@ func NewCmdDebugOs() *cobra.Command {
 	return &cobra.Command{
 		Use:   "debug",
 		Short: "Debug Command",
-		PreRun: func(cmd *cobra.Command, args []string) {
-			options.InitLocal()
-		},
 		Run: func(cmd *cobra.Command, args []string) {
 			workDir, err := utils.WorkDir()
 			if err != nil {

@@ -24,7 +24,6 @@ import (
 
 	"bytetrade.io/web3os/installer/pkg/constants"
 	"bytetrade.io/web3os/installer/pkg/core/connector"
-	"bytetrade.io/web3os/installer/pkg/core/util"
 	"github.com/pkg/errors"
 )
 
@@ -57,8 +56,8 @@ func NewLocalRuntime(debug, ingoreErr bool) (LocalRuntime, error) {
 
 	host := connector.NewHost()
 	host.Name = name
-	host.Address = util.LocalIP()
-	host.InternalAddress = util.LocalIP()
+	host.Address = constants.LocalIp
+	host.InternalAddress = constants.LocalIp
 	host.Port = 22
 	host.User = u.Name
 	host.Password = ""

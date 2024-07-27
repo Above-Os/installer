@@ -15,9 +15,9 @@ import (
 
 func UninstallTerminusPipeline() error {
 	kubeVersion := phase.GetCurrentKubeVersion()
-	if kubeVersion == "" {
-		return fmt.Errorf("k8s not installed")
-	}
+	// if kubeVersion == "" {
+	// 	return fmt.Errorf("k8s not installed")
+	// }
 	var args = common.Argument{
 		KubernetesVersion: kubeVersion,
 		ContainerManager:  common.Containerd,

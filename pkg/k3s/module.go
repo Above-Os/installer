@@ -183,8 +183,9 @@ func (i *InitClusterModule) Init() {
 			new(common.OnlyFirstMaster),
 			&ClusterIsExist{Not: true},
 		},
-		Action:   new(PreloadImagesService),
+		Action:   new(PreloadImagesService), // ! herre
 		Parallel: false,
+		Retry:    1,
 	}
 
 	copyKubeConfig := &task.RemoteTask{
@@ -361,7 +362,7 @@ func (j *JoinNodesModule) Init() {
 		k3sEnv,
 		k3sRegistryConfig,
 		enableK3s,
-		// preloadImages,  // ! 多执行了一次？
+		// preloadImages, // ! 多执行了一次？
 		copyKubeConfigForMaster,
 		syncKubeConfigToWorker,
 		addMasterTaint,

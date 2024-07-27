@@ -301,14 +301,6 @@ type Check struct {
 	common.KubeAction
 }
 
-func (c *Check) formatApiServerLabel(runtime connector.Runtime) string {
-	var label = "app=ks-apiserver"
-	if runtime.RemoteHost().GetMinikube() {
-		label = "component=kube-apiserver"
-	}
-	return label
-}
-
 func (c *Check) Execute(runtime connector.Runtime) error {
 	var labels = []string{"app=ks-apiserver", "component=kube-apiserver"}
 

@@ -69,7 +69,7 @@ func NewK3sCreateClusterPhase(runtime *common.KubeRuntime) []module.Module {
 		&etcd.BackupModule{Skip: runtime.Cluster.Etcd.Type != kubekeyapiv1alpha2.KubeKey},
 		&loadbalancer.K3sKubevipModule{Skip: !runtime.Cluster.ControlPlaneEndpoint.IsInternalLBEnabledVip()},
 		&k3s.InstallKubeBinariesModule{},
-		&k3s.InitClusterModule{},
+		&k3s.InitClusterModule{}, // +
 		&k3s.StatusModule{},
 		&k3s.JoinNodesModule{},
 		&images.CopyImagesToRegistryModule{Skip: skipPushImages},

@@ -2,28 +2,16 @@ package utils
 
 import (
 	"fmt"
+	"strings"
 	"testing"
-	"time"
 )
 
 func TestA(t *testing.T) {
-	var retry = 5
-	var delay = 2
+	var str = "unpacking docker.io/cesign/aria2-pro:latest (sha256:1fe80b1565031459ad2a2ed9f5f4d8887b508beef86777d10332246c86df96fb)...done"
 
-	if retry < 0 {
-		retry = 1
+	if strings.Contains(str, "(sha256:") {
+		str = strings.Split(str, "(sha256:")[0]
 	}
 
-	for i := 0; i < retry; i++ {
-		fmt.Println("hahaha")
-
-		if i+1 < retry {
-			func() {
-				fmt.Println("delay")
-				time.Sleep(time.Duration(delay) * time.Second)
-			}()
-		}
-	}
-
-	fmt.Println("done")
+	fmt.Println("---1---", str)
 }

@@ -33,8 +33,6 @@ func New(db storage.Provider) *Handler {
 	}
 }
 
-// + install
-// ~ 先下载完整包进行安装，需要提取日志写入数据库
 func (h *Handler) handlerInstall(req *restful.Request, resp *restful.Response) {
 	logger.Infof("handler install req: %s", req.Request.Method)
 
@@ -142,7 +140,6 @@ func (h *Handler) handlerGreetings(req *restful.Request, resp *restful.Response)
 	response.SuccessNoData(resp)
 }
 
-// todo 一个完整的测试流程，下载 full 包并安装
 func (h *Handler) handlerInstallTerminus(req *restful.Request, resp *restful.Response) {
 	// logger.Infof("handler installer req: %s", req.Request.Method)
 

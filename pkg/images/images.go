@@ -172,6 +172,9 @@ func (i LocalImages) LoadImages(runtime connector.Runtime, kubeConf *common.Kube
 			if err == nil {
 				return
 			}
+			var dur = 5 + (i+1)*10
+			logger.Debugf("load image %s failed, wait for %d seconds(%d times)", err, dur, i+1)
+			time.Sleep(time.Duration(dur) * time.Second)
 		}
 
 		return
@@ -183,8 +186,8 @@ func (i LocalImages) LoadImages(runtime connector.Runtime, kubeConf *common.Kube
 
 			// logger.Debugf("%s preloading image: %s", host.GetName(), image.Filename)
 			start := time.Now()
-
-			if HasSuffixI(image.Filename, ".tar.gz", ".tgz") {
+			fileName := filepath.Base(image.Filename)
+			if HasSuffixI(image.Filename, ".tar.gz", ".tgz") { // +
 				switch kubeConf.Cluster.Kubernetes.ContainerManager {
 				case "crio":
 					loadCmd = "ctr" // BUG
@@ -198,13 +201,19 @@ func (i LocalImages) LoadImages(runtime connector.Runtime, kubeConf *common.Kube
 
 				// continue if load image error
 				if err := retry(func() error {
-					if _, err := runtime.GetRunner().SudoCmd(fmt.Sprintf("env PATH=$PATH gunzip -c %s | %s", image.Filename, loadCmd), false, false); err != nil {
-						return errors.Wrap(err, "load image failed")
+					logger.Debugf("preloading image: %s", fileName)
+					if stdout, err := runtime.GetRunner().SudoCmdExt(fmt.Sprintf("env PATH=$PATH gunzip -c %s | %s", image.Filename, loadCmd), false, false); err != nil {
+						return fmt.Errorf("%s", fileName)
+					} else {
+						logger.Debugf("%s in %s\n", formatLoadImageRes(stdout, fileName), time.Since(start))
+						// fmt.Printf("%s in %s\n", formatLoadImageRes(stdout, fileName), time.Since(start))
 					}
-
 					return nil
 				}, 5); err != nil {
-					logger.Error(err)
+					// logger.Errorf("load %s failed: %v in %s", fileName, err, time.Since(start))
+					// os.Exit(1)
+					// return err
+					return fmt.Errorf("%s", fileName)
 				}
 			} else {
 				switch kubeConf.Cluster.Kubernetes.ContainerManager {
@@ -226,9 +235,11 @@ func (i LocalImages) LoadImages(runtime connector.Runtime, kubeConf *common.Kube
 					return nil
 				}, 5); err != nil {
 					logger.Error(err)
+					return err
 				}
 			}
-			fmt.Printf("%s load image %s success in %s\n", loadCmd, image.Filename, time.Since(start))
+			// logger.Infof("%s load image %s success in %s\n", loadCmd, image.Filename, time.Since(start))
+			// fmt.Printf("%s load image %s success in %s\n", loadCmd, image.Filename, time.Since(start))
 		default:
 			continue
 		}
@@ -236,6 +247,15 @@ func (i LocalImages) LoadImages(runtime connector.Runtime, kubeConf *common.Kube
 	}
 	return nil
 
+}
+
+func formatLoadImageRes(str string, fileName string) string {
+	if strings.Contains(str, "(sha256:") {
+		str = strings.Split(str, "(sha256:")[0]
+	} else {
+		return fmt.Sprintf("%s %s", str, fileName)
+	}
+	return fmt.Sprintf("%s (%s)...done ", str, fileName)
 }
 
 func HasSuffixI(s string, suffixes ...string) bool {

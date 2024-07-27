@@ -33,7 +33,6 @@ func NewCmdInstallOs() *cobra.Command {
 				os.Exit(1)
 			}
 
-			// todo 开始执行 cli 方式的安装
 			if err := pipelines.CliInstallTerminusPipeline(o.InstallOptions.KubeType, o.InstallOptions.Proxy); err != nil {
 				logger.Errorf("install terminus error %v", err)
 			}

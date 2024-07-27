@@ -166,7 +166,7 @@ type CopyPreInstallationDependencyFilesTask struct {
 
 func (t *CopyPreInstallationDependencyFilesTask) Execute(runtime connector.Runtime) error {
 	if utils.IsExist("/opt/deps/") {
-		// todo 拷贝预安装的依赖文件
+		// todo copy deps files
 	}
 	return nil
 }
@@ -484,7 +484,7 @@ func (g *GetKubernetesNodesStatus) Execute(runtime connector.Runtime) error {
 
 // ~ GetStorageKeyTask
 type GetStorageKeyTask struct {
-	common.KubeAction // todo 如果是首次安装，需要从 env 中获取
+	common.KubeAction
 }
 
 func (t *GetStorageKeyTask) Execute(runtime connector.Runtime) error {
@@ -540,7 +540,7 @@ type GetStorageVendor struct {
 }
 
 func (t *GetStorageVendor) Execute(runtime connector.Runtime) error {
-	// todo 这里应该有多种获取方式
+	// todo
 	storageVendor := os.Getenv("TERMINUS_IS_CLOUD_VERSION")
 	storageType := os.Getenv("STORAGE")
 	storageBucket := os.Getenv("S3_BUCKET")

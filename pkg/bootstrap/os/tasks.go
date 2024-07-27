@@ -65,7 +65,7 @@ func (t *TimeSyncTask) Execute(runtime connector.Runtime) error {
 		logger.Errorf("ntpdate lookup error %v", err)
 		return err
 	}
-	hwclockPath, err := util.GetCommand(common.CommandHwclock) // todo 这里可能会找不到程序，然后安装 util-linux-extra
+	hwclockPath, err := util.GetCommand(common.CommandHwclock)
 	if err != nil {
 		logger.Errorf("hwclock lookup error %v", err)
 		return err

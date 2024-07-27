@@ -48,7 +48,7 @@ const (
 	FileMode0600 = 0600
 	FileMode0640 = 0640
 
-	TmpDir = "/tmp/kubekey/" // todo 这个不知道是干嘛的
+	TmpDir = "/tmp/kubekey/" // todo
 
 	// command
 	CopyCmd = "cp -r %s %s"

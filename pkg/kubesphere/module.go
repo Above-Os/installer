@@ -91,7 +91,7 @@ func (d *DeployModule) Init() {
 			new(common.OnlyFirstMaster),
 			new(NotEqualDesiredVersion),
 		},
-		Action:   new(Setup), // todo 主要是这里，不知道能否兼容 minikube；minikube 已经装了 etcd 了啊
+		Action:   new(Setup), // todo
 		Parallel: false,
 		Retry:    1,
 	}

@@ -51,7 +51,7 @@ func DownloadInstallPackage(kubeConf *common.KubeConf, path, version, arch strin
 }
 
 func DownloadPackage(kubeConf *common.KubeConf, path, version, arch string, pipelineCache *cache.Cache) error {
-	// todo 这里会涉及多个文件的下载，且还会涉及 md5 的校验；同时还包括本地文件检查
+	// debug
 	file1 := files.NewKubeBinary("file1", arch, version, path)
 	file2 := files.NewKubeBinary("file2", arch, version, path)
 	file3 := files.NewKubeBinary("file3", arch, version, path)

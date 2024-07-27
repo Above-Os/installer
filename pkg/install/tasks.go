@@ -10,7 +10,7 @@ type WizardTask struct {
 	common.KubeAction
 }
 
-// todo 这里增加一个检查 terminus 是否安装完成的检查，需要重启 wizard 这容器
+// todo
 func (t *WizardTask) Execute(runtime connector.Runtime) error {
 	return nil
 }

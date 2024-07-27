@@ -58,15 +58,12 @@ const name = ref('');
 let timer: any;
 
 function convertMilliseconds(ms: any) {
-  // 创建一个Date对象，传入毫秒数
-  const date = new Date(ms);
+  const date = new Date(ms);  // millisecond
 
-  // 获取小时、分钟和秒数
   const hours = date.getUTCHours();
   const minutes = date.getUTCMinutes();
   const seconds = date.getUTCSeconds();
 
-  // 格式化输出（确保两位数显示）
   const formattedHours = String(hours).padStart(2, '0');
   const formattedMinutes = String(minutes).padStart(2, '0');
   const formattedSeconds = String(seconds).padStart(2, '0');
@@ -86,12 +83,12 @@ async function onInstall() {
 
   await store.install({
     config: {
-      terminus_os_domainname: name.value.split('@')[1], // 域名（可为空，空的话会设置默认值 myterminus.com）
-      terminus_os_username: name.value.split('@')[0], // 用户名（必填项）
-      kube_type: 'k8s', // 安装类型（可为空，空的话会设置默认值 k3s）；选项值：k8s、k3s
-      vendor: 'private', // 所属位置（可为空，空的话会设置默认值 private）；选项值：private、aws、aliyun
-      gpu_enable: 1, // 是否开启 gpu（必填项，0 或 1）；暂时未用到
-      gpu_share: 1, // gpu 共享（必填项，0 或 1）；暂时未用到
+      terminus_os_domainname: name.value.split('@')[1], // default myterminus.com if empty
+      terminus_os_username: name.value.split('@')[0], // required
+      kube_type: 'k8s', // install type: k3s or k8s
+      vendor: 'private', // vendor: private or aws or aliyun
+      gpu_enable: 1,
+      gpu_share: 1,
       version: '',
     },
   });

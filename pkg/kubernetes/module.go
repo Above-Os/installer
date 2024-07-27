@@ -432,13 +432,13 @@ func (s *SetUpgradePlanModule) Init() {
 	}
 }
 
-// ! 废弃
+// ! discard
 type ProgressiveUpgradeModule struct {
 	common.KubeModule
 	Step UpgradeStep
 }
 
-func (p *ProgressiveUpgradeModule) Init() { // ! 废弃
+func (p *ProgressiveUpgradeModule) Init() { // ! discard
 	p.Name = fmt.Sprintf("ProgressiveUpgradeModule %d/%d", p.Step, len(UpgradeStepList))
 	p.Desc = fmt.Sprintf("Progressive upgrade %d/%d", p.Step, len(UpgradeStepList))
 
@@ -457,7 +457,7 @@ func (p *ProgressiveUpgradeModule) Init() { // ! 废弃
 	}
 
 	pull := &task.RemoteTask{
-		Name:     "PullImages", // ! 废弃
+		Name:     "PullImages", // ! discard
 		Desc:     "Start to pull images on all nodes",
 		Hosts:    p.Runtime.GetHostsByRole(common.K8s),
 		Prepare:  new(NotEqualPlanVersion),

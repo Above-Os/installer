@@ -106,7 +106,7 @@ func (images *Images) PullImages(runtime connector.Runtime, kubeConf *common.Kub
 
 	host := runtime.RemoteHost()
 
-	// todo 加载本地的镜像
+	// todo
 	var imagePath = path.Join(runtime.GetRootDir(), "images")
 	if util.IsExist(imagePath) {
 		filepath.Walk(imagePath, func(path string, info os.FileInfo, err error) error {
@@ -129,7 +129,7 @@ func (images *Images) PullImages(runtime connector.Runtime, kubeConf *common.Kub
 		})
 	}
 
-	// todo 这里需要完善，比如提前加载镜像
+	// todo
 	for _, image := range images.Images {
 		switch {
 		case host.IsRole(common.Master) && image.Group == kubekeyapiv1alpha2.Master && image.Enable,
@@ -166,6 +166,26 @@ func (i LocalImages) LoadImages(runtime connector.Runtime, kubeConf *common.Kube
 
 	host := runtime.RemoteHost()
 
+	// todo
+	// var decompressDir = path.Join(common.TmpDir, "images")
+	// if !util.IsExist(decompressDir) {
+	// 	util.Mkdir(decompressDir)
+	// }
+
+	// for _, image := range i {
+	// 	var dst = strings.ReplaceAll(image.Filename, ".gz", "")
+	// 	var dstFile = filepath.Base(dst)
+	// 	var dstName = path.Join(decompressDir, dstFile)
+	// 	var cmd = fmt.Sprintf("gunzip -c %s > %s", image.Filename, dstName)
+	// 	if _, err := runtime.GetRunner().SudoCmd(cmd, false, false); err != nil {
+	// 		logger.Infof("gunzip image %s failed %v", err)
+	// 		return err
+	// 	}
+	// 	logger.Debugf("gunzip %s successed", image.Filename)
+	// 	image.Filename = dstName
+	// 	time.Sleep(1 * time.Second)
+	// }
+
 	retry := func(f func() error, times int) (err error) {
 		for i := 0; i < times; i++ {
 			err = f()
@@ -183,10 +203,11 @@ func (i LocalImages) LoadImages(runtime connector.Runtime, kubeConf *common.Kube
 	for _, image := range i {
 		switch {
 		case host.IsRole(common.Master):
-
 			// logger.Debugf("%s preloading image: %s", host.GetName(), image.Filename)
 			start := time.Now()
 			fileName := filepath.Base(image.Filename)
+			// fileName = strings.ReplaceAll(fileName, ".gz", "")
+			// fmt.Println(">>> ", fileName, HasSuffixI(image.Filename, ".tar.gz", ".tgz"))
 			if HasSuffixI(image.Filename, ".tar.gz", ".tgz") { // +
 				switch kubeConf.Cluster.Kubernetes.ContainerManager {
 				case "crio":
@@ -216,6 +237,7 @@ func (i LocalImages) LoadImages(runtime connector.Runtime, kubeConf *common.Kube
 					return fmt.Errorf("%s", fileName)
 				}
 			} else {
+
 				switch kubeConf.Cluster.Kubernetes.ContainerManager {
 				case "crio":
 					loadCmd = "ctr" // BUG
@@ -228,18 +250,19 @@ func (i LocalImages) LoadImages(runtime connector.Runtime, kubeConf *common.Kube
 				}
 
 				if err := retry(func() error {
-					if _, err := runtime.GetRunner().SudoCmd(fmt.Sprintf("env PATH=$PATH %s %s", loadCmd, image.Filename), false, false); err != nil {
-						return errors.Wrap(err, "load image failed")
+					logger.Debugf("preloading image: %s", fileName)
+					if stdout, err := runtime.GetRunner().SudoCmdExt(fmt.Sprintf("env PATH=$PATH %s %s", loadCmd, image.Filename), false, false); err != nil {
+						return fmt.Errorf("%s", fileName)
+					} else {
+						logger.Debugf("%s in %s\n", formatLoadImageRes(stdout, fileName), time.Since(start))
+						// fmt.Printf("%s in %s\n", formatLoadImageRes(stdout, fileName), time.Since(start))
 					}
 
 					return nil
 				}, 5); err != nil {
-					logger.Error(err)
-					return err
+					return fmt.Errorf("%s", fileName)
 				}
 			}
-			// logger.Infof("%s load image %s success in %s\n", loadCmd, image.Filename, time.Since(start))
-			// fmt.Printf("%s load image %s success in %s\n", loadCmd, image.Filename, time.Since(start))
 		default:
 			continue
 		}

@@ -11,7 +11,7 @@ const url = 'http://127.0.0.1:30080';
 
 export type InstallState = {
   msg: InstallMessageItem[];
-  percent: string; // 总进度
+  percent: string; // total progress in percent
   install_status: 'Not_Started' | 'Download' | 'Install' | 'Fail' | 'Success';
 };
 

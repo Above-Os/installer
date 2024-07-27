@@ -71,8 +71,6 @@ const (
 	redis         = "redis"
 	juicefs       = "juicefs"
 
-	// todo 安装包会进行拆分，可能不会再有 full 包了
-	// todo 所以我可以假设 f1.tar.gz f2.tar.gz f3.tar.gz ...
 	kubekey = "kubekey"
 
 	file1 = "file1"
@@ -80,8 +78,8 @@ const (
 	file3 = "file3"
 
 	pkg     = "package"
-	fullpkg = "full-package" // 这个大概率只会用于测试
-	minipkg = "mini-package" // 这个大概率只会用于测试
+	fullpkg = "full-package"
+	minipkg = "mini-package" //
 )
 
 // KubeBinary Type field const
@@ -312,28 +310,26 @@ func NewKubeBinary(name, arch, version, prePath string) *KubeBinary {
 		component.Url = fmt.Sprintf("https://github.com/fqrouter/conntrack-tools/archive/refs/tags/conntrack-tools-%s.tar.gz", version)
 		component.CheckSum = false
 		component.BaseDir = filepath.Join(prePath, component.Type)
-	case file1: // ! test 这里是新增的文件类型，后面应该都是跟安装包有关
-		// todo 要区分内外网了，公网肯定是走 CDN
+	case file1:
 		component.Type = INSTALLER
 		component.FileName = fmt.Sprintf("file1_%s_v%s.tar.gz", arch, version)
-		component.Url = "http://192.168.50.32/containerd/containerd/releases/download/v1.6.4/containerd-1.6.4-linux-amd64.tar.gz"
+		component.Url = ""
 	case file2:
 		component.Type = INSTALLER
 		component.FileName = fmt.Sprintf("file2_%s_v%s.tar.gz", arch, version)
-		component.Url = "http://192.168.50.32/coreos/etcd/releases/download/v3.4.13/etcd-v3.4.13-linux-amd64.tar.gz"
+		component.Url = ""
 	case file3:
 		component.Type = INSTALLER
 		component.FileName = fmt.Sprintf("file3_%s_v%s.tar.gz", arch, version)
-		component.Url = "http://192.168.50.32/kubernetes-release/release/v1.22.10/bin/linux/amd64/kubelet"
-	case kubekey: // ! 模拟 kk 的下载和安装
+		component.Url = ""
+	case kubekey: // debug
 		component.Type = INSTALLER
 		component.FileName = fmt.Sprintf("kubekey-ext-v%s-linux-%s.tar.gz", version, arch)
-		component.Url = fmt.Sprintf("https://github.com/beclab/kubekey-ext/releases/download/%s/kubekey-ext-v%s-linux-%s.tar.gz", version, version, arch)
-	case fullpkg: // ! test 模拟 full 包下载和安装
+		component.Url = ""
+	case fullpkg: // debug
 		component.Type = INSTALLER
 		component.FileName = fmt.Sprintf("install-wizard-full.tar.gz")
-		// component.Url = "http://192.168.50.32/install-wizard-full.tar.gz"
-		component.Url = "http://192.168.50.32/server/minio/release/linux-amd64/archive/minio.RELEASE.2023-05-04T21-44-30Z"
+		component.Url = ""
 		component.CheckSum = false
 		component.BaseDir = filepath.Join(prePath) // /packages/...
 		component.OverWrite = false
@@ -405,7 +401,7 @@ func (b *KubeBinary) GetTarCmd() string {
 			cmd = fmt.Sprintf("cd %s && tar -zxf helm-%s-linux-%s.tar.gz && mv linux-%s/helm . && rm -rf ./linux-%s/ && cp ./helm /usr/local/bin/",
 				b.BaseDir, b.Version, b.Arch, b.Arch, b.Arch)
 		}
-	case kubekey: // ! 这是测试的，不用管
+	case kubekey: // debug
 		cmd = fmt.Sprintf("cd %s && tar -zxf kubekey-ext-v%s-linux-%s.tar.gz",
 			b.BaseDir, b.Version, b.Arch)
 	case awscli:

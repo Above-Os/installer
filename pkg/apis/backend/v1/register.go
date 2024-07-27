@@ -21,7 +21,6 @@ func AddContainer(c *restful.Container, db storage.Provider) error {
 
 	handler := New(db)
 
-	// + 正式接口
 	ws.Route(ws.POST("/install").
 		To(handler.handlerInstall).
 		Doc("").

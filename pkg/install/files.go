@@ -15,7 +15,7 @@ type CheckFilesExists struct {
 	common.KubeAction
 }
 
-// todo 检查 kk 文件是否存在
+// todo
 func (a *CheckFilesExists) Execute(runtime connector.Runtime) error {
 	src := runtime.GetWorkDir()
 	filePath := fmt.Sprintf("%s/installer/0.1.20/amd64/kk", src)
